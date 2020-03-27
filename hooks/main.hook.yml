@@ -1,6 +1,6 @@
 - name: "{{ hook_name }}"
   debug:
-    var: env.ctxs
+    var: env.ctx
 
 - name: "{{ hook_name }} - host included"
   debug:
@@ -8,4 +8,4 @@
   when: >-
     (((env_node | default('')) == '') or (env_node == instance_type))
     and 
-    (instance_type in (env.custom_cloud_params[{{ hook_name }}] | default([])))
+    (instance_type in (env.custom_cloud_params[hook_name] | default([])))
