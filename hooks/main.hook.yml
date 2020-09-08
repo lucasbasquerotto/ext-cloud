@@ -1,11 +1,27 @@
-- name: "{{ hook_name }}"
+- name: "[hook] {{ hook_name }}"
   debug:
     var: env.ctx
 
-- name: "{{ hook_name }} - host included"
+- name: "[hook] {{ hook_name }} - host included"
   debug:
     msg: "host {{ hostname }} in the custom params"
   when: >-
     (((env_node | default('')) == '') or (env_node == instance_type))
-    and 
+    and
     (instance_type in (env.custom_cloud_params[hook_name] | default([])))
+
+- block:
+
+  - name: "[hook] {{ hook_name }} - custom role"
+    include_role:
+      name: "{{ tmp_role }}"
+    vars:
+      tmp_role: >-
+        {{ env.custom_roles[env.main[env.ctx].custom_roles | default('')][hook_item] | default('') }}
+      custom_role_info: "role {{ hook_item }} - hook {{ hook_name }}"
+    loop: ['role1', 'role2']
+    loop_control:
+      loop_var: hook_item
+    when: tmp_role != ''
+
+  when: env.main[env.ctx].x_use_custom_roles | default(false) | bool
