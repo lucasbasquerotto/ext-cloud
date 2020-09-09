@@ -1,6 +1,7 @@
 - name: "[hook] {{ hook_name }}"
   debug:
     var: env.ctx
+  tags: ["no_print_skipped"]
 
 - name: "[hook] {{ hook_name }} - host included"
   debug:
@@ -9,19 +10,29 @@
     (((env_node | default('')) == '') or (env_node == instance_type))
     and
     (instance_type in (env.custom_cloud_params[hook_name] | default([])))
+  tags: ["no_print_skipped"]
 
-- block:
+- name: "[hook] {{ hook_name }} - custom tasks"
+  include_tasks: "{{ tmp_task }}"
+  vars:
+    tmp_task: >-
+      {{ env_ctx_params.custom_tasks[hook_item] | default('') }}
+    custom_task_info: "task {{ hook_item }} - hook {{ hook_name }}"
+  loop: "{{ env_ctx_params.x_custom_tasks | default([]) }}"
+  loop_control:
+    loop_var: hook_item
+  when: tmp_task != ''
+  tags: ["no_print_skipped"]
 
-  - name: "[hook] {{ hook_name }} - custom role"
-    include_role:
-      name: "{{ tmp_role }}"
-    vars:
-      tmp_role: >-
-        {{ env_ctx_params.custom_roles[hook_item] | default('') }}
-      custom_role_info: "role {{ hook_item }} - hook {{ hook_name }}"
-    loop: ['role1', 'role2']
-    loop_control:
-      loop_var: hook_item
-    when: tmp_role != ''
-
-  when: env.main[env.ctx].params.x_use_custom_roles | default(false) | bool
+- name: "[hook] {{ hook_name }} - custom roles"
+  include_role:
+    name: "{{ tmp_role }}"
+  vars:
+    tmp_role: >-
+      {{ env_ctx_params.custom_roles[hook_item] | default('') }}
+    custom_role_info: "role {{ hook_item }} - hook {{ hook_name }}"
+  loop: "{{ env_ctx_params.x_custom_roles | default([]) }}"
+  loop_control:
+    loop_var: hook_item
+  when: tmp_role != ''
+  tags: ["no_print_skipped"]

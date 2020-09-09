@@ -1,3 +1,4 @@
 - include_tasks: "main.hook.yml"
   vars:
     hook_name: "after_delete_main"
+  tags: ["no_print_skipped"]
