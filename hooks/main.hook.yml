@@ -17,11 +17,11 @@
       name: "{{ tmp_role }}"
     vars:
       tmp_role: >-
-        {{ env.custom_roles[env.main[env.ctx].custom_roles | default('')][hook_item] | default('') }}
+        {{ env_ctx_params.custom_roles[hook_item] | default('') }}
       custom_role_info: "role {{ hook_item }} - hook {{ hook_name }}"
     loop: ['role1', 'role2']
     loop_control:
       loop_var: hook_item
     when: tmp_role != ''
 
-  when: env.main[env.ctx].x_use_custom_roles | default(false) | bool
+  when: env.main[env.ctx].params.x_use_custom_roles | default(false) | bool
