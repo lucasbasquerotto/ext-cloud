@@ -1,0 +1,3 @@
+- name: "{{ cloud_main_inner_title }} - [custom_task] - cloud"
+  debug:
+    var: cloud_main_params

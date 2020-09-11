@@ -1,0 +1,21 @@
+- set_fact:
+    custom_task_node_params:
+      cloud_node_inner_hosts_file: "{{ cloud_node_inner_hosts_file }}"
+      cloud_node_inner_instance_type: "{{ cloud_node_inner_instance_type }}"
+      cloud_node_inner_api_token: "{{ cloud_node_inner_api_token }}"
+      cloud_node_inner_host_user: "{{ cloud_node_inner_host_user }}"
+      cloud_node_inner_host_pass: "{{ cloud_node_inner_host_pass }}"
+      cloud_node_inner_user_data: "{{ cloud_node_inner_user_data }}"
+      cloud_node_inner_size_id: "{{ cloud_node_inner_size_id }}"
+      cloud_node_inner_image_id: "{{ cloud_node_inner_image_id }}"
+      cloud_node_inner_ipv6: "{{ cloud_node_inner_ipv6 }}"
+      cloud_node_inner_wait_timeout: "{{ cloud_node_inner_wait_timeout }}"
+      cloud_node_inner_create: "{{ cloud_node_inner_create }}"
+      cloud_node_inner_params: "{{ cloud_node_inner_params }}"
+  tags: ["no_print"]
+
+- name: "{{ cloud_node_inner_title }} - [custom_task] - node"
+  debug:
+    var: custom_task_node_params
+
+
