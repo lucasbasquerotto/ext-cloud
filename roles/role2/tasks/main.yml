@@ -1,3 +1,0 @@
-- name: "[custom_role] - inside role2 ({{ custom_role_info }})"
-  debug:
-    msg: "project [{{ env_project }}] - name [{{ env.name }}] - ctx [{{ env_ctx }}]"

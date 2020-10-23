@@ -1,6 +1,6 @@
 - name: "[hook] {{ hook_name }}"
   debug:
-    msg: "project [{{ env_project }}] - name [{{ env.name }}] - ctx [{{ env_ctx }}]"
+    msg: "name [{{ env.name }}] - ctx [{{ env_ctx }}]"
   tags: ["no_print_skipped"]
 
 - name: "[hook] {{ hook_name }} - host included"

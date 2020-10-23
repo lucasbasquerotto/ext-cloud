@@ -1,3 +1,0 @@
-- name: "[custom_task] - inside task1 ({{ custom_task_info }})"
-  debug:
-    msg: "project [{{ env_project }}] - name [{{ env.name }}] - ctx [{{ env_ctx }}]"
