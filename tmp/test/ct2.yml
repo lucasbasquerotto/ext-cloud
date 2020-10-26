@@ -1,0 +1,3 @@
+# cloud template 2
+- prop1: ["custom_cloud_2_1 (repo)", "custom_cloud_2_2 (repo)"]
+- prop2: "static value 2"
