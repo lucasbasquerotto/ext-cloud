@@ -1,5 +1,0 @@
-# cloud template 1
-prop1:
-  prop1_inner1: "custom_cloud_1_1 (repo)"
-  prop1_inner2: "custom_cloud_1_2 (repo)"
-prop2: "static value"
