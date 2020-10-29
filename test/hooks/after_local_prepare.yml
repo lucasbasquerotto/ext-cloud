@@ -1,4 +1,0 @@
-- include_tasks: "main.hook.yml"
-  vars:
-    hook_name: "after_local_prepare"
-  tags: ["no_print_skipped"]
