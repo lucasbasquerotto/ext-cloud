@@ -1,0 +1,4 @@
+- include_tasks: "main.hook.yml"
+  vars:
+    hook_name: "after_final_services"
+  tags: ["no_print_skipped"]
