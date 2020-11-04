@@ -1,0 +1,31 @@
+- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewall_tags - init"
+  set_fact:
+    cloud_service_vpn_firewall_tags: []
+  tags: ["no_print"]
+
+- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewall_tags - fill"
+  set_fact:
+    cloud_service_vpn_firewall_tags: >-
+      {{ cloud_service_vpn_firewall_tags + [cloud_service_vpn_tag_item] }}
+  loop: "{{ cloud_service_vpn_firewall.tags | default([]) }}"
+  loop_control:
+    loop_var: cloud_service_vpn_tag_item
+  tags: ["no_print"]
+
+- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewall_result"
+  set_fact:
+    cloud_service_vpn_firewall_result: >-
+      {{
+        cloud_service_vpn_firewall
+        | combine({
+          'name': cloud_service_vpn_firewall.name,
+          'tags': cloud_service_vpn_firewall_tags
+        })
+      }}
+  tags: ["no_print"]
+
+- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewalls_final"
+  set_fact:
+    cloud_service_vpn_firewalls_final: >-
+      {{ cloud_service_vpn_firewalls_final + [cloud_service_vpn_firewall_result] }}
+  tags: ["no_print"]
