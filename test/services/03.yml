@@ -1,0 +1,9 @@
+- name: "{{ cloud_service_title }} - print (test) - 03"
+  debug:
+    var: cloud_service_params
+  tags: ["no_print_skipped"]
+
+- name: "{{ cloud_service_title }} - print (test) - 03"
+  debug:
+    var: cloud_service_credentials
+  tags: ["no_print_skipped"]
