@@ -1,47 +1,47 @@
-- name: "{{ cloud_service_dns_title }} - define the new record"
+- name: "{{ ext_dns_title }} - define the new record"
   set_fact:
-    cloud_service_dns_godaddy_record_aux:
-      type: "{{ cloud_service_dns_record_type }}"
-      name: "{{ cloud_service_dns_record }}"
-      data: "{{ cloud_service_dns_item.value | default('') }}"
-      ttl: "{{ cloud_service_dns_item.ttl | default('') }}"
-      priority: "{{ cloud_service_dns_item.priority | default('') }}"
-      service: "{{ cloud_service_dns_item.service | default('') }}"
-      protocol: "{{ cloud_service_dns_item.protocol | default('') }}"
-      port: "{{ cloud_service_dns_item.port | default('') }}"
-      weight: "{{ cloud_service_dns_item.weight | default('') }}"
+    ext_dns_record_data_aux:
+      type: "{{ ext_dns_record_type }}"
+      name: "{{ ext_dns_record }}"
+      data: "{{ ext_dns_item.value | default('') }}"
+      ttl: "{{ ext_dns_item.ttl | default('') }}"
+      priority: "{{ ext_dns_item.priority | default('') }}"
+      service: "{{ ext_dns_item.service | default('') }}"
+      protocol: "{{ ext_dns_item.protocol | default('') }}"
+      port: "{{ ext_dns_item.port | default('') }}"
+      weight: "{{ ext_dns_item.weight | default('') }}"
   tags: ["no_print"]
 
-- name: "{{ cloud_service_dns_inner_title }} - empty record"
+- name: "{{ ext_dns_inner_title }} - empty record"
   set_fact:
-    cloud_service_dns_godaddy_record: {}
+    ext_dns_record_data: {}
   tags: ["no_print"]
 
-- name: "{{ cloud_service_dns_inner_title }} - define the record without empty fields"
+- name: "{{ ext_dns_inner_title }} - define the record without empty fields"
   set_fact:
-    cloud_service_dns_godaddy_record: >-
+    ext_dns_record_data: >-
       {{
-      cloud_service_dns_godaddy_record | combine({
-      cloud_service_dns_godaddy_item.key: cloud_service_dns_godaddy_item.value })
+        ext_dns_record_data | combine({
+          ext_dns_inner_item.key: ext_dns_inner_item.value
+        })
       }}
-  loop: "{{ cloud_service_dns_godaddy_record_aux | default({}) | dict2items | list }}"
+  loop: "{{ ext_dns_record_data_aux | default({}) | dict2items | list }}"
   loop_control:
-    loop_var: cloud_service_dns_godaddy_item
-    label: "{{ cloud_service_dns_godaddy_item.key }}"
-  when: cloud_service_dns_godaddy_item.value != ''
+    loop_var: ext_dns_inner_item
+    label: "{{ ext_dns_inner_item.key }}"
+  when: ext_dns_inner_item.value != ''
   tags: ["no_print"]
 
-- name: "{{ cloud_service_dns_inner_title }} - define the record without empty fields"
+- name: "{{ ext_dns_inner_title }} - define the record without empty fields"
   set_fact:
-    cloud_service_dns_godaddy_record: >-
+    ext_dns_record_data: >-
       {{
-      cloud_service_dns_godaddy_record |
-      combine({ 'ttl': cloud_service_dns_godaddy_record.ttl | default(600) | int })
+        ext_dns_record_data |
+        combine({ 'ttl': ext_dns_record_data.ttl | default(600) | int })
       }}
   tags: ["no_print"]
 
 - name:
   set_fact:
-    cloud_service_dns_godaddy_records: >-
-      {{ cloud_service_dns_godaddy_records + [cloud_service_dns_godaddy_record] }}
+    ext_dns_records: "{{ ext_dns_records + [ext_dns_record_data] }}"
   tags: ["no_print"]

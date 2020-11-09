@@ -1,31 +1,31 @@
-- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewall_tags - init"
+- name: "{{ ext_vpn_firewall_title }} - ext_vpn_firewall_tags - init"
   set_fact:
-    cloud_service_vpn_firewall_tags: []
+    ext_vpn_firewall_tags: []
   tags: ["no_print"]
 
-- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewall_tags - fill"
+- name: "{{ ext_vpn_firewall_title }} - ext_vpn_firewall_tags - fill"
   set_fact:
-    cloud_service_vpn_firewall_tags: >-
-      {{ cloud_service_vpn_firewall_tags + [cloud_service_vpn_tag_item] }}
-  loop: "{{ cloud_service_vpn_firewall.tags | default([]) }}"
+    ext_vpn_firewall_tags: >-
+      {{ ext_vpn_firewall_tags + [ext_vpn_tag_item] }}
+  loop: "{{ ext_vpn_firewall.tags | default([]) }}"
   loop_control:
-    loop_var: cloud_service_vpn_tag_item
+    loop_var: ext_vpn_tag_item
   tags: ["no_print"]
 
-- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewall_result"
+- name: "{{ ext_vpn_firewall_title }} - ext_vpn_firewall_result"
   set_fact:
-    cloud_service_vpn_firewall_result: >-
+    ext_vpn_firewall_result: >-
       {{
-        cloud_service_vpn_firewall
+        ext_vpn_firewall
         | combine({
-          'name': cloud_service_vpn_firewall.name,
-          'tags': cloud_service_vpn_firewall_tags
+          'name': ext_vpn_firewall.name,
+          'tags': ext_vpn_firewall_tags
         })
       }}
   tags: ["no_print"]
 
-- name: "{{ cloud_service_vpn_firewall_title }} - cloud_service_vpn_firewalls_final"
+- name: "{{ ext_vpn_firewall_title }} - ext_vpn_firewalls_final"
   set_fact:
-    cloud_service_vpn_firewalls_final: >-
-      {{ cloud_service_vpn_firewalls_final + [cloud_service_vpn_firewall_result] }}
+    ext_vpn_firewalls_final: >-
+      {{ ext_vpn_firewalls_final + [ext_vpn_firewall_result] }}
   tags: ["no_print"]

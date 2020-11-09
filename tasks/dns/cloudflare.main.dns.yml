@@ -1,33 +1,48 @@
 - name: "{{ cloud_service_title | default('') }} - dns - cloudflare"
   set_fact:
-    cloud_service_dns_title: "{{ cloud_service_title }} - dns - cloudflare"
-    cloud_service_dns_credentials: "{{ cloud_service_credentials.dns | default({}) }}"
+    ext_dns_title: "{{ cloud_service_title }} - dns - cloudflare"
+    ext_dns_params: "{{ cloud_service_params }}"
+    ext_dns_credentials: >-
+      {{
+        cloud_service_credentials[
+          cloud_service_params.credential_name | default('dns', true)
+        ] | default({})
+      }}
+    ext_dns_state: "{{ cloud_service_state }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - vars"
+  set_fact:
+    ext_dns_zone: "{{ ext_dns_params.zone }}"
+    ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
+    ext_dns_record: "{{ ext_dns_params.record }}"
+    ext_dns_data_list: "{{ ext_dns_params.data_list }}"
   tags: ["no_print"]
 
 - name: >-
-    {{ cloud_service_dns_title }} - create record -
-    [{{ cloud_service_dns_record_type }}] {{ cloud_service_dns_record }}
+    {{ ext_dns_title }} - create record -
+    [{{ ext_dns_record_type }}] {{ ext_dns_record }}
   include_tasks: "cloudflare.record.dns.yml"
   vars:
-    cloud_service_dns_value: "{{ cloud_service_dns_item.value }}"
-    cloud_service_dns_solo: "{{ cloud_service_dns_index == 0 }}"
-    cloud_service_dns_final_state: "present"
-  loop: "{{ cloud_service_dns_data_list | default([]) | flatten(levels=1) }}"
+    ext_dns_value: "{{ ext_dns_item.value }}"
+    ext_dns_solo: "{{ ext_dns_index == 0 }}"
+    ext_dns_final_state: "present"
+  loop: "{{ ext_dns_data_list | default([]) | flatten(levels=1) }}"
   loop_control:
-    loop_var: cloud_service_dns_item
-    index_var: cloud_service_dns_index
-    label: "{{ cloud_service_dns_index }}"
-  when: cloud_service_dns_state == 'present'
+    loop_var: ext_dns_item
+    index_var: ext_dns_index
+    label: "{{ ext_dns_index }}"
+  when: ext_dns_state == 'present'
   tags: ["no_print"]
 
 - name: >-
-    {{ cloud_service_dns_title }} - delete record -
-    [{{ cloud_service_dns_record_type }}] {{ cloud_service_dns_record }}
+    {{ ext_dns_title }} - delete record -
+    [{{ ext_dns_record_type }}] {{ ext_dns_record }}
   include_tasks: "cloudflare.record.dns.yml"
   vars:
-    cloud_service_dns_solo: false
-    cloud_service_dns_final_state: "absent"
+    ext_dns_solo: false
+    ext_dns_final_state: "absent"
   when: >-
-    (cloud_service_dns_state == 'absent') or
-    ((cloud_service_dns_data_list | default([]) | length) == 0)
+    (ext_dns_state == 'absent') or
+    ((ext_dns_data_list | default([]) | length) == 0)
   tags: ["no_print"]

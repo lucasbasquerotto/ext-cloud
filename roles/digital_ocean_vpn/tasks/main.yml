@@ -1,108 +1,115 @@
 - name: "{{ cloud_service_title | default('') }} - vpn - digital ocean"
   set_fact:
-    cloud_service_vpn_title: "{{ cloud_service_title }} - vpn - digital ocean"
-  tags: ["no_print"]
-
-- name: "{{ cloud_service_vpn_title }} - cloud_service_vpn_tags"
-  set_fact:
-    cloud_service_vpn_state: "{{ cloud_service_state | default('present', true) }}"
-    cloud_service_vpn_tags: >-
-      {{ cloud_service_params.tags | default([]) }}
-    cloud_service_vpn_firewalls_list: >-
-      {{ cloud_service_params.firewalls | default([]) }}
-    cloud_service_vpn_firewalls_dict: >-
-      {{ cloud_service_params.firewalls_dict | default({}) }}
-    cloud_service_vpn_firewalls: []
-    cloud_service_vpn_api_token: >-
-      {{ cloud_service_credentials.digital_ocean.api_token | default('') }}
-  tags: ["no_print"]
-
-- name: "{{ cloud_service_vpn_title }} - cloud_service_vpn_firewalls"
-  set_fact:
-    cloud_service_vpn_firewalls: >-
-      {{ cloud_service_vpn_firewalls + [cloud_service_vpn_firewall] }}
-  vars:
-    cloud_service_vpn_firewall: >-
+    ext_vpn_title: "{{ cloud_service_title }} - vpn - digital ocean"
+    ext_vpn_params: "{{ cloud_service_params }}"
+    ext_vpn_credentials: >-
       {{
-        cloud_service_params.meta.use_dict | default(false) | bool
+        cloud_service_credentials[
+          cloud_service_params.credential_name | default('vpn', true)
+        ] | default({})
+      }}
+    ext_vpn_state: "{{ cloud_service_state }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_vpn_title }} - ext_vpn_tags"
+  set_fact:
+    ext_vpn_tags: >-
+      {{ ext_vpn_params.tags | default([]) }}
+    ext_vpn_firewalls_list: >-
+      {{ ext_vpn_params.firewalls | default([]) }}
+    ext_vpn_firewalls_dict: >-
+      {{ ext_vpn_params.firewalls_dict | default({}) }}
+    ext_vpn_firewalls: []
+    ext_vpn_api_token: >-
+      {{ ext_vpn_credentials.api_token | default('') }}
+  tags: ["no_print"]
+
+- name: "{{ ext_vpn_title }} - ext_vpn_firewalls"
+  set_fact:
+    ext_vpn_firewalls: >-
+      {{ ext_vpn_firewalls + [ext_vpn_firewall] }}
+  vars:
+    ext_vpn_firewall: >-
+      {{
+        ext_vpn_params.meta.use_dict | default(false) | bool
         | ternary(
-          cloud_service_vpn_firewalls_dict[cloud_service_vpn_item],
-          cloud_service_vpn_item
+          ext_vpn_firewalls_dict[ext_vpn_item],
+          ext_vpn_item
         )
       }}
-  loop: "{{ cloud_service_vpn_firewalls_list }}"
+  loop: "{{ ext_vpn_firewalls_list }}"
   loop_control:
-    loop_var: cloud_service_vpn_item
-    label: "{{ cloud_service_vpn_firewall.name | default('') }}"
+    loop_var: ext_vpn_item
+    label: "{{ ext_vpn_firewall.name | default('') }}"
   tags: ["no_print"]
 
-- name: "{{ cloud_service_vpn_title }} - block"
+- name: "{{ ext_vpn_title }} - block"
   block:
-    - name: "{{ cloud_service_vpn_title }} - cloud_service_vpn_tags_final - init"
+    - name: "{{ ext_vpn_title }} - ext_vpn_tags_final - init"
       set_fact:
-        cloud_service_vpn_tags_final: []
+        ext_vpn_tags_final: []
       tags: ["no_print"]
 
-    - name: "{{ cloud_service_vpn_title }} - cloud_service_vpn_tags_final - fill"
+    - name: "{{ ext_vpn_title }} - ext_vpn_tags_final - fill"
       set_fact:
-        cloud_service_vpn_tags_final: >-
-          {{ cloud_service_vpn_tags_final + [cloud_service_vpn_item] }}
-      loop: "{{ cloud_service_vpn_tags | default([]) }}"
+        ext_vpn_tags_final: >-
+          {{ ext_vpn_tags_final + [ext_vpn_item] }}
+      loop: "{{ ext_vpn_tags | default([]) }}"
       loop_control:
-        loop_var: cloud_service_vpn_item
+        loop_var: ext_vpn_item
       tags: ["no_print"]
 
     - name: >-
-        {{ cloud_service_vpn_title }} -
-        {{ (cloud_service_vpn_state == 'present') | ternary('create', 'destroy')}}
+        {{ ext_vpn_title }} -
+        {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
         tags
       digital_ocean_tag:
-        api_token: "{{ cloud_service_vpn_api_token }}"
-        name: "{{ cloud_service_vpn_item }}"
-        state: "{{ cloud_service_vpn_state }}"
-      loop: "{{ cloud_service_vpn_tags_final | default([]) }}"
+        api_token: "{{ ext_vpn_api_token }}"
+        name: "{{ ext_vpn_item }}"
+        state: "{{ ext_vpn_state }}"
+      loop: "{{ ext_vpn_tags_final | default([]) }}"
       loop_control:
-        loop_var: cloud_service_vpn_item
+        loop_var: ext_vpn_item
 
-  when: (cloud_service_vpn_tags | default([])) | length > 0
+  when: (ext_vpn_tags | default([])) | length > 0
   tags: ["no_print_skipped"]
 
 - block:
-    - name: "{{ cloud_service_vpn_title }} - cloud_service_vpn_firewalls_final - init"
+    - name: "{{ ext_vpn_title }} - ext_vpn_firewalls_final - init"
       set_fact:
-        cloud_service_vpn_firewalls_final: []
+        ext_vpn_firewalls_final: []
       tags: ["no_print"]
 
-    - name: "{{ cloud_service_vpn_title }} - cloud_service_vpn_firewalls_final - fill (outer)"
+    - name: "{{ ext_vpn_title }} - ext_vpn_firewalls_final - fill (outer)"
       include_tasks: "digital_ocean.firewall_tags.vpn.yml"
       vars:
-        cloud_service_vpn_firewall_title: >-
-          {{ cloud_service_vpn_title }} - firewall tags
-          [{{ cloud_service_vpn_firewall.name | default('') }}]
-        cloud_service_vpn_firewall: "{{ cloud_service_vpn_item }}"
-      loop: "{{ cloud_service_vpn_firewalls | default([]) }}"
+        ext_vpn_firewall_title: >-
+          {{ ext_vpn_title }} - firewall tags
+          [{{ ext_vpn_firewall.name | default('') }}]
+        ext_vpn_firewall: "{{ ext_vpn_item }}"
+      loop: "{{ ext_vpn_firewalls | default([]) }}"
       loop_control:
-        loop_var: cloud_service_vpn_item
-        label: "{{ cloud_service_vpn_firewall.name | default('') }}"
+        loop_var: ext_vpn_item
+        label: "{{ ext_vpn_firewall.name | default('') }}"
       tags: ["no_print"]
 
     - name: >-
-        {{ cloud_service_vpn_title }} -
-        {{ (cloud_service_vpn_state == 'present') | ternary('create', 'destroy')}}
+        {{ ext_vpn_title }} -
+        {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
         firewalls
       digital_ocean_firewall:
-        api_token: "{{ cloud_service_vpn_api_token }}"
-        name: "{{ cloud_service_vpn_item.name }}"
-        droplet_ids: "{{ cloud_service_vpn_item.droplet_ids | default([]) }}"
-        tags: "{{ cloud_service_vpn_item.tags | default([]) }}"
-        inbound_rules: "{{ cloud_service_vpn_item.inbound_rules | default([]) }}"
-        outbound_rules: "{{ cloud_service_vpn_item.outbound_rules | default([]) }}"
-        state: "{{ cloud_service_vpn_state }}"
-      loop: "{{ cloud_service_vpn_firewalls_final | default([]) }}"
+        api_token: "{{ ext_vpn_api_token }}"
+        name: "{{ ext_vpn_item.name }}"
+        droplet_ids: "{{ ext_vpn_item.droplet_ids | default([]) }}"
+        tags: "{{ ext_vpn_item.tags | default([]) }}"
+        inbound_rules: "{{ ext_vpn_item.inbound_rules | default([]) }}"
+        outbound_rules: "{{ ext_vpn_item.outbound_rules | default([]) }}"
+        state: "{{ ext_vpn_state }}"
+      loop: "{{ ext_vpn_firewalls_final | default([]) }}"
       loop_control:
-        loop_var: cloud_service_vpn_item
-        label: "{{ cloud_service_vpn_item.name }}"
+        loop_var: ext_vpn_item
+        label: "{{ ext_vpn_item.name }}"
       tags: ["no_print_skipped"]
 
-  when: (cloud_service_vpn_firewalls | default([])) | length > 0
+  when: (ext_vpn_firewalls | default([])) | length > 0
   tags: ["no_print_skipped"]

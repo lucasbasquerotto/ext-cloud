@@ -1,14 +1,14 @@
 - name: >-
-    {{ cloud_service_dns_title }} -
-    [{{ cloud_service_dns_record_type }}] {{ cloud_service_dns_record }} -
-    {{ cloud_service_dns_value | default('') }} ({{ cloud_service_dns_state }})
+    {{ ext_dns_title }} -
+    [{{ ext_dns_record_type }}] {{ ext_dns_record }} -
+    {{ ext_dns_value | default('') }} ({{ ext_dns_state }})
   cloudflare_dns:
-    zone: "{{ cloud_service_params.zone | default(omit, true) }}"
+    zone: "{{ ext_dns_zone }}"
     proxied: no
-    solo: "{{ cloud_service_dns_solo }}"
-    type: "{{ cloud_service_dns_record_type }}"
-    record: "{{ cloud_service_dns_record | default(omit, true) }}"
-    value: "{{ cloud_service_dns_value | default(omit, true) }}"
-    account_email: "{{ cloud_service_dns_credentials.email }}"
-    account_api_token: "{{ cloud_service_dns_credentials.token }}"
-    state: "{{ cloud_service_dns_final_state }}"
+    solo: "{{ ext_dns_solo }}"
+    type: "{{ ext_dns_record_type }}"
+    record: "{{ ext_dns_record | default(omit, true) }}"
+    value: "{{ ext_dns_value | default(omit, true) }}"
+    account_email: "{{ ext_dns_credentials.email }}"
+    account_api_token: "{{ ext_dns_credentials.token }}"
+    state: "{{ ext_dns_final_state }}"

@@ -1,19 +1,34 @@
 - name: "{{ cloud_service_title | default('') }} - dns - nsupdate"
   set_fact:
-    cloud_service_dns_title: "{{ cloud_service_title }} - dns - nsupdate"
-    cloud_service_dns_credentials: "{{ cloud_service_credentials.dns | default({}) }}"
+    ext_dns_title: "{{ cloud_service_title }} - dns - nsupdate"
+    ext_dns_params: "{{ cloud_service_params }}"
+    ext_dns_credentials: >-
+      {{
+        cloud_service_credentials[
+          cloud_service_params.credential_name | default('dns', true)
+        ] | default({})
+      }}
+    ext_dns_state: "{{ cloud_service_state }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - vars"
+  set_fact:
+    ext_dns_zone: "{{ ext_dns_params.zone }}"
+    ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
+    ext_dns_record: "{{ ext_dns_params.record }}"
+    ext_dns_data_list: "{{ ext_dns_params.data_list }}"
   tags: ["no_print"]
 
 - name: >-
-    {{ cloud_service_dns_title }} - create record -
-    [{{ cloud_service_dns_record_type }}] {{ cloud_service_dns_record }}
+    {{ ext_dns_title }} - create record -
+    [{{ ext_dns_record_type }}] {{ ext_dns_record }}
   nsupdate:
-    key_name: "{{ cloud_service_dns_credentials.key_name }}"
-    key_secret: "{{ cloud_service_dns_credentials.key_secret }}"
-    key_algorithm: "{{ cloud_service_dns_credentials.key_algorithm }}"
-    server: "{{ cloud_service_dns_credentials.server }}"
-    zone: "{{ cloud_service_params.zone }}"
-    type: "{{ cloud_service_dns_record_type }}"
-    record: "{{ cloud_service_dns_record }}"
-    value: "{{ cloud_service_dns_data_list | default([]) | map(attribute='value') }}"
-    state: "{{ cloud_service_dns_state }}"
+    key_name: "{{ ext_dns_credentials.key_name }}"
+    key_secret: "{{ ext_dns_credentials.key_secret }}"
+    key_algorithm: "{{ ext_dns_credentials.key_algorithm }}"
+    server: "{{ ext_dns_credentials.server }}"
+    zone: "{{ ext_dns_zone }}"
+    type: "{{ ext_dns_record_type }}"
+    record: "{{ ext_dns_record }}"
+    value: "{{ ext_dns_data_list | default([]) | map(attribute='value') }}"
+    state: "{{ ext_dns_state }}"
