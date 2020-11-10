@@ -1,0 +1,26 @@
+- name: "{{ cloud_service_title | default('') }} - s3 - aws (cli)"
+  set_fact:
+    ext_s3_title: "{{ cloud_service_title }} - s3 - aws (cli)"
+    ext_s3_params: "{{ cloud_service_params }}"
+    ext_s3_credentials: >-
+      {{
+        cloud_service_credentials[
+          cloud_service_params.credential_name | default('s3', true)
+        ] | default({})
+      }}
+    ext_s3_state: "{{ cloud_service_state }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_s3_title }} - ext_s3_mode"
+  set_fact:
+    ext_s3_mode: "{{ (ext_s3_state != 'absent') | ternary('create', 'delete') }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_s3_title }} - {{ ext_s3_mode }} the bucket ({{ ext_s3_params.bucket }})"
+  aws_s3:
+    s3_url: "{{ ext_s3_credentials.endpoint | default(omit, true) }}"
+    access_key: "{{ ext_s3_credentials.access_key }}"
+    secret_key: "{{ ext_s3_credentials.secret_key }}"
+    bucket: "{{ ext_s3_params.bucket }}"
+    permission: "{{ ext_s3_params.permission | default('private') }}"
+    mode: "{{ ext_s3_mode }}"
