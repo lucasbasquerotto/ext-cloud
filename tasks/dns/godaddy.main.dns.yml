@@ -72,7 +72,6 @@
       Authorization: "{{ ext_dns_authorization }}"
       Accept: "application/json"
   register: "ext_dns_result"
-  tags: ["no_print"]
 
 - name: "{{ ext_dns_title }} - get old record"
   set_fact:
@@ -88,7 +87,7 @@
         index_var: ext_dns_index
         label: "{{ ext_dns_index }}"
       when: ext_dns_item.value != ''
-      tags: ["no_print"]
+      tags: ["no_print_skipped"]
 
     - include_tasks: "tasks/util/diff.yml"
       vars:

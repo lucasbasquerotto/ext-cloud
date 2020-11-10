@@ -1,2 +1,3 @@
-- include_role:
+- name: "{{ cloud_service_title | default('') }} - vpn - digital ocean (outer)"
+  include_role:
     name: "{{ cloud_service_base_dir_prefix }}roles/digital_ocean_vpn"
