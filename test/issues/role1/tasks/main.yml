@@ -1,0 +1,25 @@
+- block:
+    - name: before
+      debug:
+        var: var1
+
+    - name: before
+      debug:
+        var: newvar1
+
+    - include_role:
+        name: "role2"
+      vars:
+        var2: "{{ newvar1 }}"
+      when: (newvar1 | int) > 0
+
+    - name: after
+      debug:
+        var: var1
+
+    - name: after
+      debug:
+        var: newvar1
+
+  vars:
+    newvar1: "{{ (var1 | default(20) | int) - 1 }}"

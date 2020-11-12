@@ -1,0 +1,10 @@
+- block:
+    - set_fact:
+        newvar2: "{{ var2 }}"
+
+    - include_role:
+        name: "role2-1"
+      vars:
+        var_from: role2-2
+        var1: "{{ newvar2 }}"
+      when: (newvar2 | int) > 0
