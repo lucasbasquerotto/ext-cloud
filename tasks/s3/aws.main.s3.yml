@@ -1,3 +1,18 @@
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: "namespace not specified (expected: 'ext_s3')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_s3'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_s3'
+  tags: ["no_print"]
+
 - name: "{{ inner_service_title | default('') }} - s3 - aws (cli)"
   set_fact:
     ext_s3_title: "{{ inner_service_title }} - s3 - aws (cli)"

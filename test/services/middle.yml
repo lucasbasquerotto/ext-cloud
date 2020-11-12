@@ -1,3 +1,18 @@
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: "namespace not specified (expected: 'ext_test_middle')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_test_middle'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_test_middle'
+  tags: ["no_print"]
+
 - name: "{{ inner_service_title }} - print (test) - middle - vars"
   set_fact:
     ext_test_middle_title: "{{ inner_service_title }} - middle"
