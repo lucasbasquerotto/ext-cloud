@@ -1,30 +1,25 @@
-- name: "{{ cloud_service_title }} - print (test) - top - vars"
+- name: "{{ inner_service_title }} - print (test) - top - vars"
   set_fact:
-    ext_test_top_title: "{{ cloud_service_title }} - top"
-    ext_test_top_params: "{{ cloud_service_params }}"
-    ext_test_top_credentials: "{{ cloud_service_credentials }}"
-    ext_test_top_state: "{{ cloud_service_state }}"
-    ext_test_top_tmp_dir: "{{ cloud_service_tmp_dir }}"
+    ext_test_top_title: "{{ inner_service_title }} - top"
+    ext_test_top_params: "{{ inner_service_params }}"
+    ext_test_top_credentials: "{{ inner_service_credentials }}"
+    ext_test_top_state: "{{ inner_service_state }}"
+    ext_test_top_tmp_dir: "{{ inner_service_tmp_dir }}"
   tags: ["no_print"]
-
-- name: "{{ ext_test_top_title }} - print (test) - title - before"
-  debug:
-    var: cloud_service_title
-  tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - params - before"
   debug:
-    var: cloud_service_params
+    var: ext_test_top_params
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - credentials - before"
   debug:
-    var: cloud_service_credentials
+    var: ext_test_top_credentials
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - state - before"
   debug:
-    var: cloud_service_state
+    var: ext_test_top_state
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - tmp_dir - before"
@@ -41,24 +36,19 @@
   when: (ext_test_top_params.services | default([]) | length) > 0
   tags: ["no_print_skipped"]
 
-- name: "{{ ext_test_top_title }} - print (test) - title - after"
-  debug:
-    var: cloud_service_title
-  tags: ["no_print_skipped"]
-
 - name: "{{ ext_test_top_title }} - print (test) - params - after"
   debug:
-    var: cloud_service_params
+    var: ext_test_top_params
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - credentials - after"
   debug:
-    var: cloud_service_credentials
+    var: ext_test_top_credentials
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - state - after"
   debug:
-    var: cloud_service_state
+    var: ext_test_top_state
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_test_top_title }} - print (test) - tmp_dir - after"

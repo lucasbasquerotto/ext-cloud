@@ -1,14 +1,14 @@
-- name: "{{ cloud_service_title }} - print (test) - 03 - params"
+- name: "{{ inner_service_title }} - print (test) - 03 - params"
   debug:
-    var: cloud_service_params
+    var: inner_service_params
   tags: ["no_print_skipped"]
 
-- name: "{{ cloud_service_title }} - print (test) - 03 - credentials"
+- name: "{{ inner_service_title }} - print (test) - 03 - credentials"
   debug:
-    var: cloud_service_credentials
+    var: inner_service_credentials
   tags: ["no_print_skipped"]
 
-- name: "{{ cloud_service_title }} - print (test) - 03 - state"
+- name: "{{ inner_service_title }} - print (test) - 03 - state"
   debug:
-    var: cloud_service_state
+    var: inner_service_state
   tags: ["no_print_skipped"]

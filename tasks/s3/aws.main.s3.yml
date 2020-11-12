@@ -1,14 +1,14 @@
-- name: "{{ cloud_service_title | default('') }} - s3 - aws (cli)"
+- name: "{{ inner_service_title | default('') }} - s3 - aws (cli)"
   set_fact:
-    ext_s3_title: "{{ cloud_service_title }} - s3 - aws (cli)"
-    ext_s3_params: "{{ cloud_service_params }}"
+    ext_s3_title: "{{ inner_service_title }} - s3 - aws (cli)"
+    ext_s3_params: "{{ inner_service_params }}"
     ext_s3_credentials: >-
       {{
-        cloud_service_credentials[
-          cloud_service_params.credential_name | default('s3', true)
+        inner_service_credentials[
+          inner_service_params.credential_name | default('s3', true)
         ] | default({})
       }}
-    ext_s3_state: "{{ cloud_service_state }}"
+    ext_s3_state: "{{ inner_service_state }}"
   tags: ["no_print"]
 
 - name: "{{ ext_s3_title }} - ext_s3_mode"

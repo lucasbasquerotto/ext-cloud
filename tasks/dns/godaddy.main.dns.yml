@@ -1,14 +1,14 @@
-- name: "{{ cloud_service_title | default('') }} - dns - godaddy"
+- name: "{{ inner_service_title | default('') }} - dns - godaddy"
   set_fact:
-    ext_dns_title: "{{ cloud_service_title }} - dns - godaddy"
-    ext_dns_params: "{{ cloud_service_params }}"
+    ext_dns_title: "{{ inner_service_title }} - dns - godaddy"
+    ext_dns_params: "{{ inner_service_params }}"
     ext_dns_credentials: >-
       {{
-        cloud_service_credentials[
-          cloud_service_params.credential_name | default('dns', true)
+        inner_service_credentials[
+          inner_service_params.credential_name | default('dns', true)
         ] | default({})
       }}
-    ext_dns_state: "{{ cloud_service_state }}"
+    ext_dns_state: "{{ inner_service_state }}"
   tags: ["no_print"]
 
 - name: "{{ ext_dns_title }} - vars"
