@@ -1,0 +1,33 @@
+- name: "{{ cloud_service_title }} - print (test) - bottom - vars"
+  set_fact:
+    ext_test_bottom_title: "{{ cloud_service_title }} - bottom"
+    ext_test_bottom_params: "{{ cloud_service_params }}"
+    ext_test_bottom_credentials: "{{ cloud_service_credentials }}"
+    ext_test_bottom_state: "{{ cloud_service_state }}"
+    ext_test_bottom_tmp_dir: "{{ cloud_service_tmp_dir }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_test_bottom_title }} - print (test) - title"
+  debug:
+    var: cloud_service_title
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_bottom_title }} - print (test) - params"
+  debug:
+    var: cloud_service_params
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_bottom_title }} - print (test) - credentials"
+  debug:
+    var: cloud_service_credentials
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_bottom_title }} - print (test) - state"
+  debug:
+    var: cloud_service_state
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_bottom_title }} - print (test) - tmp_dir"
+  debug:
+    var: ext_test_bottom_tmp_dir
+  tags: ["no_print_skipped"]

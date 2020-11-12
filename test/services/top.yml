@@ -1,0 +1,67 @@
+- name: "{{ cloud_service_title }} - print (test) - top - vars"
+  set_fact:
+    ext_test_top_title: "{{ cloud_service_title }} - top"
+    ext_test_top_params: "{{ cloud_service_params }}"
+    ext_test_top_credentials: "{{ cloud_service_credentials }}"
+    ext_test_top_state: "{{ cloud_service_state }}"
+    ext_test_top_tmp_dir: "{{ cloud_service_tmp_dir }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_test_top_title }} - print (test) - title - before"
+  debug:
+    var: cloud_service_title
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - params - before"
+  debug:
+    var: cloud_service_params
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - credentials - before"
+  debug:
+    var: cloud_service_credentials
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - state - before"
+  debug:
+    var: cloud_service_state
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - tmp_dir - before"
+  debug:
+    var: ext_test_top_tmp_dir
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - call services"
+  include_tasks: "tasks/services/cloud_service.yml"
+  vars:
+    cloud_service_title: "{{ ext_test_top_title }} - inner services"
+    cloud_service_list: "{{ ext_test_top_params.services | default([]) }}"
+    cloud_service_tmp_dir: "{{ ext_test_top_tmp_dir }}/services"
+  when: (ext_test_top_params.services | default([]) | length) > 0
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - title - after"
+  debug:
+    var: cloud_service_title
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - params - after"
+  debug:
+    var: cloud_service_params
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - credentials - after"
+  debug:
+    var: cloud_service_credentials
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - state - after"
+  debug:
+    var: cloud_service_state
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_top_title }} - print (test) - tmp_dir - after"
+  debug:
+    var: ext_test_top_tmp_dir
+  tags: ["no_print_skipped"]
