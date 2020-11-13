@@ -21,7 +21,7 @@
     ext_test_top_params: "{{ inner_service_params }}"
     ext_test_top_credentials: "{{ inner_service_credentials }}"
     ext_test_top_state: "{{ inner_service_state }}"
-    ext_test_top_base_dir_prefix: "{{ cloud_service_base_dir_prefix }}"
+    ext_test_top_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_test_top_tmp_dir: "{{ inner_service_tmp_dir }}"
     ext_test_top_result: {}
   tags: ["no_print"]
