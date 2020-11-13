@@ -1,3 +1,5 @@
+# Prepare
+
 - name: "{{ inner_service_title }} - validate namespace"
   fail:
     msg: "namespace not specified (expected: 'ext_test_middle')"
@@ -20,7 +22,10 @@
     ext_test_middle_credentials: "{{ inner_service_credentials }}"
     ext_test_middle_state: "{{ inner_service_state }}"
     ext_test_middle_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_test_middle_result: {}
   tags: ["no_print"]
+
+# Main
 
 - name: "{{ ext_test_middle_title }} - print (test) - params - before"
   debug:
@@ -52,6 +57,22 @@
   when: (ext_test_middle_params.services | default([]) | length) > 0
   tags: ["no_print_skipped"]
 
+- name: "{{ ext_test_middle_title }} - result (outer)"
+  block:
+    - name: "{{ ext_test_middle_title }} - get result"
+      set_fact:
+        ext_test_middle_service_result: >-
+          {{ cloud_service_result_inner_map[ext_test_middle_params.result_service_name] }}
+      tags: ["no_print"]
+
+    - name: "{{ ext_test_middle_title }} - set result (tmp)"
+      set_fact:
+        ext_test_middle_result:
+          current_value: "{{ ext_test_middle_params.result_value | default('') }}"
+          inner_value: "{{ ext_test_middle_service_result }}"
+      tags: ["no_print"]
+  when: (ext_test_middle_params.result_service_name | default('')) != ''
+
 - name: "{{ ext_test_middle_title }} - print (test) - params - after"
   debug:
     var: ext_test_middle_params
@@ -71,3 +92,14 @@
   debug:
     var: ext_test_middle_tmp_dir
   tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_middle_title }} - print (test) - result"
+  debug:
+    var: ext_test_middle_result
+
+# Set Result
+
+- name: "{{ ext_test_middle_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_test_middle_result }}"
+  tags: ["no_print"]

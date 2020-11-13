@@ -1,3 +1,5 @@
+# Prepare
+
 - name: "{{ inner_service_title }} - validate namespace"
   fail:
     msg: "namespace not specified (expected: 'ext_test_bottom')"
@@ -16,7 +18,14 @@
 - name: "{{ inner_service_title }} - print (test) - bottom - vars"
   set_fact:
     ext_test_bottom_title: "{{ inner_service_title }} - bottom"
+    ext_test_bottom_params: "{{ inner_service_params }}"
+    ext_test_bottom_credentials: "{{ inner_service_credentials }}"
+    ext_test_bottom_state: "{{ inner_service_state }}"
+    ext_test_bottom_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_test_bottom_result: {}
   tags: ["no_print"]
+
+# Main
 
 - name: "{{ ext_test_bottom_title }} - print (test) - title"
   debug:
@@ -42,3 +51,19 @@
   debug:
     var: inner_service_tmp_dir
   tags: ["no_print_skipped"]
+
+- name: "{{ ext_test_bottom_title }} - set result (tmp)"
+  set_fact:
+    ext_test_bottom_result: "{{ ext_test_bottom_params.result_value | default('') }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_test_bottom_title }} - print (test) - result"
+  debug:
+    var: ext_test_bottom_result
+
+# Set Result
+
+- name: "{{ ext_test_bottom_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_test_bottom_result }}"
+  tags: ["no_print"]
