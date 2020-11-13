@@ -21,6 +21,7 @@
     ext_vpn_params: "{{ inner_service_params }}"
     ext_vpn_credentials: "{{ inner_service_credentials }}"
     ext_vpn_state: "{{ inner_service_state }}"
+    ext_vpn_base_dir_prefix: "{{ cloud_service_base_dir_prefix }}"
     ext_vpn_tmp_dir: "{{ inner_service_tmp_dir }}"
     ext_vpn_result: {}
   tags: ["no_print"]
@@ -29,7 +30,7 @@
 
 - name: "{{ ext_vpn_title }} (outer)"
   include_role:
-    name: "{{ cloud_service_base_dir_prefix }}roles/digital_ocean_vpn"
+    name: "{{ ext_vpn_base_dir_prefix }}roles/digital_ocean_vpn"
 
 # Set Result
 

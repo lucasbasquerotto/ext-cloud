@@ -21,6 +21,7 @@
     ext_s3_params: "{{ inner_service_params }}"
     ext_s3_credentials: "{{ inner_service_credentials }}"
     ext_s3_state: "{{ inner_service_state }}"
+    ext_s3_base_dir_prefix: "{{ cloud_service_base_dir_prefix }}"
     ext_s3_tmp_dir: "{{ inner_service_tmp_dir }}"
     ext_s3_result: {}
   tags: ["no_print"]
