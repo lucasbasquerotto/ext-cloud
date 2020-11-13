@@ -9,6 +9,6 @@
     type: "{{ ext_dns_record_type }}"
     record: "{{ ext_dns_record | default(omit, true) }}"
     value: "{{ ext_dns_value | default(omit, true) }}"
-    account_email: "{{ ext_dns_credentials.email }}"
-    account_api_token: "{{ ext_dns_credentials.token }}"
+    account_email: "{{ ext_dns_main_credentials.email }}"
+    account_api_token: "{{ ext_dns_main_credentials.token }}"
     state: "{{ ext_dns_final_state }}"

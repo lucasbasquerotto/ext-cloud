@@ -1,10 +1,12 @@
-- name: "{{ inner_service_title }} - validate namespace"
+# Prepare
+
+- name: "{{ inner_service_title }} - validate namespace (required)"
   fail:
     msg: "namespace not specified (expected: 'ext_dns')"
   when: inner_service_namespace == ''
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - validate namespace"
+- name: "{{ inner_service_title }} - validate namespace (ext_dns)"
   fail:
     msg: |
       incorrect namespace
@@ -13,25 +15,30 @@
   when: inner_service_namespace != 'ext_dns'
   tags: ["no_print"]
 
-- name: "{{ inner_service_title | default('') }} - dns - cloudflare"
+- name: "{{ inner_service_title }} - dns - cloudflare - vars"
   set_fact:
     ext_dns_title: "{{ inner_service_title }} - dns - cloudflare"
     ext_dns_params: "{{ inner_service_params }}"
-    ext_dns_credentials: >-
-      {{
-        inner_service_credentials[
-          inner_service_params.credential_name | default('dns', true)
-        ] | default({})
-      }}
+    ext_dns_credentials: "{{ inner_service_credentials }}"
     ext_dns_state: "{{ inner_service_state }}"
+    ext_dns_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_dns_result: {}
   tags: ["no_print"]
 
-- name: "{{ ext_dns_title }} - vars"
+# Main
+
+- name: "{{ ext_dns_title }} - inner vars"
   set_fact:
     ext_dns_zone: "{{ ext_dns_params.zone }}"
     ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
     ext_dns_record: "{{ ext_dns_params.record }}"
     ext_dns_data_list: "{{ ext_dns_params.data_list }}"
+    ext_dns_main_credentials: >-
+      {{
+        inner_service_credentials[
+          inner_service_params.credential_name | default('dns', true)
+        ] | default({})
+      }}
   tags: ["no_print"]
 
 - name: >-
@@ -60,4 +67,11 @@
   when: >-
     (ext_dns_state == 'absent') or
     ((ext_dns_data_list | default([]) | length) == 0)
+  tags: ["no_print"]
+
+# Set Result
+
+- name: "{{ ext_dns_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_dns_result }}"
   tags: ["no_print"]

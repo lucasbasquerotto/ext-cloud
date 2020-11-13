@@ -1,12 +1,12 @@
 # Prepare
 
-- name: "{{ inner_service_title }} - validate namespace"
+- name: "{{ inner_service_title }} - validate namespace (required)"
   fail:
     msg: "namespace not specified (expected: 'ext_test_top')"
   when: inner_service_namespace == ''
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - validate namespace"
+- name: "{{ inner_service_title }} - validate namespace (ext_test_top)"
   fail:
     msg: |
       incorrect namespace
@@ -15,9 +15,9 @@
   when: inner_service_namespace != 'ext_test_top'
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - print (test) - top - vars"
+- name: "{{ inner_service_title }} - test top - vars"
   set_fact:
-    ext_test_top_title: "{{ inner_service_title }} - top"
+    ext_test_top_title: "{{ inner_service_title }} - test top"
     ext_test_top_params: "{{ inner_service_params }}"
     ext_test_top_credentials: "{{ inner_service_credentials }}"
     ext_test_top_state: "{{ inner_service_state }}"

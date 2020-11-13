@@ -1,14 +1,11 @@
-- name: "{{ cloud_service_title | default('') }} - vpn - digital ocean"
+- name: "{{ ext_vpn_title }} - ext_vpn_main_credentials"
   set_fact:
-    ext_vpn_title: "{{ cloud_service_title }} - vpn - digital ocean"
-    ext_vpn_params: "{{ cloud_service_params }}"
-    ext_vpn_credentials: >-
+    ext_vpn_main_credentials: >-
       {{
-        cloud_service_credentials[
-          cloud_service_params.credential_name | default('vpn', true)
+        ext_vpn_credentials[
+          ext_vpn_params.credential_name | default('vpn', true)
         ] | default({})
       }}
-    ext_vpn_state: "{{ cloud_service_state }}"
   tags: ["no_print"]
 
 - name: "{{ ext_vpn_title }} - ext_vpn_tags"
@@ -21,7 +18,7 @@
       {{ ext_vpn_params.firewalls_dict | default({}) }}
     ext_vpn_firewalls: []
     ext_vpn_api_token: >-
-      {{ ext_vpn_credentials.api_token | default('') }}
+      {{ ext_vpn_main_credentials.api_token | default('') }}
   tags: ["no_print"]
 
 - name: "{{ ext_vpn_title }} - ext_vpn_firewalls"
@@ -43,38 +40,20 @@
     label: "{{ ext_vpn_firewall.name | default('') }}"
   tags: ["no_print"]
 
-- name: "{{ ext_vpn_title }} - block"
+- name: >-
+    {{ ext_vpn_title }} -
+    {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
+    tags
+  digital_ocean_tag:
+    api_token: "{{ ext_vpn_api_token }}"
+    name: "{{ ext_vpn_item }}"
+    state: "{{ ext_vpn_state }}"
+  loop: "{{ ext_vpn_tags | default([]) }}"
+  loop_control:
+    loop_var: ext_vpn_item
+
+- name: "{{ ext_vpn_title }} - block - firewalls"
   block:
-    - name: "{{ ext_vpn_title }} - ext_vpn_tags_final - init"
-      set_fact:
-        ext_vpn_tags_final: []
-      tags: ["no_print"]
-
-    - name: "{{ ext_vpn_title }} - ext_vpn_tags_final - fill"
-      set_fact:
-        ext_vpn_tags_final: >-
-          {{ ext_vpn_tags_final + [ext_vpn_item] }}
-      loop: "{{ ext_vpn_tags | default([]) }}"
-      loop_control:
-        loop_var: ext_vpn_item
-      tags: ["no_print"]
-
-    - name: >-
-        {{ ext_vpn_title }} -
-        {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
-        tags
-      digital_ocean_tag:
-        api_token: "{{ ext_vpn_api_token }}"
-        name: "{{ ext_vpn_item }}"
-        state: "{{ ext_vpn_state }}"
-      loop: "{{ ext_vpn_tags_final | default([]) }}"
-      loop_control:
-        loop_var: ext_vpn_item
-
-  when: (ext_vpn_tags | default([])) | length > 0
-  tags: ["no_print_skipped"]
-
-- block:
     - name: "{{ ext_vpn_title }} - ext_vpn_firewalls_final - init"
       set_fact:
         ext_vpn_firewalls_final: []
@@ -110,6 +89,5 @@
         loop_var: ext_vpn_item
         label: "{{ ext_vpn_item.name }}"
       tags: ["no_print_skipped"]
-
   when: (ext_vpn_firewalls | default([])) | length > 0
   tags: ["no_print_skipped"]

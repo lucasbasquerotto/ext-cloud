@@ -1,12 +1,12 @@
 # Prepare
 
-- name: "{{ inner_service_title }} - validate namespace"
+- name: "{{ inner_service_title }} - validate namespace (required)"
   fail:
     msg: "namespace not specified (expected: 'ext_test_adapter')"
   when: inner_service_namespace == ''
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - validate namespace"
+- name: "{{ inner_service_title }} - validate namespace (ext_test_adapter)"
   fail:
     msg: |
       incorrect namespace
@@ -15,9 +15,9 @@
   when: inner_service_namespace != 'ext_test_adapter'
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - print (test) - adapter - vars"
+- name: "{{ inner_service_title }} - test adapter - vars"
   set_fact:
-    ext_test_adapter_title: "{{ inner_service_title }} - adapter"
+    ext_test_adapter_title: "{{ inner_service_title }} - test adapter"
     ext_test_adapter_params: "{{ inner_service_params }}"
     ext_test_adapter_credentials: "{{ inner_service_credentials }}"
     ext_test_adapter_state: "{{ inner_service_state }}"
@@ -25,7 +25,9 @@
     ext_test_adapter_result: {}
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - print (test) - input params"
+# Input
+
+- name: "{{ ext_test_adapter_title }} - input"
   set_fact:
     ext_test_adapter_input_service_result: >-
       {{ cloud_service_result_map[ext_test_adapter_params.input_service] }}
