@@ -47,6 +47,7 @@
   vars:
     cloud_service_title: "{{ ext_test_middle_title }} - inner services"
     cloud_service_list: "{{ ext_test_middle_params.services | default([]) }}"
+    cloud_service_flat_list: "{{ ext_test_middle_params.flat_list | default(false) }}"
     cloud_service_tmp_dir: "{{ ext_test_middle_tmp_dir }}/services"
   when: (ext_test_middle_params.services | default([]) | length) > 0
   tags: ["no_print_skipped"]
