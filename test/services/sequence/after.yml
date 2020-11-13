@@ -1,0 +1,59 @@
+# Prepare
+
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: "namespace not specified (expected: 'ext_test_after')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_test_after'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_test_after'
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - print (test) - after - vars"
+  set_fact:
+    ext_test_after_title: "{{ inner_service_title }} - after"
+    ext_test_after_params: "{{ inner_service_params }}"
+    ext_test_after_credentials: "{{ inner_service_credentials }}"
+    ext_test_after_state: "{{ inner_service_state }}"
+    ext_test_after_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_test_after_result: {}
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - print (test) - input params"
+  set_fact:
+    ext_test_after_input_service_result: >-
+      {{
+        cloud_service_result_map[ext_test_after_params.input_service | default('')]
+        | default({})
+      }}
+  tags: ["no_print"]
+
+# Main
+
+- name: "{{ ext_test_after_title }} - set result (tmp)"
+  set_fact:
+    ext_test_after_result:
+      after_unchanged: "{{ ext_test_after_params.param_unchanged | default('') }}"
+      after_changed: "{{ ext_test_after_params.param_changed | default('') }}"
+      after_1: "{{ tmp_result.input_after_1 | default('') }}"
+      after_2: "{{ tmp_result.input_after_2 | default('') }}"
+  vars:
+    tmp_result: "{{ ext_test_after_input_service_result }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_test_after_title }} - print (test) - result"
+  debug:
+    var: ext_test_after_result
+
+# Set Result
+
+- name: "{{ ext_test_after_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_test_after_result }}"
+  tags: ["no_print"]

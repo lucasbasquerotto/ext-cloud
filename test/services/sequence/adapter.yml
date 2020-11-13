@@ -1,0 +1,54 @@
+# Prepare
+
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: "namespace not specified (expected: 'ext_test_adapter')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_test_adapter'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_test_adapter'
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - print (test) - adapter - vars"
+  set_fact:
+    ext_test_adapter_title: "{{ inner_service_title }} - adapter"
+    ext_test_adapter_params: "{{ inner_service_params }}"
+    ext_test_adapter_credentials: "{{ inner_service_credentials }}"
+    ext_test_adapter_state: "{{ inner_service_state }}"
+    ext_test_adapter_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_test_adapter_result: {}
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - print (test) - input params"
+  set_fact:
+    ext_test_adapter_input_service_result: >-
+      {{ cloud_service_result_map[ext_test_adapter_params.input_service] }}
+  tags: ["no_print"]
+
+# Main
+
+- name: "{{ ext_test_adapter_title }} - set result (tmp)"
+  set_fact:
+    ext_test_adapter_result:
+      input_after_1: "{{ tmp_result.before_value_1 | default('') }}"
+      input_after_2: "{{ tmp_result.before_value_2 | default('') }}"
+  vars:
+    tmp_result: "{{ ext_test_adapter_input_service_result }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_test_adapter_title }} - print (test) - result"
+  debug:
+    var: ext_test_adapter_result
+
+# Set Result
+
+- name: "{{ ext_test_adapter_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_test_adapter_result }}"
+  tags: ["no_print"]
