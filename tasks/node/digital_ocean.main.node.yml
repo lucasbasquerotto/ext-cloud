@@ -37,16 +37,18 @@
           ext_node_params.credential_name | default('node', true)
         ] | default({})
       }}
+    ext_node_instance_state: >-
+      {{ ext_node_params.state | default(ext_node_state, true) }}
   tags: ["no_print"]
 
 - name: >-
-    {{ ext_node_title }} - {{ ext_node_state }}
+    {{ ext_node_title }} - {{ ext_node_instance_state }}
     droplet - {{ ext_node_name }}
   digital_ocean_droplet:
     unique_name: yes
     oauth_token: "{{ ext_node_main_credentials.api_token }}"
     name: "{{ ext_node_name }}"
-    state: "{{ ext_node_state }}"
+    state: "{{ ext_node_instance_state }}"
     region_id: "{{ ext_node_params.region_id }}"
     size_id: "{{ ext_node_params.size_id }}"
     image_id: "{{ ext_node_params.image_id }}"
@@ -57,49 +59,44 @@
   register: ext_node_details
   tags: ["no_print_skipped"]
 
-- name: "{{ ext_node_title }} - block"
-  block:
-    - set_fact:
-        ext_node_droplet: "{{ ext_node_details.data.droplet }}"
-      tags: ["no_print"]
-
-    - name: >-
-        {{ ext_node_title }} - tag the droplet {{ ext_node_name }}
-      digital_ocean_tag:
-        api_token: "{{ ext_node_main_credentials.api_token }}"
-        resource_id: "{{ ext_node_droplet.id }}"
-        name: "{{ ext_node_item }}"
-        state: "present"
-      loop: "{{ ext_node_params.tags }}"
-      loop_control:
-        loop_var: ext_node_item
-        label: "{{ ext_node_name }} - {{ ext_node_item }}"
-      tags: ["no_print_skipped"]
-
-    - set_fact:
-        ext_node_result:
-          name: "{{ ext_node_name }}"
-          private_ip: >-
-            {{
-              ext_node_droplet.networks.v4
-              | selectattr('type', 'equalto', 'private')
-              | map(attribute='ip_address') | list | first | default('')
-            }}
-          public_ipv4: >-
-            {{
-              ext_node_droplet.networks.v4
-              | selectattr('type', 'equalto', 'public')
-              | map(attribute='ip_address') | list | first | default('')
-            }}
-          public_ipv6: >-
-            {{
-              ext_node_droplet.networks.v6
-              | selectattr('type', 'equalto', 'public')
-              | map(attribute='ip_address') | list | first | default('')
-            }}
-      tags: ["no_print"]
-  when: ext_node_state == 'present'
+- name: >-
+    {{ ext_node_title }} - tag the droplet {{ ext_node_name }}
+  digital_ocean_tag:
+    api_token: "{{ ext_node_main_credentials.api_token }}"
+    resource_id: "{{ ext_node_details.data.droplet.id }}"
+    name: "{{ ext_node_item }}"
+    state: "present"
+  loop: "{{ ext_node_params.tags }}"
+  loop_control:
+    loop_var: ext_node_item
+    label: "{{ ext_node_name }} - {{ ext_node_item }}"
+  when: ext_node_instance_state == 'present'
   tags: ["no_print_skipped"]
+
+- name: "{{ ext_node_title }} - set result (tmp)"
+  set_fact:
+    ext_node_result:
+      name: "{{ ext_node_name }}"
+      state: "{{ ext_node_instance_state }}"
+      private_ip: >-
+        {{
+          ext_node_droplet.networks.v4
+          | selectattr('type', 'equalto', 'private')
+          | map(attribute='ip_address') | list | first | default('')
+        }}
+      public_ipv4: >-
+        {{
+          ext_node_droplet.networks.v4
+          | selectattr('type', 'equalto', 'public')
+          | map(attribute='ip_address') | list | first | default('')
+        }}
+      public_ipv6: >-
+        {{
+          ext_node_droplet.networks.v6
+          | selectattr('type', 'equalto', 'public')
+          | map(attribute='ip_address') | list | first | default('')
+        }}
+  tags: ["no_print"]
 
 # Set Result
 
