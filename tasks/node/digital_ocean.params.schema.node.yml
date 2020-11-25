@@ -1,0 +1,30 @@
+root: "digital_ocean_node_params"
+schemas:
+  digital_ocean_node_params:
+    type: "dict"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      state:
+        type: "str"
+        choices: ["present", "absent"]
+      region_id:
+        type: "str"
+        non_empty: true
+      size_id:
+        type: "str"
+        non_empty: true
+      image_id:
+        type: "str"
+        non_empty: true
+      wait_timeout:
+        type: "int"
+      ipv6:
+        type: "bool"
+      user_data:
+        type: "str"
+      tags:
+        type: "list"
+        elem_type: "str"
+        elem_non_empty: true
