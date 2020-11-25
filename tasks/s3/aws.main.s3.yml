@@ -31,12 +31,7 @@
 - name: "{{ ext_s3_title }} - s3 - aws (cli)"
   set_fact:
     ext_s3_mode: "{{ (ext_s3_state != 'absent') | ternary('create', 'delete') }}"
-    ext_s3_main_credentials: >-
-      {{
-        ext_s3_credentials[
-          ext_s3_params.credential_name | default('s3', true)
-        ] | default({})
-      }}
+    ext_s3_main_credentials: "{{ ext_s3_credentials.s3 | default({}) }}"
   tags: ["no_print"]
 
 - name: "{{ ext_s3_title }} - {{ ext_s3_mode }} the bucket ({{ ext_s3_params.bucket }})"

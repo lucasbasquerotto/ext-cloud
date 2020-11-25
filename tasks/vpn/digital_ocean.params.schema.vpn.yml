@@ -1,0 +1,65 @@
+root: "digital_ocean_vpn_params"
+schemas:
+  digital_ocean_vpn_params:
+    type: "dict"
+    props:
+      tags:
+        type: "list"
+        elem_type: "str"
+      firewalls:
+        type: "list"
+        elem_schema: "firewall"
+  firewall:
+    type: "dict"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      tags:
+        type: "list"
+        elem_type: "str"
+      inbound_rules:
+        type: "list"
+        elem_schema: "inbound_rule"
+      outbound_rules:
+        type: "list"
+        elem_schema: "outbound_rule"
+  inbound_rule:
+    type: "dict"
+    props:
+      protocol:
+        type: "str"
+        choices: ["udp", "tcp", "icmp"]
+      ports:
+        type: "str"
+        non_empty: true
+      sources:
+        schema: "srd_dest"
+        required: true
+  outbound_rule:
+    type: "dict"
+    props:
+      protocol:
+        type: "str"
+        choices: ["udp", "tcp", "icmp"]
+      ports:
+        type: "str"
+        non_empty: true
+      destinations:
+        schema: "srd_dest"
+        required: true
+  srd_dest:
+    type: "dict"
+    props:
+      addresses:
+        type: "list"
+        elem_type: "str"
+      droplet_ids:
+        type: "list"
+        elem_type: "int"
+      load_balancer_uids:
+        type: "list"
+        elem_type: "str"
+      tags:
+        type: "list"
+        elem_type: "str"

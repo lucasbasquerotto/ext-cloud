@@ -1,0 +1,15 @@
+root: "s3_params"
+schemas:
+  s3_params:
+    type: "dict"
+    props:
+      bucket:
+        type: "str"
+        non_empty: true
+      permission:
+        type: "str"
+        choices:
+          - "private"
+          - "public-read"
+          - "public-read-write"
+          - "authenticated-read"

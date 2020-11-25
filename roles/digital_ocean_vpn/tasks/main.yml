@@ -1,43 +1,16 @@
 - name: "{{ ext_vpn_title }} - ext_vpn_main_credentials"
   set_fact:
-    ext_vpn_main_credentials: >-
-      {{
-        ext_vpn_credentials[
-          ext_vpn_params.credential_name | default('vpn', true)
-        ] | default({})
-      }}
+    ext_vpn_main_credentials: "{{ ext_vpn_credentials.vpn | default({}) }}"
   tags: ["no_print"]
 
 - name: "{{ ext_vpn_title }} - ext_vpn_tags"
   set_fact:
     ext_vpn_tags: >-
       {{ ext_vpn_params.tags | default([]) }}
-    ext_vpn_firewalls_list: >-
+    ext_vpn_firewalls: >-
       {{ ext_vpn_params.firewalls | default([]) }}
-    ext_vpn_firewalls_dict: >-
-      {{ ext_vpn_params.firewalls_dict | default({}) }}
-    ext_vpn_firewalls: []
     ext_vpn_api_token: >-
       {{ ext_vpn_main_credentials.api_token | default('') }}
-  tags: ["no_print"]
-
-- name: "{{ ext_vpn_title }} - ext_vpn_firewalls"
-  set_fact:
-    ext_vpn_firewalls: >-
-      {{ ext_vpn_firewalls + [ext_vpn_firewall] }}
-  vars:
-    ext_vpn_firewall: >-
-      {{
-        ext_vpn_params.meta.use_dict | default(false) | bool
-        | ternary(
-          ext_vpn_firewalls_dict[ext_vpn_item],
-          ext_vpn_item
-        )
-      }}
-  loop: "{{ ext_vpn_firewalls_list }}"
-  loop_control:
-    loop_var: ext_vpn_item
-    label: "{{ ext_vpn_firewall.name | default('') }}"
   tags: ["no_print"]
 
 - name: >-
