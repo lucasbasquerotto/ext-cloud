@@ -1,0 +1,7 @@
+root: "docker_params"
+schemas:
+  node_params:
+    type: "dict"
+    props:
+      service_params:
+        type: "dict"

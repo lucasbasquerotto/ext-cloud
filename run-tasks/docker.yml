@@ -1,8 +1,15 @@
 ### Ensure docker is running and update the docker-compose executable ###
 
+- name: "{{ params.title }} - params"
+  set_fact:
+    task_params: "{{ tmp_params }}"
+  vars:
+    tmp_params: "{{ params.task.params }}"
+  tags: ["no_print"]
+
 - name: "{{ params.title }} - ensure docker is running"
   become: "{{ params.task.root | default(false) }}"
-  service: 
+  service:
     name: docker
     state: started
   when: params.task.params.start_service | default(false) | bool
@@ -10,36 +17,36 @@
 
 - name: "{{ params.title }} - copy the docker compose executable file"
   become: "{{ params.task.root | default(false) }}"
-  template: 
-    src: "{{ params.task.compose_params.src | default('roles/cloud_prepare/files/docker-compose.sh') }}"
-    dest: "{{ params.task.compose_params.dest | default('/usr/local/bin/docker-compose') }}"
-    mode: "{{ params.task.compose_params.mode | default(0755) }}"
+  template:
+    src: "{{ params.task.params.compose.src | default('roles/cloud_prepare/files/docker-compose.sh') }}"
+    dest: "{{ params.task.params.compose.dest | default('/usr/local/bin/docker-compose') }}"
+    mode: "{{ params.task.params.compose.mode | default(0755) }}"
   vars:
-    params: 
-      docker_compose_version: "{{ params.task.compose_params.version | default('') }}"
-  when: 
-    ((params.task.compose_params.version | default('')) != '')
+    params:
+      docker_compose_version: "{{ params.task.compose.version | default('') }}"
+  when: >-
+    ((params.task.compose.version | default('')) != '')
     and
-    (params.task.compose_params.container | default(false) | bool)
+    (params.task.compose.container | default(false) | bool)
   tags: ["no_print_skipped"]
 
 - name: "{{ params.title }} - copy the docker compose executable file"
   become: "{{ params.task.root | default(false) }}"
   get_url:
-    url: "{{ params.task.compose_params.src | default(default_url) }}"
-    dest: "{{ params.task.compose_params.dest | default('/usr/local/bin/docker-compose') }}"
-    mode: "{{ params.task.compose_params.mode | default(0755) }}"
+    url: "{{ params.task.params.src | default(default_url) }}"
+    dest: "{{ params.task.params.dest | default('/usr/local/bin/docker-compose') }}"
+    mode: "{{ params.task.params.mode | default(0755) }}"
   vars:
     default_url: >-
       https://github.com/docker/compose/releases/download/{{
-      params.task.compose_params.version | default('')
+        params.task.compose.version | default('')
       }}/docker-compose-Linux-x86_64
-  when: 
+  when: >-
     (
-    ((params.task.compose_params.src | default('')) != '')
-    or
-    ((params.task.compose_params.version | default('')) != '')
+      ((params.task.compose.src | default('')) != '')
+      or
+      ((params.task.compose.version | default('')) != '')
     )
     and
-    (params.task.compose_params.remote | default(false) | bool)
+    (params.task.compose.remote | default(false) | bool)
   tags: ["no_print_skipped"]
