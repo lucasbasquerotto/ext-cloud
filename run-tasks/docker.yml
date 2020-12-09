@@ -3,7 +3,7 @@
 - name: "{{ params.title }} - params"
   set_fact:
     task_params: "{{ tmp_params }}"
-    compose_params: "{{ tmp_params.compose | default({}) }}"
+    task_compose_params: "{{ tmp_params.compose | default({}) }}"
   vars:
     tmp_params: "{{ params.task.params }}"
   tags: ["no_print"]
@@ -11,18 +11,18 @@
 - name: "{{ params.title }} - download the docker compose executable file"
   become: "{{ params.task.root | default(false) }}"
   get_url:
-    url: "{{ compose_params.src | default(tmp_default_url) }}"
-    dest: "{{ compose_params.dest | default('/usr/local/bin/docker-compose') }}"
-    mode: "{{ compose_params.mode | default(0755) }}"
+    url: "{{ task_compose_params.src | default(tmp_default_url) }}"
+    dest: "{{ task_compose_params.dest | default('/usr/local/bin/docker-compose') }}"
+    mode: "{{ task_compose_params.mode | default(0755) }}"
   vars:
     tmp_default_url: >-
       https://github.com/docker/compose/releases/download/{{
-        compose_params.version | default('')
+        task_compose_params.version | default('')
       }}/docker-compose-Linux-x86_64
   when: >-
-    ((compose_params.src | default('')) != '')
+    ((task_compose_params.src | default('')) != '')
     or
-    ((compose_params.version | default('')) != '')
+    ((task_compose_params.version | default('')) != '')
 
 - name: "{{ params.title }} - ensure docker is running"
   become: "{{ params.task.root | default(false) }}"
