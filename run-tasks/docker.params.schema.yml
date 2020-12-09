@@ -1,7 +1,20 @@
 root: "docker_params"
 schemas:
-  node_params:
+  docker_params:
     type: "dict"
     props:
-      service_params:
-        type: "dict"
+      start_service:
+        type: "bool"
+      compose:
+        schema: "compose"
+  compose:
+    type: "dict"
+    props:
+      src:
+        type: "str"
+      version:
+        type: "str"
+      dest:
+        type: "str"
+      mode:
+        type: "int"
