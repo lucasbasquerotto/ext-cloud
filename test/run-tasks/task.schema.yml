@@ -11,6 +11,12 @@ schemas:
         non_empty: true
       prop3:
         schema: "complex"
+      prop4:
+        type: "str"
+        non_empty: true
+      prop5:
+        type: "str"
+        non_empty: true
   complex:
     type: "dict"
     props:
