@@ -5,10 +5,10 @@
     task_params: "{{ tmp_params }}"
     compose_params: "{{ tmp_params.compose | default({}) }}"
   vars:
-    tmp_params: "{{ task_params }}"
+    tmp_params: "{{ params.task.params }}"
   tags: ["no_print"]
 
-- name: "{{ params.title }} - copy the docker compose executable file"
+- name: "{{ params.title }} - download the docker compose executable file"
   become: "{{ params.task.root | default(false) }}"
   get_url:
     url: "{{ compose_params.src | default(tmp_default_url) }}"
@@ -23,7 +23,6 @@
     ((compose_params.src | default('')) != '')
     or
     ((compose_params.version | default('')) != '')
-  tags: ["no_print_skipped"]
 
 - name: "{{ params.title }} - ensure docker is running"
   become: "{{ params.task.root | default(false) }}"
@@ -31,4 +30,3 @@
     name: docker
     state: started
   when: task_params.start_service | default(false) | bool
-  tags: ["no_print_skipped"]
