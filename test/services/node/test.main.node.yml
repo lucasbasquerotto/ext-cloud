@@ -1,0 +1,48 @@
+# Prepare
+
+- name: "{{ inner_service_title }} - validate namespace (required)"
+  fail:
+    msg: "namespace not specified (expected: 'ext_node')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace (ext_node)"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_node'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_node'
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - node - test - vars"
+  set_fact:
+    ext_node_title: "{{ inner_service_title }} - node - test"
+    ext_node_params: "{{ inner_service_params }}"
+    ext_node_credentials: "{{ inner_service_credentials }}"
+    ext_node_state: "{{ inner_service_state }}"
+    ext_node_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
+    ext_node_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_node_result: {}
+  tags: ["no_print"]
+
+# Main
+
+- name: "{{ ext_node_title }} - print (test) - node params"
+  debug:
+    var: ext_node_params
+
+- name: "{{ ext_node_title }} - print (test) - node credentials"
+  debug:
+    var: ext_node_credentials
+
+- name: "{{ ext_node_title }} - print (test) - node state"
+  debug:
+    var: ext_node_state
+
+# Set Result
+
+- name: "{{ ext_node_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_node_result }}"
+  tags: ["no_print"]

@@ -1,0 +1,16 @@
+root: "test_node_params"
+schemas:
+  test_node_params:
+    type: "dict"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      state:
+        type: "str"
+        choices: ["present", "absent"]
+      prop1:
+        type: "str"
+        non_empty: true
+      prop2:
+        type: "str"
