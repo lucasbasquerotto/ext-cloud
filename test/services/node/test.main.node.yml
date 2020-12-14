@@ -26,11 +26,14 @@
     ext_node_result: {}
   tags: ["no_print"]
 
-# Node State (Replica)
+# Node Main Vars (Replica)
 
-- name: "{{ ext_node_title }} - ext_node_state"
+- name: "{{ ext_node_title }} - main vars"
   set_fact:
-    ext_node_state: "{{ ext_node_params.state | default(ext_node_state, true) }}"
+    ext_node_name: "{{ ext_node_params.name | replace('_', '-') }}"
+    ext_node_main_credentials: "{{ ext_node_credentials.node | default({}) }}"
+    ext_node_instance_state: >-
+      {{ ext_node_params.state | default(ext_node_state, true) }}
   tags: ["no_print"]
 
 # Main
@@ -45,7 +48,19 @@
 
 - name: "{{ ext_node_title }} - print (test) - node state"
   debug:
-    var: ext_node_state
+    var: ext_node_instance_state
+
+- name: "{{ ext_node_title }} - ext_node_result"
+  set_fact:
+    ext_node_result:
+      name: "{{ ext_node_name }}"
+      state: "{{ ext_node_instance_state }}"
+      local: true
+  tags: ["no_print"]
+
+- name: "{{ ext_node_title }} - print (test) - node result"
+  debug:
+    var: ext_node_result
 
 # Set Result
 
