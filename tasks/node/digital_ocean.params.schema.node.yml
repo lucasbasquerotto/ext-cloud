@@ -23,8 +23,40 @@ schemas:
       ipv6:
         type: "bool"
       user_data:
-        type: "str"
+        schema: "content"
       tags:
         type: "list"
         elem_type: "str"
         elem_non_empty: true
+  content:
+    type: "simple_dict"
+    alternative_type: "str"
+    props:
+      type:
+        type: "str"
+        choices: ["env", "str", "file", "template"]
+      name:
+        type: "str"
+      key:
+        type: "str"
+      origin:
+        type: "str"
+      file:
+        type: "str"
+      params_schema:
+        type: "str"
+      credentials_schema:
+        type: "str"
+      credentials:
+        type: "map"
+        elem_type: "str"
+      params:
+        type: "dict"
+      group_params:
+        type: "map"
+        elem_type: "str"
+      shared_params:
+        type: "list"
+        elem_type: "str"
+      shared_group_params:
+        type: "str"
