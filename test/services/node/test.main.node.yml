@@ -50,6 +50,26 @@
   debug:
     var: ext_node_instance_state
 
+- name: "{{ ext_node_title }} - print (test) - node user data list"
+  debug:
+    var: tmp_content_result
+  vars:
+    tmp_content_result: >-
+      {{
+        lookup(
+          'lrd.cloud.content',
+          tmp_content,
+          env_data=env_data,
+          context='content #' + (tmp_idx | string),
+        )
+      }}
+  loop: "{{ ext_node_params.user_datas | default([]) }}"
+  loop_control:
+    index_var: tmp_idx
+    loop_var: tmp_content
+    label: "user data {{ tmp_idx }}"
+  tags: ["no_print_skipped"]
+
 - name: "{{ ext_node_title }} - ext_node_result"
   set_fact:
     ext_node_result:
