@@ -26,7 +26,7 @@
     ext_node_result: {}
   tags: ["no_print"]
 
-# Node Main Vars (Replica)
+# Node Main Vars
 
 - name: "{{ ext_node_title }} - main vars"
   set_fact:
