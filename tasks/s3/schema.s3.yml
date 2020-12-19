@@ -1,0 +1,45 @@
+root: "s3_schema"
+schemas:
+  s3_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+      credentials:
+        schema: "credentials"
+        non_empty: true
+  params:
+    type: "dict"
+    props:
+      bucket:
+        type: "str"
+        non_empty: true
+      permission:
+        type: "str"
+        choices:
+          - "private"
+          - "public-read"
+          - "public-read-write"
+          - "authenticated-read"
+  credentials:
+    type: "dict"
+    props:
+      s3:
+        schema: "s3_credentials"
+        non_empty: true
+  s3_credentials:
+    type: "dict"
+    props:
+      host:
+        type: "str"
+      ssl:
+        type: "bool"
+      endpoint:
+        type: "str"
+      access_key:
+        type: "str"
+        non_empty: true
+      secret_key:
+        type: "str"
+        non_empty: true

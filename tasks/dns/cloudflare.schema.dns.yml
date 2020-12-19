@@ -1,6 +1,15 @@
-root: "dns_params"
+root: "dns_schema"
 schemas:
-  dns_params:
+  dns_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+      credentials:
+        schema: "credentials"
+        non_empty: true
+  params:
     type: "dict"
     props:
       zone:
@@ -46,3 +55,18 @@ schemas:
         type: int
       weight:
         type: int
+  credentials:
+    type: "dict"
+    props:
+      dns:
+        schema: "cloudflare_credentials"
+        non_empty: true
+  cloudflare_credentials:
+    type: "dict"
+    props:
+      email:
+        type: "str"
+        non_empty: true
+      token:
+        type: "str"
+        non_empty: true

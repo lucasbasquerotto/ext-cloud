@@ -1,6 +1,15 @@
-root: "digital_ocean_vpn_params"
+root: "vpn_schema"
 schemas:
-  digital_ocean_vpn_params:
+  vpn_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+      credentials:
+        schema: "credentials"
+        non_empty: true
+  params:
     type: "dict"
     props:
       tags:
@@ -63,3 +72,15 @@ schemas:
       tags:
         type: "list"
         elem_type: "str"
+  credentials:
+    type: "dict"
+    props:
+      vpn:
+        schema: "digital_ocean_credentials"
+        non_empty: true
+  digital_ocean_credentials:
+    type: "dict"
+    props:
+      api_token:
+        type: "str"
+        non_empty: true

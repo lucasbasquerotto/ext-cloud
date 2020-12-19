@@ -1,6 +1,15 @@
-root: "test_node_params"
+root: "node_schema"
 schemas:
-  test_node_params:
+  node_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+      credentials:
+        schema: "credentials"
+        non_empty: true
+  params:
     type: "dict"
     props:
       name:
@@ -9,14 +18,25 @@ schemas:
       state:
         type: "str"
         choices: ["present", "absent"]
-      prop1:
+      region_id:
         type: "str"
         non_empty: true
-      prop2:
+      size_id:
         type: "str"
-      user_datas:
+        non_empty: true
+      image_id:
+        type: "str"
+        non_empty: true
+      wait_timeout:
+        type: "int"
+      ipv6:
+        type: "bool"
+      user_data:
+        schema: "content"
+      tags:
         type: "list"
-        elem_schema: "content"
+        elem_type: "str"
+        elem_non_empty: true
   content:
     type: "simple_dict"
     alternative_type: "str"
@@ -32,9 +52,7 @@ schemas:
         type: "str"
       file:
         type: "str"
-      params_schema:
-        type: "str"
-      credentials_schema:
+      schema:
         type: "str"
       credentials:
         type: "map"
@@ -49,3 +67,15 @@ schemas:
         elem_type: "str"
       shared_group_params:
         type: "str"
+  credentials:
+    type: "dict"
+    props:
+      node:
+        schema: "digital_ocean_credentials"
+        non_empty: true
+  digital_ocean_credentials:
+    type: "dict"
+    props:
+      api_token:
+        type: "str"
+        non_empty: true

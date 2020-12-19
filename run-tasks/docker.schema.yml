@@ -1,5 +1,11 @@
-root: "docker_params"
+root: "docker_schema"
 schemas:
+  docker_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "docker_params"
+        non_empty: true
   docker_params:
     type: "dict"
     props:

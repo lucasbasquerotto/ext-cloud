@@ -1,0 +1,78 @@
+root: "dns_schema"
+schemas:
+  dns_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+      credentials:
+        schema: "credentials"
+        non_empty: true
+  params:
+    type: "dict"
+    props:
+      zone:
+        type: "str"
+        non_empty: true
+      dns_type:
+        type: "str"
+        non_empty: true
+      record:
+        type: "str"
+        non_empty: true
+      ttl:
+        type: int
+      priority:
+        type: int
+      service:
+        type: str
+      protocol:
+        type: str
+      port:
+        type: int
+      weight:
+        type: int
+      data_list:
+        type: "list"
+        elem_schema: "dns_item"
+        elem_non_empty: "true"
+  dns_item:
+    type: "dict"
+    props:
+      value:
+        type: str
+        non_empty: true
+      ttl:
+        type: int
+      priority:
+        type: int
+      service:
+        type: str
+      protocol:
+        type: str
+      port:
+        type: int
+      weight:
+        type: int
+  credentials:
+    type: "dict"
+    props:
+      dns:
+        schema: "nsupdate_credentials"
+        non_empty: true
+  nsupdate_credentials:
+    type: "dict"
+    props:
+      key_name:
+        type: "str"
+        non_empty: true
+      key_secret:
+        type: "str"
+        non_empty: true
+      key_algorithm:
+        type: "str"
+        non_empty: true
+      server:
+        type: "str"
+        non_empty: true
