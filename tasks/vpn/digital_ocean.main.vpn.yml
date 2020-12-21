@@ -20,6 +20,7 @@
     ext_vpn_title: "{{ inner_service_title }} - vpn - digital ocean"
     ext_vpn_params: "{{ inner_service_params }}"
     ext_vpn_credentials: "{{ inner_service_credentials }}"
+    ext_vpn_contents: "{{ inner_service_contents }}"
     ext_vpn_state: "{{ inner_service_state }}"
     ext_vpn_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_vpn_tmp_dir: "{{ inner_service_tmp_dir }}"

@@ -8,6 +8,11 @@
     var: inner_service_credentials
   tags: ["no_print_skipped"]
 
+- name: "{{ inner_service_title }} - print (test) - 03 - contents"
+  debug:
+    var: inner_service_contents
+  tags: ["no_print_skipped"]
+
 - name: "{{ inner_service_title }} - print (test) - 03 - state"
   debug:
     var: inner_service_state

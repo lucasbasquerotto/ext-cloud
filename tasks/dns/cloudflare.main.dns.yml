@@ -20,6 +20,7 @@
     ext_dns_title: "{{ inner_service_title }} - dns - cloudflare"
     ext_dns_params: "{{ inner_service_params }}"
     ext_dns_credentials: "{{ inner_service_credentials }}"
+    ext_dns_contents: "{{ inner_service_contents }}"
     ext_dns_state: "{{ inner_service_state }}"
     ext_dns_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_dns_tmp_dir: "{{ inner_service_tmp_dir }}"
