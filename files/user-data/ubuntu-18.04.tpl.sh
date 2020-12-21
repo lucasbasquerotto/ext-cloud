@@ -13,15 +13,14 @@ USERNAME="{{ credentials.node.host_user }}"
 PASSWORD="{{ credentials.node.host_pass }}"
 
 # Additional public keys to add to the new sudo user
-# OTHER_PUBLIC_KEYS_TO_ADD=(
-#	"ssh-rsa AAAAB..."
-#	"ssh-rsa AAAAB..."
-# )
-OTHER_PUBLIC_KEYS_TO_ADD=(
-{% for item in (contents.host_ssh_public_keys.splitlines() | list) %}
-	"{{ item }}"
-{% endfor %}
-)
+# AUTHORIZED_KEYS=<<-SHELL
+# 	ssh-rsa AAAAB...
+# 	ssh-rsa AAAAB...
+# SHELL
+AUTHORIZED_KEYS="$(cat <<-'SHELL'
+{{ contents.host_ssh_public_keys }}
+SHELL
+)"
 
 ####################
 ### SCRIPT LOGIC ###
@@ -63,10 +62,8 @@ fi
 home_directory="$(eval echo ~"${USERNAME}")"
 mkdir --parents "${home_directory}/.ssh"
 
-# Add additional provided public keys
-for pub_key in "${OTHER_PUBLIC_KEYS_TO_ADD[@]}"; do
-	echo "${pub_key}" >> "${home_directory}/.ssh/authorized_keys"
-done
+# Add the provided public keys
+echo "${AUTHORIZED_KEYS}" > "${home_directory}/.ssh/authorized_keys"
 
 # Adjust SSH configuration ownership and permissions
 chmod 0751 "${home_directory}/.ssh"

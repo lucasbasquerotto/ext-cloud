@@ -1,0 +1,32 @@
+root: "user_data_schema"
+schemas:
+  user_data_schema:
+    type: "dict"
+    props:
+      credentials:
+        schema: "credentials"
+        non_empty: true
+      contents:
+        schema: "contents"
+        non_empty: true
+  credentials:
+    type: "dict"
+    props:
+      node:
+        schema: "node"
+        non_empty: true
+  node_credential:
+    type: "dict"
+    props:
+      host_user:
+        type: "str"
+        non_empty: true
+      host_pass:
+        type: "str"
+        non_empty: true
+  contents:
+    type: "dict"
+    props:
+      host_ssh_public_keys:
+        type: "str"
+        regex: "^((ssh-rsa .*)[\\n])*((ssh-rsa .*)[\\n]?)?$"
