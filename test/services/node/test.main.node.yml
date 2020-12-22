@@ -93,6 +93,10 @@
     label: "{{ ext_node_item_name }}"
   tags: ["no_print"]
 
+- name: "{{ ext_node_title }} - print (test) - user data"
+  debug:
+    var: ext_node_user_data
+
 - name: "{{ ext_node_title }} - set result (tmp)"
   set_fact:
     ext_node_result:

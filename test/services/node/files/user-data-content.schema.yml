@@ -1,0 +1,38 @@
+root: "user_data_schema"
+schemas:
+  user_data_schema:
+    type: "dict"
+    props:
+      credentials:
+        schema: "credentials"
+        non_empty: true
+      contents:
+        schema: "contents"
+        non_empty: true
+  credentials:
+    type: "dict"
+    props:
+      node:
+        schema: "node_credential"
+        non_empty: true
+  node_credential:
+    type: "dict"
+    props:
+      host_user:
+        type: "str"
+        non_empty: true
+      host_pass:
+        type: "str"
+        non_empty: true
+      host_ssh_public_keys_path:
+        type: "str"
+      ssh_file:
+        type: "str"
+      ssh_file_encrypted:
+        type: "bool"
+  contents:
+    type: "dict"
+    props:
+      host_ssh_public_keys:
+        type: "str"
+        regex: "^((ssh-rsa AAAAB.*)[\\n])*((ssh-rsa AAAAB.*)[\\n]?)?$"

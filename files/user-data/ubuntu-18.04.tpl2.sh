@@ -17,7 +17,7 @@ PASSWORD="{{ credentials.node.host_pass }}"
 # 	ssh-rsa AAAAB...
 # 	ssh-rsa AAAAB...
 # SHELL
-AUTHORIZED_KEYS="$(cat <<-'SHELL'
+AUTHORIZED_KEYS="$(cat <<'SHELL'
 {{ contents.host_ssh_public_keys }}
 SHELL
 )"
