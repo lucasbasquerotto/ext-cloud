@@ -9,15 +9,16 @@ schemas:
       credentials:
         schema: "credentials"
         non_empty: true
+      contents:
+        schema: "contents"
+        non_empty: true
   params:
     type: "dict"
     props:
-      name:
-        type: "str"
-        non_empty: true
-      state:
-        type: "str"
-        choices: ["present", "absent"]
+      replicas:
+        type: "list"
+        elem_schema: "replica"
+        required: true
       prop1:
         type: "str"
         non_empty: true
@@ -26,6 +27,14 @@ schemas:
       user_datas:
         type: "list"
         elem_schema: "content"
+  replica:
+    type: "dict"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      absent:
+        type: "bool"
   content:
     type: "simple_dict"
     alternative_type: "str"
@@ -68,3 +77,8 @@ schemas:
       test_token:
         type: "str"
         non_empty: true
+  contents:
+    type: "dict"
+    props:
+      user_data:
+        type: "str"

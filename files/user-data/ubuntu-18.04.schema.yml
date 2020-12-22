@@ -13,7 +13,7 @@ schemas:
     type: "dict"
     props:
       node:
-        schema: "node"
+        schema: "node_credential"
         non_empty: true
   node_credential:
     type: "dict"
@@ -24,6 +24,12 @@ schemas:
       host_pass:
         type: "str"
         non_empty: true
+      host_ssh_public_keys_path:
+        type: "str"
+      ssh_file:
+        type: "str"
+      ssh_file_encrypted:
+        type: "bool"
   contents:
     type: "dict"
     props:

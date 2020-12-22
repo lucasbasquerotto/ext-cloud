@@ -1,0 +1,12 @@
+- name: "{{ ext_node_item_title }} - set result (tmp)"
+  set_fact:
+    ext_node_item_result:
+      name: "{{ ext_node_item_name }}"
+      state: "{{ ext_node_item_state }}"
+      local: true
+  tags: ["no_print"]
+
+- name: "{{ ext_node_item_title }} - ext_node_hosts"
+  set_fact:
+    ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
+  tags: ["no_print"]

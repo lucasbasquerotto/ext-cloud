@@ -9,15 +9,15 @@ schemas:
       credentials:
         schema: "credentials"
         non_empty: true
+      contents:
+        schema: "contents"
   params:
     type: "dict"
     props:
-      name:
-        type: "str"
-        non_empty: true
-      state:
-        type: "str"
-        choices: ["present", "absent"]
+      replicas:
+        type: "list"
+        elem_schema: "replica"
+        required: true
       region_id:
         type: "str"
         non_empty: true
@@ -31,42 +31,18 @@ schemas:
         type: "int"
       ipv6:
         type: "bool"
-      user_data:
-        schema: "content"
       tags:
         type: "list"
         elem_type: "str"
         elem_non_empty: true
-  content:
-    type: "simple_dict"
-    alternative_type: "str"
+  replica:
+    type: "dict"
     props:
-      type:
-        type: "str"
-        choices: ["env", "str", "file", "template"]
       name:
         type: "str"
-      key:
-        type: "str"
-      origin:
-        type: "str"
-      file:
-        type: "str"
-      schema:
-        type: "str"
-      credentials:
-        type: "map"
-        elem_type: "str"
-      params:
-        type: "dict"
-      group_params:
-        type: "map"
-        elem_type: "str"
-      shared_params:
-        type: "list"
-        elem_type: "str"
-      shared_group_params:
-        type: "str"
+        non_empty: true
+      absent:
+        type: "bool"
   credentials:
     type: "dict"
     props:
@@ -79,3 +55,8 @@ schemas:
       api_token:
         type: "str"
         non_empty: true
+  contents:
+    type: "dict"
+    props:
+      user_data:
+        type: "str"
