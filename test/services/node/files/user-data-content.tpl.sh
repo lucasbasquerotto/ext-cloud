@@ -10,3 +10,6 @@ AUTHORIZED_KEYS="$(cat <<'SHELL'
 {{ contents.host_ssh_public_keys }}
 SHELL
 )"
+
+dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "$AUTHORIZED_KEYS" > "$dir/test.out.log"
