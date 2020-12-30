@@ -1,6 +1,8 @@
 #!/bin/bash
 #shellcheck disable=SC1083,SC2129
-set -euo pipefail
+set -eEuo pipefail
+
+trap 'echo >&2 "$_ at $LINENO"; exit $LINENO;' ERR
 
 ########################
 ### SCRIPT VARIABLES ###
@@ -156,4 +158,4 @@ echo "Other Depedencies Installed" >> "/var/log/setup.log"
 ###       END        ###
 ########################
 
-echo "Setup Finished" >> "/var/log/setup.log"
+echo "Setup Finished - Success" >> "/var/log/setup.log"

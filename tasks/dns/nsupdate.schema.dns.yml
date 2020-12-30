@@ -43,18 +43,6 @@ schemas:
       value:
         type: str
         non_empty: true
-      ttl:
-        type: int
-      priority:
-        type: int
-      service:
-        type: str
-      protocol:
-        type: str
-      port:
-        type: int
-      weight:
-        type: int
   credentials:
     type: "dict"
     props:

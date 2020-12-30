@@ -12,11 +12,11 @@
     ipv6: "{{ ext_node_params.ipv6 | default(omit, true) }}"
     user_data: "{{ ext_node_user_data | default(omit, true) }}"
   register: ext_node_item_details
-  tags: ["no_print_skipped"]
 
 - name: "{{ ext_node_item_title }} - ext_node_item_droplet"
   set_fact:
-    ext_node_item_droplet: "{{ ext_node_details.data.droplet }}"
+    ext_node_item_droplet: "{{ ext_node_item_details.data.droplet }}"
+  when: ext_node_item_state == 'present'
   tags: ["no_print"]
 
 - name: >-
