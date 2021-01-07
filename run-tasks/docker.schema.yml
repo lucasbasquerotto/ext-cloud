@@ -2,25 +2,51 @@ root: "docker_schema"
 schemas:
   docker_schema:
     type: "dict"
+    description: >-
+      schema for docker task, that installs docker-compose (if specified)
+      and ensure docker is running
     props:
       params:
         schema: "docker_params"
         non_empty: true
+        description: "parameters for the task"
   docker_params:
     type: "dict"
+    description: "parameters schema"
     props:
       start_service:
         type: "bool"
+        description: >-
+          when true, ensure that docker is running (false does nothing)
       compose:
         schema: "compose"
+        description: >-
+          parameters used to download the docker-compose binary
+          (won't isntall if not specified)
   compose:
     type: "dict"
+    description: "docker-compose parameters schema"
     props:
       src:
         type: "str"
+        description: >-
+          source to download the docker-compose binary
+          (will do nothing if not specified, unless the version is specified,
+          in which case it will install from the default location at
+          docker/compose in github using the given version)
       version:
         type: "str"
+        description: >-
+          version of the docker-compose binary to be used when downloading
+          from the default location (will do nothing if not specified,
+          unless src is specified)
       dest:
         type: "str"
+        description: >-
+          destination in which the docker-compose binary will be downloaded;
+          defaults to '/usr/local/bin/docker-compose'
       mode:
         type: "int"
+        description: >-
+          the permissions the resulting (downloaded) binary file should have;
+          defaults to '0755'

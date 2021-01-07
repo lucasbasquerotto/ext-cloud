@@ -2,77 +2,131 @@ root: "dns_schema"
 schemas:
   dns_schema:
     type: "dict"
+    description: "godaddy dns schema"
     props:
       params:
         schema: "params"
         non_empty: true
+        description: "godaddy dns parameters"
       credentials:
         schema: "credentials"
         non_empty: true
+        description: "godaddy dns credentials"
   params:
     type: "dict"
+    description: "godaddy dns parameters schema"
     props:
       zone:
         type: "str"
         non_empty: true
+        description: >-
+          dns zone/domain (e.g. 'example.com'); the zone must already exist
       dns_type:
         type: "str"
         non_empty: true
+        choices:
+          - "A"
+          - "AAAA"
+          - "CNAME"
+          - "DS"
+          - "MX"
+          - "NS"
+          - "SPF"
+          - "SRV"
+          - "SSHFP"
+          - "TLSA"
+          - "TXT"
+        description: "dns type"
       record:
         type: "str"
         non_empty: true
+        description: "dns record to add/remove (according to state)"
       ttl:
         type: int
+        description: "dns record ttl (time-to-live)"
       priority:
         type: int
+        description: "dns record priority (for dns_type=MX and dns_type=SRV)"
       service:
         type: str
+        description: "dns record service (for dns_type=SRV)"
       protocol:
         type: str
+        description: "dns record protocol (for dns_type=SRV and dns_type=TLSA)"
       port:
         type: int
+        description: "dns record port (for dns_type=SRV and dns_type=TLSA)"
       weight:
         type: int
-      data_list:
+        description: "dns record weight (for dns_type=SRV)"
+      values:
         type: "list"
-        elem_schema: "dns_item"
+        elem_schema: "dns_value_item"
         elem_non_empty: "true"
-  dns_item:
-    type: "dict"
+        description: "list with strings or dictionaries representing the dns record value"
+  dns_value_item:
+    type: "simple_dict"
+    alternative_type: "string"
+    description: "dns record value schema"
     props:
       value:
         type: str
         non_empty: true
+        description: "dns record value"
       ttl:
         type: int
+        description: >-
+          dns record ttl (time-to-live); applied to this specific dns record value
       priority:
         type: int
+        description: >-
+          dns record priority (for dns_type=MX and dns_type=SRV);
+          applied to this specific dns record value
       service:
         type: str
+        description: >-
+          dns record service (for dns_type=SRV);
+          applied to this specific dns record value
       protocol:
         type: str
+        description: >-
+          dns record protocol (for dns_type=SRV and dns_type=TLSA);
+          applied to this specific dns record value
       port:
         type: int
+        description: >-
+          dns record port (for dns_type=SRV and dns_type=TLSA);
+          applied to this specific dns record value
       weight:
         type: int
+        description: >-
+          dns record weight (for dns_type=SRV);
+          applied to this specific dns record value
   credentials:
     type: "dict"
+    description: "godaddy dns credentials schema"
     props:
       dns:
         schema: "godaddy_credentials"
         non_empty: true
+        description: "godaddy dns main credentials"
   godaddy_credentials:
     type: "dict"
+    description: "godaddy dns main credentials schema"
     props:
       api_server:
         type: "str"
         non_empty: true
+        description: "godaddy api server"
       api_version:
         type: "str"
         non_empty: true
+        description: "godaddy api version:"
       api_key:
         type: "str"
         non_empty: true
+        description: "godaddy api key"
       api_secret:
         type: "str"
         non_empty: true
+        description: "godaddy api secret"

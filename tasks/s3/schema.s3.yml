@@ -2,19 +2,24 @@ root: "s3_schema"
 schemas:
   s3_schema:
     type: "dict"
+    description: "schema for the s3 task"
     props:
       params:
         schema: "params"
         non_empty: true
+        description: "parameters for the s3 task"
       credentials:
         schema: "credentials"
         non_empty: true
+        description: "credentials for the s3 task"
   params:
     type: "dict"
+    description: "parameters schema for the s3 task"
     props:
       bucket:
         type: "str"
         non_empty: true
+        description: "s3 bucket name"
       permission:
         type: "str"
         choices:
@@ -22,24 +27,27 @@ schemas:
           - "public-read"
           - "public-read-write"
           - "authenticated-read"
+        description: "s3 bucket permission"
   credentials:
     type: "dict"
+    description: "credentials schema for the s3 task"
     props:
       s3:
         schema: "s3_credentials"
         non_empty: true
+        description: "s3 credentials"
   s3_credentials:
     type: "dict"
+    description: "s3 credentials schema"
     props:
-      host:
-        type: "str"
-      ssl:
-        type: "bool"
       endpoint:
         type: "str"
+        description: "s3 host (url endpoint; use aws when not specified)"
       access_key:
         type: "str"
         non_empty: true
+        description: "s3 access key"
       secret_key:
         type: "str"
         non_empty: true
+        description: "s3 secret key"

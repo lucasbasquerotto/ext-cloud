@@ -2,85 +2,118 @@ root: "vpn_schema"
 schemas:
   vpn_schema:
     type: "dict"
+    description: "digital ocean vpn schema"
     props:
       params:
         schema: "params"
         non_empty: true
+        description: "digital ocean vpn parameters"
       credentials:
         schema: "credentials"
         non_empty: true
+        description: "digital ocean vpn credentials"
   params:
     type: "dict"
+    description: "digital ocean vpn parameters schema"
     props:
       tags:
         type: "list"
         elem_type: "str"
+        description: "tags to be created/removed (according to the state)"
       firewalls:
         type: "list"
         elem_schema: "firewall"
+        description: "firewalls to be created/removed (according to the state)"
   firewall:
     type: "dict"
+    description: "firewall schema"
     props:
       name:
         type: "str"
         non_empty: true
+        description: "firewall name"
       tags:
         type: "list"
         elem_type: "str"
+        description: "firewall tags (will be applied to droplets/nodes with the these tags)"
       inbound_rules:
         type: "list"
         elem_schema: "inbound_rule"
+        description: "firewall inbound rules (to limit what can access the droplets/nodes)"
       outbound_rules:
         type: "list"
         elem_schema: "outbound_rule"
+        description: "firewall outbound rules (to limit what the droplets/nodes can access)"
   inbound_rule:
     type: "dict"
+    description: "firewall inbound rule schema"
     props:
       protocol:
         type: "str"
         choices: ["udp", "tcp", "icmp"]
+        description: "network protocol to be accepted"
       ports:
         type: "str"
         non_empty: true
+        description: "the ports on which traffic will be allowed, single, range, or all"
       sources:
-        schema: "srd_dest"
+        schema: "src_dest_locations"
         required: true
+        description: "dictionary of locations from which inbound traffic will be accepted"
   outbound_rule:
     type: "dict"
+    description: "firewall outbound rule schema"
     props:
       protocol:
         type: "str"
         choices: ["udp", "tcp", "icmp"]
+        description: "network protocol to be accepted"
       ports:
         type: "str"
         non_empty: true
+        description: "the ports on which traffic will be allowed, single, range, or all"
       destinations:
-        schema: "srd_dest"
+        schema: "src_dest_locations"
         required: true
-  srd_dest:
+        description: "dictionary of locations from which outbound traffic will be allowed"
+  src_dest_locations:
     type: "dict"
     props:
       addresses:
         type: "list"
         elem_type: "str"
+        description: >-
+          list of strings containing the IPv4 addresses, IPv6 addresses, IPv4 CIDRs,
+          and/or IPv6 CIDRs to which the firewall will allow traffic
       droplet_ids:
         type: "list"
         elem_type: "int"
+        description: >-
+          list of integers containing the IDs of the Droplets to which the firewall will allow traffic
       load_balancer_uids:
         type: "list"
         elem_type: "str"
+        description: >-
+          list of strings containing the IDs of the Load Balancers to which the firewall will allow traffic
       tags:
         type: "list"
         elem_type: "str"
+        description: >-
+          list of strings containing the names of Tags corresponding to groups of Droplets to
+          which the Firewall will allow traffic
   credentials:
     type: "dict"
+    description: "digital ocean vpn credentials schema"
     props:
       vpn:
         schema: "digital_ocean_credentials"
         non_empty: true
+        description: "digital ocean vpn main credentials"
   digital_ocean_credentials:
     type: "dict"
+    description: "digital ocean vpn main credentials schema"
     props:
       api_token:
         type: "str"
         non_empty: true
+        description: "digital ocean api token"

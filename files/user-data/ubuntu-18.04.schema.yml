@@ -2,35 +2,42 @@ root: "user_data_schema"
 schemas:
   user_data_schema:
     type: "dict"
+    description: "schema for the user data (used to run instructions in a newly created host)"
     props:
       credentials:
         schema: "credentials"
         non_empty: true
+        description: "user data credentials"
       contents:
         schema: "contents"
         non_empty: true
+        description: "user data contents"
   credentials:
     type: "dict"
+    description: "user data credentials schema"
     props:
       node:
         schema: "node_credential"
         non_empty: true
+        description: "credential used for the node"
   node_credential:
     type: "dict"
+    lax: true
+    description: "schema used for the credential used for the node"
     props:
       host_user:
         type: "str"
         non_empty: true
+        description: "user that will be created in the host"
       host_pass:
         type: "str"
         non_empty: true
-      host_ssh_public_keys_path:
-        type: "str"
-      ssh_file:
-        type: "str"
+        description: "password for user that will be created in the host"
   contents:
     type: "dict"
+    description: "user data contents schema"
     props:
       host_ssh_public_keys:
         type: "str"
         regex: "^((ssh-rsa .*)[\\n])*((ssh-rsa .*)[\\n]?)?$"
+        description: "string in which each line is a ssh public key"
