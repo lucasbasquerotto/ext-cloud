@@ -42,35 +42,35 @@ schemas:
         non_empty: true
         description: "dns record to add/remove (according to state)"
       ttl:
-        type: int
+        type: "int"
         description: "dns record ttl (time-to-live)"
       priority:
-        type: int
+        type: "int"
         description: "dns record priority (for dns_type=MX and dns_type=SRV)"
       service:
-        type: str
+        type: "str"
         description: "dns record service (for dns_type=SRV)"
       protocol:
-        type: str
+        type: "str"
         description: "dns record protocol (for dns_type=SRV and dns_type=TLSA)"
       port:
-        type: int
+        type: "int"
         description: "dns record port (for dns_type=SRV and dns_type=TLSA)"
       weight:
-        type: int
+        type: "int"
         description: "dns record weight (for dns_type=SRV)"
-      values:
+      dns_values:
         type: "list"
         elem_schema: "dns_value_item"
         elem_non_empty: "true"
         description: "list with strings or dictionaries representing the dns record value"
   dns_value_item:
     type: "simple_dict"
-    alternative_type: "string"
+    alternative_type: "str"
     description: "dns record value schema"
     props:
       value:
-        type: str
+        type: "str"
         non_empty: true
         description: "dns record value"
   credentials:

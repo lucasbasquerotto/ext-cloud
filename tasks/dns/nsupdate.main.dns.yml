@@ -34,7 +34,7 @@
     ext_dns_zone: "{{ ext_dns_params.zone }}"
     ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
     ext_dns_record: "{{ ext_dns_params.record }}"
-    ext_dns_values: "{{ ext_dns_params.values }}"
+    ext_dns_values: "{{ ext_dns_params.dns_values }}"
     ext_dns_main_credentials: "{{ inner_service_credentials.dns | default({}) }}"
     ext_dns_ttl: "{{ ext_dns_params.ttl | default('') }}"
     ext_dns_protocol: "{{ ext_dns_params.protocol | default('') }}"

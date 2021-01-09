@@ -3,7 +3,7 @@
       cloud_dns_state: "{{ cloud_dns_state }}"
       cloud_dns_record_type: "{{ cloud_dns_record_type }}"
       cloud_dns_record: "{{ cloud_dns_record }}"
-      cloud_dns_data_list: "{{ cloud_dns_data_list }}"
+      cloud_dns_values: "{{ cloud_dns_values }}"
   tags: ["no_print"]
 
 - name: "{{ cloud_dns_title }} - [custom_task] - dns"
