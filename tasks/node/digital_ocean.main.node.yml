@@ -50,7 +50,7 @@
       }}
     ext_node_item_title: >-
       {{ ext_node_title }} -
-      node [{{ ext_node_item_name }} ({{ ext_node_item_state }})]
+      host [{{ ext_node_item_name }} ({{ ext_node_item_state }})]
   loop: "{{ ext_node_params.replicas }}"
   loop_control:
     loop_var: ext_node_item
