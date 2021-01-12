@@ -12,70 +12,8 @@ check_root() {
     echo "This script must be run as root. Please sudo or log in as root first." 1>&2
     exit 1
   fi
-  
+
   echo "check_root finished"
-}
-
-##
-## Check whether a connection to HOSTNAME ($1) on PORT ($2) is possible
-##
-connect_to_port () {
-  echo "connect_to_port started"
-  
-  HOST="$1"
-  PORT="$2"
-  VERIFY=`date +%s | sha256sum | base64 | head -c 20`
-  echo -e "HTTP/1.1 200 OK\n\n $VERIFY" | nc -w 4 -l -p $PORT >/dev/null 2>&1 &
-  if curl --proto =http -s $HOST:$PORT --connect-timeout 3 | grep $VERIFY >/dev/null 2>&1
-  then
-      return 0
-  else
-    curl --proto =http -s localhost:$PORT >/dev/null 2>&1
-    return 1
-  fi
-  
-  echo "connect_to_port finished"
-}
-
-check_IP_match () {
-  echo "check_IP_match started"
-
-  HOST="$1"
-  echo
-  echo Checking your domain name . . .
-
-  if connect_to_port $HOST 443
-  then
-    echo
-    echo "Connection to $HOST succeeded."
-  else
-    echo WARNING:: This server does not appear to be accessible at $HOST:443.
-    echo
-
-    if connect_to_port $HOST 80
-    then
-      echo A connection to port 80 succeeds, however.
-      echo This suggests that your DNS settings are correct,
-      echo but something is keeping traffic to port 443 from getting to your server.
-      echo Check your networking configuration to see that connections to port 443 are allowed.
-    else
-      echo "A connection to http://$HOST (port 80) also fails."
-      echo
-      echo This suggests that $HOST resolves to the wrong IP address
-      echo or that traffic is not being routed to your server.
-    fi
-
-    echo
-    echo Google: \"open ports YOUR CLOUD SERVICE\" for information for resolving this problem.
-    echo
-    echo You should probably answer \"n\" at the next prompt and disable Let\'s Encrypt.
-    echo
-    echo This test might not work for all situations,
-    echo so if you can access Discourse at http://$HOST, you might try anyway.
-    sleep 3
-  fi
-  
-  echo "check_IP_match finished"
 }
 
 ##
@@ -90,7 +28,7 @@ check_docker () {
     echo "Error: Docker not installed." 1>&2
     exit 1
   fi
-  
+
   echo "check_docker finished"
 }
 
@@ -120,7 +58,7 @@ check_linux_memory() {
 ##
 check_disk_and_memory() {
   echo "check_disk_and_memory started"
-	
+
   os_type=$(check_OS)
   avail_mem=0
 
@@ -187,7 +125,7 @@ check_disk_and_memory() {
     echo "packages and \`./launcher cleanup\` to remove stale Docker containers."
     exit 1
   fi
-  
+
   echo "check_disk_and_memory finished"
 }
 

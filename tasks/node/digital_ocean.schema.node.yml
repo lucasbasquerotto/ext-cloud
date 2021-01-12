@@ -2,61 +2,84 @@ root: "node_schema"
 schemas:
   node_schema:
     type: "dict"
+    description: "schema for the digital ocean node task"
     props:
       params:
         schema: "params"
         non_empty: true
+        description: "parameters for the digital ocean node task"
       credentials:
         schema: "credentials"
         non_empty: true
+        description: "credentials for the digital ocean node task"
       contents:
         schema: "contents"
+        description: "contents for the digital ocean node task"
   params:
     type: "dict"
+    description: "parameters schema for the node task"
     props:
       replicas:
         type: "list"
         elem_schema: "replica"
         required: true
+        description: "node replicas (hosts) that will be created/destroyed"
       region_id:
         type: "str"
         non_empty: true
+        description: "node digital ocean region id"
       size_id:
         type: "str"
         non_empty: true
+        description: "node digital ocean size id"
       image_id:
         type: "str"
         non_empty: true
+        description: "node digital ocean image id"
       wait_timeout:
         type: "int"
+        description: "how long before wait gives up, in seconds"
       ipv6:
         type: "bool"
+        description: "when true, enable ipv6 for your droplet"
       tags:
         type: "list"
         elem_type: "str"
         elem_non_empty: true
+        description: "tags to be associated to the created droplets"
   replica:
     type: "dict"
+    description: "node replica schema for the node task"
     props:
       name:
         type: "str"
         non_empty: true
+        description: "node replica (host) name (must be unique among all replicas)"
       absent:
         type: "bool"
+        description: >-
+          when true, the host will be destroyed
+          (will force state=absent for the replica)
   credentials:
     type: "dict"
+    description: "credentials schema for the node task"
     props:
       node:
         schema: "digital_ocean_credentials"
         non_empty: true
+        description: "node main credentials"
   digital_ocean_credentials:
     type: "dict"
+    description: "node main credentials schema"
     props:
       api_token:
         type: "str"
         non_empty: true
+        description: "digital ocean api token"
   contents:
     type: "dict"
+    description: "contents schema for the node task"
     props:
       user_data:
         type: "str"
+        description: "schema for the user data content that will run when creating the host"

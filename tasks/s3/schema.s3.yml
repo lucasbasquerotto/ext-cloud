@@ -42,7 +42,7 @@ schemas:
     props:
       endpoint:
         type: "str"
-        description: "s3 host (url endpoint; use aws when not specified)"
+        description: "s3 host (url endpoint; uses aws by default)"
       access_key:
         type: "str"
         non_empty: true
