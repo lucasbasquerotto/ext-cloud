@@ -20,25 +20,25 @@ services:
         params:
           dns_type: "A"
           record: "sub1"
-          dns_values: ["1.2.3.4"]
+          value: "1.2.3.4"
       - name: "service_dns_item_sub1_ipv6"
         key: "service_dns_item"
         params:
           dns_type: "AAAA"
           record: "sub1"
-          dns_values: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"]
+          value: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
       - name: "service_dns_item_sub2_ipv4"
         key: "service_dns_item"
         params:
           dns_type: "A"
           record: "sub2"
-          dns_values: ["5.6.7.8"]
+          value: "5.6.7.8"
       - name: "service_dns_item_sub2_ipv6"
         key: "service_dns_item"
         params:
           dns_type: "AAAA"
           record: "sub2"
-          dns_values: ["2804:214:861b:1137:f9b2:4339:71ca:bd72"]
+          value: "2804:214:861b:1137:f9b2:4339:71ca:bd72"
   service_dns_item:
     base_dir: "custom-cloud"
     namespace: "ext_dns"
@@ -82,7 +82,7 @@ services:
       zone: "mydomain.com"
       dns_type: "NS"
       record: "dev"
-      dns_values: ["8.8.8.8", "9.9.9.9"]
+      value: ["8.8.8.8", "9.9.9.9"]
 credentials:
   godaddy:
     api_server: "https://api.godaddy.com"

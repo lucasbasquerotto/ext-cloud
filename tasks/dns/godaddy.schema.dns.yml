@@ -59,8 +59,8 @@ schemas:
       weight:
         type: "int"
         description: "dns record weight (for dns_type=SRV)"
-      dns_values:
-        type: "list"
+      value:
+        type: "simple_list"
         elem_schema: "dns_value_item"
         elem_non_empty: "true"
         description: "list with strings or dictionaries representing the dns record value"

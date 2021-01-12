@@ -34,7 +34,7 @@
     ext_dns_zone: "{{ ext_dns_params.zone }}"
     ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
     ext_dns_record: "{{ ext_dns_params.record }}"
-    ext_dns_values: "{{ ext_dns_params.dns_values }}"
+    ext_dns_raw_value: "{{ ext_dns_params.value }}"
     ext_dns_main_credentials: "{{ ext_dns_credentials.dns | default({}) }}"
     ext_dns_ttl: "{{ ext_dns_params.ttl | default('') }}"
     ext_dns_priority: "{{ ext_dns_params.priority | default('') }}"
@@ -42,6 +42,18 @@
     ext_dns_protocol: "{{ ext_dns_params.protocol | default('') }}"
     ext_dns_port: "{{ ext_dns_params.port | default('') }}"
     ext_dns_weight: "{{ ext_dns_params.weight | default('') }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - dns values"
+  set_fact:
+    ext_dns_values: >-
+      {{
+        ext_dns_raw_value
+        | default([])
+        | lrd.cloud.simple_to_list
+        | lrd.cloud.simple_dict_prop_list(prop='value')
+        | list
+      }}
   tags: ["no_print"]
 
 - name: "{{ ext_dns_title }} - godaddy dns"
@@ -82,8 +94,9 @@
   set_fact:
     ext_dns_final_state: "absent"
   when: >-
-    (ext_dns_state == 'present') and
-    ((ext_dns_values | default([]) | length) == 0)
+    (ext_dns_state == 'present')
+    and
+    ((ext_dns_values | length) == 0)
   tags: ["no_print"]
 
 - name: >-
@@ -106,13 +119,7 @@
 - block:
     - name: "{{ ext_dns_title }} - define the records"
       include_tasks: "godaddy.record.dns.yml"
-      loop: >-
-        {{
-          ext_dns_values
-          | default([])
-          | lrd.cloud.simple_dict_prop_list(prop='value')
-          | list
-        }}
+      loop: "{{ ext_dns_values }}"
       loop_control:
         loop_var: ext_dns_item
         index_var: ext_dns_index
