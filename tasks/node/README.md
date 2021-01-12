@@ -6,6 +6,8 @@ The node data is handled beforehand so as to create the `replicas` variable that
 
 Each host/replica name is in the form `<node_name>-host-<replica_index>`, with `replica_index` starting in 1, except when `replica_index` is `1`, in which case the replica name will be `<node_name>-host`. When `hostname` is defined in the node information (where the node name is specified), the `hostname` is used instead of `<node_name>-host` (the `replica_index` follows the same rules explained before).
 
+`Node` as defined in the environment file refers to the node type, from which the replicas will be created (if the node amount is `1`, it may be used almost as a synonym of `Host`). In this context, `Host` and `Replica` are the same (an instance of a node type).
+
 ## Digital Ocean
 
 - **Task:** [digital_ocean.main.node.yml](digital_ocean.main.node.yml)
@@ -91,4 +93,4 @@ The above example will create the following Digital Ocean Droplets (Hosts):
 
 Each droplet (host) will be created in the Digital Ocean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with size `s-1vcpu-1gb` (1 cpu and memory of 1 GB) and will have the following tags: `auto` and `dmz`.
 
-When creating the node, the instructions defined at the [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being templated with the credentials and parameters defined) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `host_test` parameters defined for the node).
+After creating the droplet, the instructions defined at the [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being templated with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `host_test` parameters defined for the node).
