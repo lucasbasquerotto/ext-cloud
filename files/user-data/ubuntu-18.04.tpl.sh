@@ -1,8 +1,16 @@
 #!/bin/bash
 #shellcheck disable=SC1083,SC2129
-set -eEuo pipefail
+set -eEou pipefail
 
-trap 'echo >&2 "$_ at $LINENO"; exit $LINENO;' ERR
+err() {
+    echo "Error occurred:" >> "/var/log/setup.log"
+    echo "Caller: $(caller)" >> "/var/log/setup.log"
+	awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n", NR, (NR==L ? ">>>" : ""), $0 }' L="$1" "$0" \
+		>> "/var/log/setup.log"
+	echo "Setup Finished - Error" >> "/var/log/setup.log"
+}
+
+trap 'err "$LINENO"; exit $LINENO;' ERR
 
 ########################
 ### SCRIPT VARIABLES ###
@@ -23,6 +31,12 @@ AUTHORIZED_KEYS="$(cat <<'SHELL'
 {{ contents.host_ssh_public_keys }}
 SHELL
 )"
+
+DOCKER_COMPOSE_VERSION="{{ params.docker_compose_version | default('1.27.4') }}"
+
+export DEBIAN_FRONTEND=noninteractive
+
+touch "/var/log/setup.log"
 
 ####################
 ### SCRIPT LOGIC ###
@@ -99,22 +113,6 @@ ClientAliveCountMax 10000
 echo "Main logic finished" >> "/var/log/setup.log"
 
 ########################
-###   ANSIBLE HOST   ###
-########################
-
-echo "Preparing Ansible Host..." >> "/var/log/setup.log"
-
-export DEBIAN_FRONTEND=noninteractive
-
-apt update
-
-apt install -y python3-pip
-
-echo "Python Installed" >> "/var/log/setup.log"
-
-echo "Ansible Host Prepared" >> "/var/log/setup.log"
-
-########################
 ###      DOCKER      ###
 ########################
 
@@ -136,9 +134,33 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bi
 apt update
 
 # Finally, install Docker
-apt install -y docker-ce docker-compose haveged
+apt install -y docker-ce
 
 echo "Docker Installed" >> "/var/log/setup.log"
+
+# Install Docker Compose
+curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)"
+	\ -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+echo "Docker Compose Installed" >> "/var/log/setup.log"
+
+########################
+###      PODMAN      ###
+########################
+
+echo "Preparing Podman Installation..." >> "/var/log/setup.log"
+
+. /etc/os-release
+echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" \
+	| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" \
+	| apt-key add -
+apt-get update
+apt-get -y upgrade
+apt-get -y install podman
+
+echo "Podman Installed" >> "/var/log/setup.log"
 
 ########################
 ###      OTHERS      ###
@@ -150,7 +172,7 @@ echo "Installing Other Depedencies..." >> "/var/log/setup.log"
 apt update
 
 # Next, install the packages
-apt install -y jq gnupg2 pass inotify-tools
+apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
 
 echo "Other Depedencies Installed" >> "/var/log/setup.log"
 

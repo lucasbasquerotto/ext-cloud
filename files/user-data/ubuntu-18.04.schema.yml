@@ -4,6 +4,9 @@ schemas:
     type: "dict"
     description: "schema for the user data (used to run instructions in a newly created host)"
     props:
+      params:
+        schema: "params"
+        description: "user data parameters"
       credentials:
         schema: "credentials"
         non_empty: true
@@ -12,6 +15,13 @@ schemas:
         schema: "contents"
         non_empty: true
         description: "user data contents"
+  params:
+    type: "dict"
+    description: "user data parameters schema"
+    props:
+      docker_compose_version:
+        type: "str"
+        description: "docker compose version to be installed after installing docker"
   credentials:
     type: "dict"
     description: "user data credentials schema"

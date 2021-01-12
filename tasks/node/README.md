@@ -77,7 +77,7 @@ services:
 credentials:
   host:
     host_user: "my-user"
-    host_pass: "p4$$word"
+    host_pass: "p4$$w0rd"
     ssh_file: "path/to/my-ssh-key-file"
   digital_ocean:
     api_token: "<digital_ocean_api_token>"
