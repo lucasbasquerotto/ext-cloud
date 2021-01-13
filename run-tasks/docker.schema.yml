@@ -46,7 +46,8 @@ schemas:
           destination in which the docker-compose binary will be downloaded;
           defaults to '/usr/local/bin/docker-compose'
       mode:
-        type: "int"
+        type: "str"
+        regex: "()|([0-7]{3})"
         description: >-
           the permissions the resulting (downloaded) binary file should have;
           defaults to '0755'
