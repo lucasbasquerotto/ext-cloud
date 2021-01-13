@@ -47,7 +47,7 @@ schemas:
           defaults to '/usr/local/bin/docker-compose'
       mode:
         type: "str"
-        regex: "()|([0-7]{3})"
+        regex: "^([0-7]{3})?$"
         description: >-
           the permissions the resulting (downloaded) binary file should have;
           defaults to '0755'
