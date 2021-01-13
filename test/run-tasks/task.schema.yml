@@ -9,6 +9,8 @@ schemas:
       credentials:
         schema: "params"
         non_empty: true
+      contents:
+        schema: "contents"
   params:
     type: "dict"
     props:
@@ -26,6 +28,10 @@ schemas:
       prop5:
         type: "str"
         non_empty: true
+      overridden:
+        type: "str"
+      run_stage:
+        type: "str"
   complex:
     type: "dict"
     props:
@@ -36,3 +42,12 @@ schemas:
         schema: "complex"
       inner_prop3:
         schema: "complex"
+  contents:
+    type: "dict"
+    props:
+      content_task:
+        type: "str"
+      content_task_run_stage:
+        type: "str"
+      content_task_overridden:
+        type: "str"
