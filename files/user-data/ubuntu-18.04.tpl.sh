@@ -7,6 +7,7 @@ err() {
     echo "Caller: $(caller)" >> "/var/log/setup.log"
 	awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n", NR, (NR==L ? ">>>" : ""), $0 }' L="$1" "$0" \
 		>> "/var/log/setup.log"
+	echo "Error at: $(date --utc '+%F %X')" >> "/var/log/setup.log"
 	echo "Setup Finished - Error" >> "/var/log/setup.log"
 }
 
@@ -64,7 +65,7 @@ else
 	passwd --delete "${USERNAME}"
 	echo "$USERNAME:$PASSWORD" | chpasswd
 
-	echo "New password defined for $USERNAME" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] New password defined for $USERNAME" >> "/var/log/setup.log"
 fi
 
 if [ "${encrypted_root_pw}" != "*" ]; then
@@ -110,13 +111,15 @@ TCPKeepAlive yes
 ClientAliveCountMax 10000
 " >> /etc/ssh/sshd_config
 
-echo "Main logic finished" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Main logic finished" >> "/var/log/setup.log"
+
+unknown_command_test_error param1 param2
 
 ########################
 ###      DOCKER      ###
 ########################
 
-echo "Preparing Docker Installation..." >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Preparing Docker Installation..." >> "/var/log/setup.log"
 
 # First, update your existing list of packages
 apt update
@@ -136,45 +139,55 @@ apt update
 # Finally, install Docker
 apt install -y docker-ce
 
-echo "Docker Installed" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Docker Installed" >> "/var/log/setup.log"
 
 # Install Docker Compose
-curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)"
-	\ -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
+	-o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-echo "Docker Compose Installed" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Docker Compose Installed" >> "/var/log/setup.log"
 
 ########################
 ###      PODMAN      ###
 ########################
 
-echo "Preparing Podman Installation..." >> "/var/log/setup.log"
+# echo "[$(date --utc '+%F %X')] Preparing Podman Installation..." >> "/var/log/setup.log"
 
-. /etc/os-release
-echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" \
-	| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" \
-	| apt-key add -
-apt-get update
-apt-get -y upgrade
-apt-get -y install podman
+# . /etc/os-release
 
-echo "Podman Installed" >> "/var/log/setup.log"
+# echo "[$(date --utc '+%F %X')] Environment Loaded for Podman Installation..." >> "/var/log/setup.log"
+
+# echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" \
+# 	| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+# curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" \
+# 	| apt-key add -
+
+# echo "[$(date --utc '+%F %X')] Podman repository added (apt)..." >> "/var/log/setup.log"
+
+# apt-get update
+# apt-get -y upgrade
+
+# echo "[$(date --utc '+%F %X')] Packages updated for Podman Installation (apt)..." >> "/var/log/setup.log"
+
+# apt-get -y install podman
+
+# echo "[$(date --utc '+%F %X')] Podman Installed" >> "/var/log/setup.log"
 
 ########################
 ###      OTHERS      ###
 ########################
 
-echo "Installing Other Depedencies..." >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Installing Other Dependencies..." >> "/var/log/setup.log"
 
 # First, update your existing list of packages
 apt update
 
 # Next, install the packages
-apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
+# apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
+apt install -y jq gnupg2 pass haveged
 
-echo "Other Depedencies Installed" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Other Depedencies Installed" >> "/var/log/setup.log"
 
 ########################
 ###       END        ###
