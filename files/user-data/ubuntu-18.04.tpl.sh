@@ -3,11 +3,10 @@
 set -eEou pipefail
 
 err() {
-    echo "Error occurred:" >> "/var/log/setup.log"
+    echo "[$(date --utc '+%F %X')] Error occurred:" >> "/var/log/setup.log"
     echo "Caller: $(caller)" >> "/var/log/setup.log"
 	awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n", NR, (NR==L ? ">>>" : ""), $0 }' L="$1" "$0" \
 		>> "/var/log/setup.log"
-	echo "Error at: $(date --utc '+%F %X')" >> "/var/log/setup.log"
 	echo "Setup Finished - Error" >> "/var/log/setup.log"
 }
 
@@ -112,8 +111,6 @@ ClientAliveCountMax 10000
 " >> /etc/ssh/sshd_config
 
 echo "[$(date --utc '+%F %X')] Main logic finished" >> "/var/log/setup.log"
-
-unknown_command_test_error param1 param2
 
 ########################
 ###      DOCKER      ###
