@@ -32,15 +32,18 @@ AUTHORIZED_KEYS="$(cat <<'SHELL'
 SHELL
 )"
 
+INSTALL_DOCKER="{{ params.install_docker | default(false) | bool | ternary('true', 'false') }}"
+INSTALL_PODMAN="{{ params.install_podman | default(false) | bool | ternary('true', 'false') }}"
+INSTALL_PACKAGES="{{ params.install_packages | default(false) | bool | ternary('true', 'false') }}"
 DOCKER_COMPOSE_VERSION="{{ params.docker_compose_version | default('1.27.4') }}"
 
 export DEBIAN_FRONTEND=noninteractive
 
-touch "/var/log/setup.log"
-
 ####################
 ### SCRIPT LOGIC ###
 ####################
+
+touch "/var/log/setup.log"
 
 # Add sudo user and grant privileges
 useradd --create-home --shell "/bin/bash" --groups sudo "${USERNAME}"
@@ -116,75 +119,80 @@ echo "[$(date --utc '+%F %X')] Main logic finished" >> "/var/log/setup.log"
 ###      DOCKER      ###
 ########################
 
-echo "[$(date --utc '+%F %X')] Preparing Docker Installation..." >> "/var/log/setup.log"
+if [ "$INSTALL_DOCKER" = 'true' ]; then
+	echo "[$(date --utc '+%F %X')] Preparing Docker Installation..." >> "/var/log/setup.log"
 
-# First, update your existing list of packages
-apt update
+	# First, update your existing list of packages
+	apt update
 
-# Next, install a few prerequisite packages which let apt use packages over HTTPS
-apt install -y apt-transport-https ca-certificates curl software-properties-common
+	# Next, install a few prerequisite packages which let apt use packages over HTTPS
+	apt install -y apt-transport-https ca-certificates curl software-properties-common
 
-# Then add the GPG key for the official Docker repository to your system
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+	# Then add the GPG key for the official Docker repository to your system
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 
-# Add the Docker repository to APT sources
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" -y
+	# Add the Docker repository to APT sources
+	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" -y
 
-# Next, update the package database with the Docker packages from the newly added repo
-apt update
+	# Next, update the package database with the Docker packages from the newly added repo
+	apt update
 
-# Finally, install Docker
-apt install -y docker-ce
+	# Finally, install Docker
+	apt install -y docker-ce
 
-echo "[$(date --utc '+%F %X')] Docker Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Docker Installed" >> "/var/log/setup.log"
 
-# Install Docker Compose
-curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
-	-o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+	# Install Docker Compose
+	curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
+		-o /usr/local/bin/docker-compose
+	chmod +x /usr/local/bin/docker-compose
 
-echo "[$(date --utc '+%F %X')] Docker Compose Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Docker Compose Installed" >> "/var/log/setup.log"
+fi
 
 ########################
 ###      PODMAN      ###
 ########################
 
-# echo "[$(date --utc '+%F %X')] Preparing Podman Installation..." >> "/var/log/setup.log"
+if [ "$INSTALL_PODMAN" = 'true' ]; then
+	echo "[$(date --utc '+%F %X')] Preparing Podman Installation..." >> "/var/log/setup.log"
 
-# . /etc/os-release
+	. /etc/os-release
 
-# echo "[$(date --utc '+%F %X')] Environment Loaded for Podman Installation..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Environment Loaded for Podman Installation..." >> "/var/log/setup.log"
 
-# echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" \
-# 	| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-# curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" \
-# 	| apt-key add -
+	echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" \
+		| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+	curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" \
+		| apt-key add -
 
-# echo "[$(date --utc '+%F %X')] Podman repository added (apt)..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Podman repository added (apt)..." >> "/var/log/setup.log"
 
-# apt-get update
-# apt-get -y upgrade
+	apt-get update
+	apt-get -y upgrade
 
-# echo "[$(date --utc '+%F %X')] Packages updated for Podman Installation (apt)..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Packages updated for Podman Installation (apt)..." >> "/var/log/setup.log"
 
-# apt-get -y install podman
+	apt-get -y install podman
 
-# echo "[$(date --utc '+%F %X')] Podman Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Podman Installed" >> "/var/log/setup.log"
+fi
 
 ########################
 ###      OTHERS      ###
 ########################
 
-echo "[$(date --utc '+%F %X')] Installing Other Dependencies..." >> "/var/log/setup.log"
+if [ "$INSTALL_PACKAGES" = 'true' ]; then
+echo "[$(date --utc '+%F %X')] Installing Packages..." >> "/var/log/setup.log"
 
 # First, update your existing list of packages
 apt update
 
 # Next, install the packages
-# apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
-apt install -y jq gnupg2 pass haveged
+apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
 
-echo "[$(date --utc '+%F %X')] Other Depedencies Installed" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Packages Installed" >> "/var/log/setup.log"
+fi
 
 ########################
 ###       END        ###

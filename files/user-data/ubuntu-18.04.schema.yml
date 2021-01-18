@@ -19,6 +19,15 @@ schemas:
     type: "dict"
     description: "user data parameters schema"
     props:
+      install_docker:
+        type: "bool"
+        description: "when true, installs docker in the host; defaults to false"
+      install_podman:
+        type: "bool"
+        description: "when true, installs podman in the host; defaults to false"
+      install_packages:
+        type: "bool"
+        description: "when true, installs some utilities in the host; defaults to false"
       docker_compose_version:
         type: "str"
         description: "docker compose version to be installed after installing docker"
