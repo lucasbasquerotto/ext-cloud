@@ -8,10 +8,8 @@ schemas:
         non_empty: true
       credentials:
         schema: "credentials"
-        non_empty: true
       contents:
         schema: "contents"
-        non_empty: true
   params:
     type: "dict"
     props:
@@ -21,7 +19,6 @@ schemas:
         required: true
       prop1:
         type: "str"
-        non_empty: true
       prop2:
         type: "str"
       user_datas:

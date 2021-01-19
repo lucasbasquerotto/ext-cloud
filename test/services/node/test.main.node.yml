@@ -52,7 +52,7 @@
 
 - name: "{{ ext_node_title }} - print (test) - node state"
   debug:
-    var: ext_node_instance_state
+    var: ext_node_state
 
 - name: "{{ ext_node_title }} - print (test) - node user data list"
   debug:
