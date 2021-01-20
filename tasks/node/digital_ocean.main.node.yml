@@ -41,7 +41,7 @@
 - name: "{{ ext_node_title }} - node (outer)"
   include_tasks: "digital_ocean.item.node.yml"
   vars:
-    ext_node_item_name: "{{ ext_node_item.name | replace('_', '-') }}"
+    ext_node_item_name: "{{ ext_node_item.name }}"
     ext_node_item_state: >-
       {{
         ext_node_item.absent

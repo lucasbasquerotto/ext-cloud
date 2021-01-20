@@ -1,4 +1,4 @@
 - include_tasks: "main.hook.yml"
   vars:
-    hook_name: "after_wait_nodes"
+    hook_name: "before_nodes_setup"
   tags: ["no_print_skipped"]
