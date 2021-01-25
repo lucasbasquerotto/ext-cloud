@@ -3,12 +3,20 @@ schemas:
   user_data_schema:
     type: "dict"
     props:
+      params:
+        schema: "params"
       credentials:
         schema: "credentials"
         non_empty: true
       contents:
         schema: "contents"
         non_empty: true
+  params:
+    type: "dict"
+    props:
+      user_directories:
+        type: "list"
+        elem_type: "str"
   credentials:
     type: "dict"
     props:

@@ -1,5 +1,5 @@
 #!/bin/bash
-#shellcheck disable=SC1083,SC2129
+#shellcheck disable=SC1073,SC1083,SC1088,SC2129
 set -eEou pipefail
 
 err() {
@@ -15,6 +15,9 @@ trap 'err "$LINENO"; exit $LINENO;' ERR
 ########################
 ### SCRIPT VARIABLES ###
 ########################
+
+#shellcheck disable=SC1036
+USER_DIRECTORIES=( {{ params.user_directories | default([]) | join(' ') }} )
 
 # Name of the user to create and grant sudo privileges
 USERNAME="{{ credentials.node.host_user }}"
@@ -112,6 +115,14 @@ ClientAliveInterval 60
 TCPKeepAlive yes
 ClientAliveCountMax 10000
 " >> /etc/ssh/sshd_config
+
+echo "[$(date --utc '+%F %X')] Create the user directories" >> "/var/log/setup.log"
+
+for dir in "${USER_DIRECTORIES[@]}"; do
+	echo "[$(date --utc '+%F %X')] Create the user directory: $dir" >> "/var/log/setup.log"
+	mkdir -p "$dir"
+	chown "${USERNAME}":"${USERNAME}" "$dir"
+done
 
 echo "[$(date --utc '+%F %X')] Main logic finished" >> "/var/log/setup.log"
 

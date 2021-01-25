@@ -19,6 +19,10 @@ schemas:
     type: "dict"
     description: "user data parameters schema"
     props:
+      user_directories:
+        type: "list"
+        elem_type: "str"
+        description: "list of directories to be created owned by the user"
       install_docker:
         type: "bool"
         description: "when true, installs docker in the host; defaults to false"
