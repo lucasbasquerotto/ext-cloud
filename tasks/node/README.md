@@ -41,7 +41,7 @@ nodes:
     credential: "host"
     root: true
     params:
-      host_test:
+      node_setup:
         setup_log_file: "/var/log/setup.log"
         setup_finished_log_regex: "^Setup Finished.*$"
         setup_success_log_last_line: "Setup Finished - Success"
@@ -93,4 +93,4 @@ The above example will create the following Digital Ocean Droplets (Hosts):
 
 Each droplet (host) will be created in the Digital Ocean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with size `s-1vcpu-1gb` (1 cpu and memory of 1 GB) and will have the following tags: `auto` and `dmz`.
 
-After creating the droplet, the instructions defined at the [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being templated with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `host_test` parameters defined for the node).
+After creating the droplet, the instructions defined at the [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being templated with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `node_setup` parameters defined for the node).

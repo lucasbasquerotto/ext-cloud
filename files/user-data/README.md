@@ -27,7 +27,7 @@ nodes:
     credential: "host"
     root: true
     params:
-      host_test:
+      node_setup:
         setup_log_file: "/var/log/setup.log"
         setup_finished_log_regex: "^Setup Finished.*$"
         setup_success_log_last_line: "Setup Finished - Success"
