@@ -46,7 +46,7 @@ schemas:
       cron:
         type: "str"
         non_empty: true
-        # regex: "((\d,-*) )+(\d,-*)"
+        regex: "([\\d,\\-*/]+ ){4}[\\d,\\-*/]+"
         description: >-
           the cron schedule, for example: 0 0 0 1 * * (monthly);
           validated with a simple (not very specific) regex
