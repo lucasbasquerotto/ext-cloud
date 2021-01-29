@@ -1,0 +1,52 @@
+root: "pod_cron_schema"
+schemas:
+  pod_cron_schema:
+    type: "dict"
+    description: "schema for the pod cron data"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+        description: "user data parameters"
+      input:
+        type: "dict"
+        non_empty: true
+  params:
+    type: "dict"
+    description: "schema for the pod cron data params"
+    props:
+      tasks:
+        type: "simple_map"
+        required: true
+        elem_schema: "pod_tasks"
+        elem_required: true
+        description: >-
+          tasks for all pods (when defined as a list) or for
+          specific named pods (when defined as a dict)
+  pod_tasks:
+    type: "list"
+    elem_schema: "pod_task"
+    elem_non_empty: true
+    description: "schema for pod tasks"
+  pod_task:
+    type: "dict"
+    description: "schema for a single pod task"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: >-
+          task name (used for the log file name, and for the task if
+          the 'task' property is not specified)
+      task:
+        type: "str"
+        description: >-
+          the task itself, expected to run as '<pod_dir>/run <task>'; can be multiple arguments;
+          will have the value of the property 'name' when not defined or empty
+      cron:
+        type: "str"
+        non_empty: true
+        # regex: "((\d,-*) )+(\d,-*)"
+        description: >-
+          the cron schedule, for example: 0 0 0 1 * * (monthly);
+          validated with a simple (not very specific) regex
