@@ -38,8 +38,19 @@
 
 # Main
 
-- name: "{{ ext_node_title }} - node (outer)"
-  include_tasks: "digital_ocean.item.node.yml"
+- name: "{{ ext_node_title }} - droplets"
+  digital_ocean_droplet:
+    unique_name: yes
+    oauth_token: "{{ ext_node_main_credentials.api_token }}"
+    name: "{{ ext_node_item_name }}"
+    state: "{{ ext_node_item_state }}"
+    region_id: "{{ ext_node_params.region_id }}"
+    size_id: "{{ ext_node_params.size_id }}"
+    image_id: "{{ ext_node_params.image_id }}"
+    wait_timeout: "{{ ext_node_params.wait_timeout | default(300, true) }}"
+    private_networking: "true"
+    ipv6: "{{ ext_node_params.ipv6 | default(omit, true) }}"
+    user_data: "{{ ext_node_user_data | default(omit, true) }}"
   vars:
     ext_node_item_name: "{{ ext_node_item.name }}"
     ext_node_item_state: >-
@@ -48,13 +59,119 @@
         | default(false)
         | ternary('absent', ext_node_state)
       }}
-    ext_node_item_title: >-
-      {{ ext_node_title }} -
-      host [{{ ext_node_item_name }} ({{ ext_node_item_state }})]
   loop: "{{ ext_node_params.replicas }}"
   loop_control:
     loop_var: ext_node_item
-    label: "{{ ext_node_item_name }}"
+    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
+  register: ext_node_details
+
+- name: "{{ ext_node_title }} - test_data - init"
+  set_fact:
+    test_data: []
+  tags: ["no_print"]
+
+- name: "{{ ext_node_title }} - test_data - fill"
+  set_fact:
+    test_data: "{{ test_data + [ext_node_item_data] }}"
+  vars:
+    ext_node_item: "{{ ext_node_item_data.0 }}"
+    ext_node_tag: "{{ ext_node_item_data.1 }}"
+    ext_node_item_name: "{{ ext_node_item.name }}"
+    ext_node_item_state: >-
+      {{
+        ext_node_item.absent
+        | default(false)
+        | ternary('absent', ext_node_state)
+      }}
+  loop: >-
+    {{
+      (ext_node_params.replicas | default([]))
+      | product(ext_node_params.tags | default([]))
+      | list
+    }}
+  loop_control:
+    loop_var: ext_node_item_data
+    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }}) - {{ ext_node_tag }}"
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_node_title }} - test_data - debug"
+  debug:
+    var: test_data
+
+- name: "{{ ext_node_title }} - tag the droplets"
+  digital_ocean_tag:
+    api_token: "{{ ext_node_main_credentials.api_token }}"
+    resource_id: "{{ ext_node_droplet.id }}"
+    name: "{{ ext_node_tag }}"
+    state: "present"
+  vars:
+    ext_node_item: "{{ ext_node_item_data.0.ext_node_item }}"
+    ext_node_droplet: "{{ ext_node_item_data.0.data.droplet }}"
+    ext_node_tag: "{{ ext_node_item_data.1 }}"
+    ext_node_item_name: "{{ ext_node_item.name }}"
+    ext_node_item_state: >-
+      {{
+        ext_node_item.absent
+        | default(false)
+        | ternary('absent', ext_node_state)
+      }}
+  loop: >-
+    {{
+      (ext_node_details.results | default([]))
+      | product(ext_node_params.tags | default([]))
+      | list
+    }}
+  loop_control:
+    loop_var: ext_node_item_data
+    label: "{{ ext_node_item_name }} - {{ ext_node_tag }}"
+  when: ext_node_item_state == 'present'
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_node_item_title }} - set result (tmp)"
+  set_fact:
+    ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
+  vars:
+    ext_node_item_name: "{{ ext_node_item.name }}"
+    ext_node_item_state: >-
+      {{
+        ext_node_item.absent
+        | default(false)
+        | ternary('absent', ext_node_state)
+      }}
+    ext_node_item_result:
+      name: "{{ ext_node_item_name }}"
+      state: "{{ ext_node_item_state }}"
+      private_ip: >-
+        {{
+          ext_node_item_droplet.networks.v4
+          | default({})
+          | selectattr('type', 'defined')
+          | selectattr('type', 'equalto', 'private')
+          | selectattr('ip_address', 'defined')
+          | map(attribute='ip_address') | list | first | default('')
+        }}
+      public_ipv4: >-
+        {{
+          ext_node_item_droplet.networks.v4
+          | default({})
+          | selectattr('type', 'defined')
+          | selectattr('type', 'equalto', 'public')
+          | selectattr('ip_address', 'defined')
+          | map(attribute='ip_address') | list | first | default('')
+        }}
+      public_ipv6: >-
+        {{
+          ext_node_item_droplet.networks.v6
+          | default({})
+          | selectattr('type', 'defined')
+          | selectattr('type', 'equalto', 'public')
+          | selectattr('ip_address', 'defined')
+          | map(attribute='ip_address') | list | first | default('')
+        }}
+  loop: "{{ ext_node_params.replicas }}"
+  loop_control:
+    loop_var: ext_node_item
+    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
   tags: ["no_print"]
 
 - name: "{{ ext_node_title }} - set result (tmp)"

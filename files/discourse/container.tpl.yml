@@ -1,0 +1,192 @@
+{% ser var_is_app = params.type == 'app' %}
+{% ser var_is_web = params.type == 'web' %}
+{% ser var_is_db = params.type == 'db' %}
+{% ser var_is_redis = params.type == 'redis' %}
+
+{% ser var_is_internal_redis = params.internal_redis | default(false) | bool %}
+
+{% ser var_db = var_is_app or var_is_db %}
+{% ser var_redis = var_is_app or var_is_redis or (var_is_web and var_is_internal_redis) %}
+{% ser var_web = var_is_app or var_is_web %}
+
+templates:
+
+  ####################################
+  {% if var_db %}
+
+  - "templates/postgres.template.yml"
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% if var_redis %}
+
+  - "templates/redis.template.yml"
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% if var_web %}
+
+  - "templates/web.template.yml"
+  - "templates/web.ratelimited.template.yml"
+
+  {% endif %}
+  ####################################
+
+####################################
+{% if var_is_db %}
+
+expose:
+  - "5432:5432"
+
+{% endif %}
+####################################
+
+####################################
+{% if var_is_redis %}
+
+expose:
+  - "6379:6379"
+
+{% endif %}
+####################################
+
+####################################
+{% if var_is_app or var_is_web %}
+
+expose:
+  - "80:80"
+  - "443:443"
+
+{% endif %}
+####################################
+
+params:
+  db_default_text_search_config: "{{ params.db_default_text_search_config | default('pg_catalog.english') }}"
+  db_shared_buffers: "{{ params.db_shared_buffers | default('128MB') }}"
+  version: "{{ params.version | default('tests-passed') }}"
+env:
+  LANG: "{{ params.lang | default('en_US.UTF-8') }}"
+  DISCOURSE_DEFAULT_LOCALE: "{{ params.discourse_default_locale | default('en') }}"
+
+  ####################################
+  {% if var_web %}
+
+  ### General ###
+  UNICORN_WORKERS: "{{ params.unicorn_workers | default('2') }}"
+  DISCOURSE_HOSTNAME: "{{ params.discourse_hostname | default('') }}"
+  DISCOURSE_DEVELOPER_EMAILS: "{{ params.discourse_developer_emails | default('') }}"
+
+  ### SMTP ###
+  DISCOURSE_SMTP_ADDRESS: "{{ credentials.discourse_smtp.address }}"
+  DISCOURSE_SMTP_PORT: "{{ credentials.discourse_smtp.port }}"
+  DISCOURSE_SMTP_ENABLE_START_TLS: "{{ credentials.discourse_smtp.enable_start_tls | default('') | lower }}"
+  DISCOURSE_SMTP_USER_NAME: "{{ credentials.discourse_smtp.user_name }}"
+  DISCOURSE_SMTP_PASSWORD: "{{ credentials.discourse_smtp.password }}"
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% if var_web and (params.use_s3 | default(false) | bool) %}
+
+  ### S3 ###
+  DISCOURSE_ENABLE_BACKUPS: "true"
+  DISCOURSE_BACKUP_LOCATION: "s3"
+  DISCOURSE_MAXIMUM_BACKUPS: {{ params.maximum_backups | default('14') }}
+  DISCOURSE_BACKUP_FREQUENCY: {{ params.backup_frequency | default('1') }}
+  DISCOURSE_S3_BACKUP_BUCKET: "{{ params.backup_bucket_name }}"
+  DISCOURSE_S3_ACCESS_KEY_ID: "{{ credentials.discourse_s3.access_key }}"
+  DISCOURSE_S3_SECRET_ACCESS_KEY: "{{ credentials.discourse_s3.secret_key }}"
+  DISCOURSE_S3_REGION: "{{ credentials.discourse_s3.region | default('') }}"
+  DISCOURSE_S3_ENDPOINT: "{{ credentials.discourse_s3.endpoint }}"
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% if var_is_web %}
+
+  ### DB ###
+  DISCOURSE_DB_HOST: "{{ input.dependencies.db.host | urlsplit('hostname') }}"
+  DISCOURSE_DB_PORT: "{{ input.dependencies.db.host | urlsplit('port') | default('5432') }}"
+  DISCOURSE_DB_USERNAME: "{{ credentials.db.db_name | default('discourse') }}"
+  DISCOURSE_DB_PASSWORD: "{{ credentials.db.db_pass }}"
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% if var_is_web and (not var_is_internal_redis) %}
+
+  ### Redis ###
+  DISCOURSE_REDIS_HOST: "{{ input.dependencies.redis.host | urlsplit('hostname') }}"
+  DISCOURSE_REDIS_PORT: "{{ input.dependencies.redis.host | urlsplit('port') | default('6379') }}"
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% for env_item in (params.env | default({}) | dict2items | list) %}
+
+  {{ env_item.key | upper }}: {{ env_item.value | to_json }}
+
+  {% endfor %}
+  ####################################
+
+volumes:
+  - volume:
+      host: /var/discourse/shared/{{ params.type }}
+      guest: /shared
+  - volume:
+      host: /var/discourse/shared/{{ params.type }}/log/var-log
+      guest: /var/log
+hooks:
+
+  ####################################
+  {% if (params.plugins | default([]) | length) > 0 %}
+
+  after_code:
+    - exec:
+        cd: $home/plugins
+        cmd:
+
+        ####################################
+        {% for plugin in (params.plugins | default([])) %}
+
+          - git clone {{ plugin }}
+
+        {% endfor %}
+        ####################################
+
+  {% endif %}
+  ####################################
+
+  ####################################
+  {% if var_is_db %}
+
+  after_postgres:
+    - exec:
+        stdin: |
+          alter user discourse with password '{{ credentials.db.db_pass }}';
+        cmd: su - postgres -c 'psql discourse'
+        raise_on_fail: false
+
+  {% endif %}
+  ####################################
+
+run:
+  - exec: echo "Beginning of custom commands"
+
+  ####################################
+  {% for command in (params.commands | default([])) %}
+
+  - exec: {{ command | to_json }}
+
+  {% endfor %}
+  ####################################
+
+  - exec: echo "End of custom commands"
