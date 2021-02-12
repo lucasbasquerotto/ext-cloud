@@ -65,39 +65,6 @@
     label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
   register: ext_node_details
 
-- name: "{{ ext_node_title }} - test_data - init"
-  set_fact:
-    test_data: []
-  tags: ["no_print"]
-
-- name: "{{ ext_node_title }} - test_data - fill"
-  set_fact:
-    test_data: "{{ test_data + [ext_node_item_data] }}"
-  vars:
-    ext_node_item: "{{ ext_node_item_data.0 }}"
-    ext_node_tag: "{{ ext_node_item_data.1 }}"
-    ext_node_item_name: "{{ ext_node_item.name }}"
-    ext_node_item_state: >-
-      {{
-        ext_node_item.absent
-        | default(false)
-        | ternary('absent', ext_node_state)
-      }}
-  loop: >-
-    {{
-      (ext_node_params.replicas | default([]))
-      | product(ext_node_params.tags | default([]))
-      | list
-    }}
-  loop_control:
-    loop_var: ext_node_item_data
-    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }}) - {{ ext_node_tag }}"
-  tags: ["no_print_skipped"]
-
-- name: "{{ ext_node_title }} - test_data - debug"
-  debug:
-    var: test_data
-
 - name: "{{ ext_node_title }} - tag the droplets"
   digital_ocean_tag:
     api_token: "{{ ext_node_main_credentials.api_token }}"
