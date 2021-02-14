@@ -94,9 +94,6 @@
   when: ext_node_item_state == 'present'
   tags: ["no_print_skipped"]
 
-- debug:
-    var: ext_node_details.results
-
 - name: "{{ ext_node_item_title }} - set result (tmp)"
   set_fact:
     ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
