@@ -1,13 +1,13 @@
-{% ser var_is_app = params.type == 'app' %}
-{% ser var_is_web = params.type == 'web' %}
-{% ser var_is_db = params.type == 'db' %}
-{% ser var_is_redis = params.type == 'redis' %}
+{% set var_is_app = params.type == 'app' %}
+{% set var_is_web = params.type == 'web' %}
+{% set var_is_db = params.type == 'db' %}
+{% set var_is_redis = params.type == 'redis' %}
 
-{% ser var_is_internal_redis = params.internal_redis | default(false) | bool %}
+{% set var_is_internal_redis = params.internal_redis | default(false) | bool %}
 
-{% ser var_db = var_is_app or var_is_db %}
-{% ser var_redis = var_is_app or var_is_redis or (var_is_web and var_is_internal_redis) %}
-{% ser var_web = var_is_app or var_is_web %}
+{% set var_db = var_is_app or var_is_db %}
+{% set var_redis = var_is_app or var_is_redis or (var_is_web and var_is_internal_redis) %}
+{% set var_web = var_is_app or var_is_web %}
 
 templates:
 
