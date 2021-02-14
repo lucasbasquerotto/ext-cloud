@@ -101,9 +101,9 @@
   set_fact:
     ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
   vars:
-    ext_node_item: "{{ ext_node_item_data.ext_node_item }}"
-    ext_node_droplet: "{{ ext_node_item_data.data.droplet }}"
-    ext_node_item_name: "{{ ext_node_item.name }}"
+    ext_node_item: "{{ ext_node_item_data.ext_node_item | default({}) }}"
+    ext_node_droplet: "{{ ext_node_item_data.data.droplet | default({}) }}"
+    ext_node_item_name: "{{ ext_node_item.name | default('') }}"
     ext_node_item_state: >-
       {{
         ext_node_item.absent
