@@ -197,6 +197,10 @@ volumes:
   - volume:
       host: /var/discourse/shared/{{ params.type }}/log/var-log
       guest: /var/log
+
+{####################################}
+{% if var_is_db or ((params.plugins | default([]) | length) > 0) %}
+
 hooks:
 
   {####################################}
@@ -230,6 +234,9 @@ hooks:
 
   {% endif %}
   {####################################}
+
+{% endif %}
+{####################################}
 
 run:
   - exec: echo "Beginning of custom commands"
