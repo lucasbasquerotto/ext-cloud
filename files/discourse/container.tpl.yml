@@ -6,6 +6,7 @@
 {% set var_is_internal_redis = params.internal_redis | default(false) | bool %}
 {% set var_db_same_host = params.db_same_host | default(false) | bool %}
 {% set var_redis_same_host = params.redis_same_host | default(false) | bool %}
+{% set var_use_ssl = params.use_ssl | default(false) | bool %}
 
 {% set var_db = var_is_app or var_is_db %}
 {% set var_redis = var_is_app or var_is_redis or (var_is_web and var_is_internal_redis) %}
@@ -35,6 +36,25 @@ templates:
   - "templates/web.template.yml"
   - "templates/web.ratelimited.template.yml"
 
+  {% endif %}
+  {####################################}
+
+  {####################################}
+  {% if var_web and var_use_ssl %}
+
+  - "templates/web.ssl.template.yml"
+  - "templates/web.letsencrypt.ssl.template.yml"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
+  {% if var_web %}
+  {% for template in (params.templates | default([])) %}
+
+  - "{{ template }}"
+
+  {% endfor %}
   {% endif %}
   {####################################}
 
