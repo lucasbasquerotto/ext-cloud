@@ -17,3 +17,7 @@
   debug:
     var: inner_service_state
   tags: ["no_print_skipped"]
+
+- name: "{{ inner_service_title }} - fail - 01 (test)"
+  fail:
+    msg: "test service fail"
