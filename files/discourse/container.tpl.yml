@@ -4,6 +4,8 @@
 {% set var_is_redis = params.type == 'redis' %}
 
 {% set var_is_internal_redis = params.internal_redis | default(false) | bool %}
+{% set var_db_same_host = params.db_same_host | default(false) | bool %}
+{% set var_redis_same_host = params.redis_same_host | default(false) | bool %}
 
 {% set var_db = var_is_app or var_is_db %}
 {% set var_redis = var_is_app or var_is_redis or (var_is_web and var_is_internal_redis) %}
@@ -11,50 +13,50 @@
 
 templates:
 
-  ####################################
+  {####################################}
   {% if var_db %}
 
   - "templates/postgres.template.yml"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
+  {####################################}
   {% if var_redis %}
 
   - "templates/redis.template.yml"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
+  {####################################}
   {% if var_web %}
 
   - "templates/web.template.yml"
   - "templates/web.ratelimited.template.yml"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-####################################
-{% if var_is_db %}
+{####################################}
+{% if var_is_db and (not var_db_same_host) %}
 
 expose:
   - "5432:5432"
 
 {% endif %}
-####################################
+{####################################}
 
-####################################
-{% if var_is_redis %}
+{####################################}
+{% if var_is_redis and (not var_redis_same_host) %}
 
 expose:
   - "6379:6379"
 
 {% endif %}
-####################################
+{####################################}
 
-####################################
+{####################################}
 {% if var_is_app or var_is_web %}
 
 expose:
@@ -62,7 +64,32 @@ expose:
   - "443:443"
 
 {% endif %}
-####################################
+{####################################}
+
+{####################################}
+{% if var_is_web and (var_db_same_host or (var_redis_same_host and (not var_is_internal_redis))) %}
+
+links:
+
+  {% if var_is_web and var_db_same_host %}
+
+  - link:
+      name: db
+      alias: db
+
+  {% endif %}
+
+
+  {% if var_is_web and (not var_is_internal_redis) and var_redis_same_host %}
+
+  - link:
+      name: redis
+      alias: redis
+
+  {% endif %}
+
+{% endif %}
+{####################################}
 
 params:
   db_default_text_search_config: "{{ params.db_default_text_search_config | default('pg_catalog.english') }}"
@@ -72,7 +99,7 @@ env:
   LANG: "{{ params.lang | default('en_US.UTF-8') }}"
   DISCOURSE_DEFAULT_LOCALE: "{{ params.discourse_default_locale | default('en') }}"
 
-  ####################################
+  {####################################}
   {% if var_web %}
 
   ### General ###
@@ -88,9 +115,9 @@ env:
   DISCOURSE_SMTP_PASSWORD: "{{ credentials.discourse_smtp.password }}"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
+  {####################################}
   {% if var_web and (params.use_s3 | default(false) | bool) %}
 
   ### S3 ###
@@ -105,37 +132,63 @@ env:
   DISCOURSE_S3_ENDPOINT: "{{ credentials.discourse_s3.endpoint }}"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
+  {####################################}
+  {% if var_is_web and var_db_same_host %}
+
+  ### DB (Same Host) ###
+  DISCOURSE_DB_HOST: "db"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
+  {% if var_is_web and (not var_db_same_host) %}
+
+  ### DB (Different Host) ###
+  DISCOURSE_DB_HOST: "{{ input.dependencies.db.host | urlsplit('hostname') }}"
+  DISCOURSE_DB_PORT: "{{ input.dependencies.db.host | urlsplit('port') | default('5432', true) }}"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
   {% if var_is_web %}
 
   ### DB ###
-  DISCOURSE_DB_HOST: "{{ input.dependencies.db.host | urlsplit('hostname') }}"
-  DISCOURSE_DB_PORT: "{{ input.dependencies.db.host | urlsplit('port') | default('5432') }}"
   DISCOURSE_DB_USERNAME: "{{ credentials.db.db_name | default('discourse') }}"
   DISCOURSE_DB_PASSWORD: "{{ credentials.db.db_pass }}"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
-  {% if var_is_web and (not var_is_internal_redis) %}
+  {####################################}
+  {% if var_is_web and var_redis_same_host and (not var_is_internal_redis) %}
 
-  ### Redis ###
-  DISCOURSE_REDIS_HOST: "{{ input.dependencies.redis.host | urlsplit('hostname') }}"
-  DISCOURSE_REDIS_PORT: "{{ input.dependencies.redis.host | urlsplit('port') | default('6379') }}"
+  ### Redis (Same Host) ###
+  DISCOURSE_REDIS_HOST: "redis"
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
+  {####################################}
+  {% if var_is_web and (not var_redis_same_host) and (not var_is_internal_redis) %}
+
+  ### Redis (Different Host) ###
+  DISCOURSE_REDIS_HOST: "{{ input.dependencies.redis.host | urlsplit('hostname') }}"
+  DISCOURSE_REDIS_PORT: "{{ input.dependencies.redis.host | urlsplit('port') | default('6379', true) }}"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
   {% for env_item in (params.env | default({}) | dict2items | list) %}
 
   {{ env_item.key | upper }}: {{ env_item.value | to_json }}
 
   {% endfor %}
-  ####################################
+  {####################################}
 
 volumes:
   - volume:
@@ -146,7 +199,7 @@ volumes:
       guest: /var/log
 hooks:
 
-  ####################################
+  {####################################}
   {% if (params.plugins | default([]) | length) > 0 %}
 
   after_code:
@@ -154,18 +207,18 @@ hooks:
         cd: $home/plugins
         cmd:
 
-        ####################################
+        {####################################}
         {% for plugin in (params.plugins | default([])) %}
 
           - git clone {{ plugin }}
 
         {% endfor %}
-        ####################################
+        {####################################}
 
   {% endif %}
-  ####################################
+  {####################################}
 
-  ####################################
+  {####################################}
   {% if var_is_db %}
 
   after_postgres:
@@ -176,17 +229,17 @@ hooks:
         raise_on_fail: false
 
   {% endif %}
-  ####################################
+  {####################################}
 
 run:
   - exec: echo "Beginning of custom commands"
 
-  ####################################
+  {####################################}
   {% for command in (params.commands | default([])) %}
 
   - exec: {{ command | to_json }}
 
   {% endfor %}
-  ####################################
+  {####################################}
 
   - exec: echo "End of custom commands"
