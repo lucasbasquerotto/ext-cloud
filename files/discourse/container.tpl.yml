@@ -155,6 +155,14 @@ env:
   {####################################}
 
   {####################################}
+  {% if var_web and var_use_ssl %}
+
+  LETSENCRYPT_ACCOUNT_EMAIL: "{{ params.ssl_email }}"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
   {% if var_is_web and var_db_same_host %}
 
   ### DB (Same Host) ###
