@@ -49,7 +49,7 @@ nodes:
         setup_finished_timeout: 300
 services:
   digital_ocean_node_service:
-    base_dir: "custom-cloud"
+    base_dir: "ext-cloud"
     namespace: "ext_node"
     task: "tasks/node/digital_ocean.main.node.yml"
     schema: "tasks/node/digital_ocean.schema.node.yml"
@@ -67,8 +67,8 @@ services:
       user_data:
         type: "template"
         origin: "cloud"
-        file: "custom-cloud/files/user-data/ubuntu-18.04.tpl.sh"
-        schema: "custom-cloud/files/user-data/ubuntu-18.04.schema.yml"
+        file: "ext-cloud/files/user-data/ubuntu-18.04.tpl.sh"
+        schema: "ext-cloud/files/user-data/ubuntu-18.04.schema.yml"
         credentials:
           node: "host"
         contents:

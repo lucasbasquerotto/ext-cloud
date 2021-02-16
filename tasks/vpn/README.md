@@ -15,7 +15,7 @@ _Example:_
 ```yaml
 services:
   digital_ocean_vpn:
-    base_dir: "custom-cloud"
+    base_dir: "ext-cloud"
     namespace: "ext_vpn"
     task: "tasks/vpn/digital_ocean.main.vpn.yml"
     schema: "tasks/vpn/digital_ocean.schema.vpn.yml"

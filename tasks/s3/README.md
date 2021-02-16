@@ -11,7 +11,7 @@ _Example #1:_
 ```yaml
 services:
   service_s3:
-    base_dir: "custom-cloud"
+    base_dir: "ext-cloud"
     namespace: "ext_s3"
     task: "tasks/s3/aws.main.s3.yml"
     schema: "tasks/s3/schema.s3.yml"
@@ -47,7 +47,7 @@ services:
           bucket: "my-uploads-bucket"
           permission: "public-read"
   s3_service_base:
-    base_dir: "custom-cloud"
+    base_dir: "ext-cloud"
     namespace: "ext_s3"
     task: "tasks/s3/aws.main.s3.yml"
     schema: "tasks/s3/schema.s3.yml"

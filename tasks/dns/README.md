@@ -40,7 +40,7 @@ services:
           record: "sub2"
           value: "2804:214:861b:1137:f9b2:4339:71ca:bd72"
   service_dns_item:
-    base_dir: "custom-cloud"
+    base_dir: "ext-cloud"
     namespace: "ext_dns"
     task: "tasks/dns/cloudflare.main.dns.yml"
     schema: "tasks/dns/cloudflare.schema.dns.yml"
@@ -72,7 +72,7 @@ _Example:_
 ```yaml
 services:
   service_dns:
-    base_dir: "custom-cloud"
+    base_dir: "ext-cloud"
     namespace: "ext_dns"
     task: "tasks/dns/godaddy.main.dns.yml"
     schema: "tasks/dns/godaddy.schema.dns.yml"

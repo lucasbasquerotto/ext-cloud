@@ -2,22 +2,22 @@
 
 This repository extends the cloud layer repository defined at http://github.com/lucasbasquerotto/cloud, mainly with tasks that run in specific cloud providers, while the cloud repository is the core of the cloud layer with generic tasks and the steps that will be executed in this layer.
 
-For the examples in this repository, the directory in which it will reside relative to the main cloud layer directory is considered to be `custom-cloud`, as defined in the below example:
+For the examples in this repository, the directory in which it will reside relative to the main cloud layer directory is considered to be `ext-cloud`, as defined in the below example:
 
 ```yaml
 main:
   my_context:
     repo: "cloud"
     env_repos:
-      - repo: "custom_cloud"
-        dir: "custom-cloud"
+      - repo: "ext_cloud"
+        dir: "ext-cloud"
     #...
 repos:
   cloud:
     src: "https://github.com/lucasbasquerotto/cloud.git"
     version: "master"
-  custom_cloud:
-    src: "https://github.com/lucasbasquerotto/custom-cloud.git"
+  ext_cloud:
+    src: "https://github.com/lucasbasquerotto/ext-cloud.git"
     version: "master"
 #...
 ```

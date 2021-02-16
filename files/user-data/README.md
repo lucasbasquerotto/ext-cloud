@@ -40,8 +40,8 @@ services:
       user_data:
         type: "template"
         origin: "cloud"
-        file: "custom-cloud/files/user-data/ubuntu-18.04.tpl.sh"
-        schema: "custom-cloud/files/user-data/ubuntu-18.04.schema.yml"
+        file: "ext-cloud/files/user-data/ubuntu-18.04.tpl.sh"
+        schema: "ext-cloud/files/user-data/ubuntu-18.04.schema.yml"
         credentials:
           node: "host"
         contents:
