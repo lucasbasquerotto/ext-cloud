@@ -8,7 +8,7 @@ For the examples in this repository, the directory in which it will reside relat
 main:
   my_context:
     repo: "cloud"
-    env_repos:
+    ext_repos:
       - repo: "ext_cloud"
         dir: "ext-cloud"
     #...
