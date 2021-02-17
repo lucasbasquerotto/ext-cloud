@@ -1,0 +1,3 @@
+- name: "{{ validator_title }} - validate if the collection (with the library) is present"
+  lrd.ext_cloud.collection_validator:
+    input: "[task] {{ validator_item.task }}"
