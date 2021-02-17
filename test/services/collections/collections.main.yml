@@ -1,0 +1,49 @@
+- name: "{{ inner_service_title }} - debug1"
+  debug:
+    var: "'debug1' | my_org_01.my_collection_01_01.filter_01"
+
+- name: "{{ inner_service_title }} - debug2"
+  debug:
+    var: "'debug2' | my_org_01.my_collection_01_01.filter_02"
+
+- name: "{{ inner_service_title }} - debug3"
+  debug:
+    var: "'debug3' | my_org_01.my_collection_01_02.filter_01"
+
+- name: "{{ inner_service_title }} - debug4"
+  debug:
+    var: "'debug4' | my_org_01.my_collection_01_02.filter_02"
+
+- name: "{{ inner_service_title }} - debug5"
+  debug:
+    var: "'debug5' | new_org.my_collection_01_03.filter_01"
+
+- name: "{{ inner_service_title }} - debug6"
+  debug:
+    var: "'debug6' | new_org.my_collection_01_03.filter_02"
+
+##############################################################
+
+- name: "{{ inner_service_title }} - debug7"
+  debug:
+    var: "'debug7' | my_org_02.new_01.filter_01"
+
+- name: "{{ inner_service_title }} - debug8"
+  debug:
+    var: "'debug8' | my_org_02.new_01.filter_02"
+
+- name: "{{ inner_service_title }} - debug9"
+  debug:
+    var: "'debug9' | my_org_02.new_02.filter_01"
+
+- name: "{{ inner_service_title }} - debug10"
+  debug:
+    var: "'debug10' | my_org_02.new_02.filter_02"
+
+- name: "{{ inner_service_title }} - debug11"
+  debug:
+    var: "'debug11' | new_org_02.new_03.filter_01"
+
+- name: "{{ inner_service_title }} - debug12"
+  debug:
+    var: "'debug12' | new_org_02.new_03.filter_02"

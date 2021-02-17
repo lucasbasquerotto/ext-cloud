@@ -1,0 +1,49 @@
+- name: "{{ validator_title }} - validator - debug1"
+  debug:
+    var: "'validator-debug1' | my_org_01.my_collection_01_01.filter_01"
+
+- name: "{{ validator_title }} - validator - debug2"
+  debug:
+    var: "'validator-debug2' | my_org_01.my_collection_01_01.filter_02"
+
+- name: "{{ validator_title }} - validator - debug3"
+  debug:
+    var: "'validator-debug3' | my_org_01.my_collection_01_02.filter_01"
+
+- name: "{{ validator_title }} - validator - debug4"
+  debug:
+    var: "'validator-debug4' | my_org_01.my_collection_01_02.filter_02"
+
+- name: "{{ validator_title }} - validator - debug5"
+  debug:
+    var: "'validator-debug5' | new_org.my_collection_01_03.filter_01"
+
+- name: "{{ validator_title }} - validator - debug6"
+  debug:
+    var: "'validator-debug6' | new_org.my_collection_01_03.filter_02"
+
+##############################################################
+
+- name: "{{ validator_title }} - validator - debug7"
+  debug:
+    var: "'validator-debug7' | my_org_02.new_01.filter_01"
+
+- name: "{{ validator_title }} - validator - debug8"
+  debug:
+    var: "'validator-debug8' | my_org_02.new_01.filter_02"
+
+- name: "{{ validator_title }} - validator - debug9"
+  debug:
+    var: "'validator-debug9' | my_org_02.new_02.filter_01"
+
+- name: "{{ validator_title }} - validator - debug10"
+  debug:
+    var: "'validator-debug10' | my_org_02.new_02.filter_02"
+
+- name: "{{ validator_title }} - validator - debug11"
+  debug:
+    var: "'validator-debug11' | new_org_02.new_03.filter_01"
+
+- name: "{{ validator_title }} - validator - debug12"
+  debug:
+    var: "'validator-debug12' | new_org_02.new_03.filter_02"
