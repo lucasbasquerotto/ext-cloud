@@ -1,3 +1,3 @@
-FROM lucasbasquerotto/cloud:1.5.6
+FROM lucasbasquerotto/cloud:1.6.0
 
 RUN yes | pip3 install boto boto3 botocore
