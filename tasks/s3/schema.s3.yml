@@ -29,13 +29,10 @@ schemas:
           - "authenticated-read"
         description: "s3 bucket permission"
   credentials:
-    type: "dict"
-    description: "credentials schema for the s3 task"
-    props:
-      s3:
-        schema: "s3_credentials"
-        non_empty: true
-        description: "s3 credentials"
+    type: "map"
+    elem_key_regex: "^[-\\w]+$"
+    elem_schema: "s3_credentials"
+    description: "credentials schema dictionary for the s3 task"
   s3_credentials:
     type: "dict"
     description: "s3 credentials schema"
