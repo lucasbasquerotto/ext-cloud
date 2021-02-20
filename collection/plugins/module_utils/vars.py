@@ -13,19 +13,17 @@ __metaclass__ = type  # pylint: disable=invalid-name
 
 import traceback
 
-from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import to_bool
 
-
-def prepare_general_data(raw_data, item_keys, fn_prepare_item):
+def prepare_general_data(raw_data, expected_namespace, item_keys, fn_prepare_item):
   error_msgs = list()
 
   try:
-    namespace = to_bool(raw_data.get('namespace'))
+    namespace = raw_data.get('namespace')
     params = raw_data.get('params')
 
-    expected_namespace = 'ext_dns'
-    info = validate_namespace(namespace, expected_namespace)
-    error_msgs += (info.get('error_msgs') or list())
+    if expected_namespace:
+      info = validate_namespace(namespace, expected_namespace)
+      error_msgs += (info.get('error_msgs') or list())
 
     list_params = generate_list_params(params, item_keys)
 
@@ -73,7 +71,7 @@ def validate_namespace(namespace, expected_namespace):
       error_msgs += [[
           'namespace expected: ' + str(expected_namespace),
           'namespace provided: ' + str(namespace),
-          'msg: namespace not specified (expected: "ext_dns")',
+          'msg: wrong namespace',
       ]]
 
     return dict(error_msgs=error_msgs)

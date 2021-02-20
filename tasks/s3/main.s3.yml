@@ -1,52 +1,26 @@
-# Prepare
-
-- name: "{{ inner_service_title }} - validate namespace (required)"
-  fail:
-    msg: "namespace not specified (expected: 'ext_s3')"
-  when: inner_service_namespace == ''
-  tags: ["no_print"]
-
-- name: "{{ inner_service_title }} - validate namespace (ext_s3)"
-  fail:
-    msg: |
-      incorrect namespace
-      expected: 'ext_s3'
-      received: '{{ inner_service_namespace }}'
-  when: inner_service_namespace != 'ext_s3'
-  tags: ["no_print"]
-
 - name: "{{ inner_service_title }} - s3 - vars"
-  set_fact:
-    ext_s3_title: "{{ inner_service_title }} - s3"
-    ext_s3_params: "{{ inner_service_params }}"
-    ext_s3_credentials: "{{ inner_service_credentials }}"
-    ext_s3_contents: "{{ inner_service_contents }}"
-    ext_s3_state: "{{ inner_service_state }}"
-    ext_s3_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
-    ext_s3_tmp_dir: "{{ inner_service_tmp_dir }}"
-    ext_s3_result: {}
-  tags: ["no_print"]
+  lrd.ext_cloud.vars:
+    identifier: "s3"
+    raw_data:
+      namespace: "ext_s3"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_s3_data_wrapper
 
-# Main
-
-- name: "{{ ext_s3_title }} - s3 - aws (cli)"
-  set_fact:
-    ext_s3_mode: "{{ (ext_s3_state != 'absent') | ternary('create', 'delete') }}"
-    ext_s3_main_credentials: "{{ ext_s3_credentials.s3 | default({}) }}"
-  tags: ["no_print"]
-
-- name: "{{ ext_s3_title }} - {{ ext_s3_mode }} the bucket ({{ ext_s3_params.bucket }})"
+- name: "{{ inner_service_title }} - s3 - manage buckets"
   aws_s3:
-    s3_url: "{{ ext_s3_main_credentials.endpoint | default(omit, true) }}"
-    access_key: "{{ ext_s3_main_credentials.access_key }}"
-    secret_key: "{{ ext_s3_main_credentials.secret_key }}"
-    bucket: "{{ ext_s3_params.bucket }}"
-    permission: "{{ ext_s3_params.permission | default('private', true) }}"
-    mode: "{{ ext_s3_mode }}"
-
-# Set Result
-
-- name: "{{ ext_s3_title }} - set result"
-  set_fact:
-    cloud_service_result: "{{ ext_s3_result }}"
-  tags: ["no_print"]
+    s3_url: "{{ ext_s3_item.endpoint | default(omit, true) }}"
+    access_key: "{{ ext_s3_item.access_key }}"
+    secret_key: "{{ ext_s3_item.secret_key }}"
+    bucket: "{{ ext_s3_item.bucket }}"
+    permission: "{{ ext_s3_item.permission }}"
+    mode: "{{ ext_s3_item.mode }}"
+  loop: "{{ ext_s3_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_s3_item
+    label: >-
+      [{{ ext_s3_item.mode }}]
+      {{ ext_s3_item.bucket }}
+      ({{ ext_s3_item.permission }})

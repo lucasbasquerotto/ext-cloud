@@ -18,6 +18,7 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
 
 def prepare_data(raw_data):
   return prepare_general_data(
+      expected_namespace='ext_s3',
       raw_data=raw_data,
       item_keys=[
           'bucket',
@@ -35,7 +36,6 @@ def prepare_item(raw_data, item_params):
   required_keys_info = dict(
       params=[
           'bucket',
-          'permission',
       ],
       credentials=[
           'access_key',
@@ -55,8 +55,19 @@ def prepare_item(raw_data, item_params):
   if not error_msgs:
     item_credentials = item_data.get('credentials')
 
-    result['params'] = item_params
-    result['credentials'] = item_credentials
-    result['state'] = state
+    bucket = item_params.get('bucket')
+    permission = item_params.get('permission') or 'private'
+    mode = 'create' if (state != 'absent') else 'delete'
+
+    endpoint = item_credentials.get('endpoint')
+    access_key = item_credentials.get('access_key')
+    secret_key = item_credentials.get('secret_key')
+
+    result['bucket'] = bucket
+    result['permission'] = permission
+    result['mode'] = mode
+    result['endpoint'] = endpoint
+    result['access_key'] = access_key
+    result['secret_key'] = secret_key
 
   return dict(result=result, error_msgs=error_msgs)
