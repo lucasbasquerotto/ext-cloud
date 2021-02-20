@@ -16,9 +16,31 @@ schemas:
     type: "dict"
     description: "parameters schema for the s3 task"
     props:
+      list:
+        type: "list"
+        elem_schema: "list_item"
+        description: >-
+          list items with params (used when defined, instead of the
+          parameters defined directly at the top, which in this case
+          will be used as defaults if some parameter property in a
+          list item is not defined
       bucket:
         type: "str"
-        non_empty: true
+        description: "s3 bucket name"
+      permission:
+        type: "str"
+        choices:
+          - "private"
+          - "public-read"
+          - "public-read-write"
+          - "authenticated-read"
+        description: "s3 bucket permission"
+  list_item:
+    type: "dict"
+    description: "parameters schema for the s3 task params list items"
+    props:
+      bucket:
+        type: "str"
         description: "s3 bucket name"
       permission:
         type: "str"
