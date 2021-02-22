@@ -36,7 +36,7 @@ def prepare_data(raw_data):
           'credential',
           'value',
       ],
-      fn_prepare_item=lambda p: prepare_item(raw_data, p),
+      fn_prepare_item=lambda p: expand_item_values(prepare_item(raw_data, p)),
   )
 
 
@@ -52,10 +52,8 @@ def prepare_item(raw_data, item_params):
           'record',
       ],
       credentials=[
-          'api_server',
-          'api_version',
-          'api_key',
-          'api_secret',
+          'email',
+          'token',
       ],
   )
 
@@ -89,8 +87,8 @@ def prepare_item(raw_data, item_params):
     if not values:
       state = 'absent'
 
-    result['api_server_url'] = api_server_url
-    result['authorization'] = authorization
+    result['email'] = email
+    result['token'] = token
     result['values'] = values
     result['state'] = state
 
@@ -105,3 +103,21 @@ def prepare_item(raw_data, item_params):
     result['weight'] = item_params.get('weight')
 
   return dict(result=result, error_msgs=error_msgs)
+
+def expand_item_values(prepared_item):
+  dict_values = prepared_item.get('values') or []
+  expanded_values = [
+    dict(
+        value=value.get('value'),
+        ttl=value.get('ttl') or prepared_item.get('ttl'),
+        priority=value.get('priority') or prepared_item.get('priority'),
+        service=value.get('service') or prepared_item.get('service'),
+        protocol=value.get('protocol') or prepared_item.get('protocol'),
+        port=value.get('port') or prepared_item.get('port'),
+        weight=value.get('weight') or prepared_item.get('weight'),
+    )
+    for value in dict_values
+    if isinstance(value, dict)
+    else dict(value=value)
+  ]
+  return expanded_values

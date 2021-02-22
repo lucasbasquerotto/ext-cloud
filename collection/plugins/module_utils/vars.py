@@ -41,7 +41,10 @@ def prepare_general_data(raw_data, expected_namespace, item_keys, fn_prepare_ite
         ] + value
         error_msgs += [new_value]
 
-      prepared_list_params += [prepared_item_params]
+      if isinstance(prepared_item_params, list):
+        prepared_list_params += prepared_item_params
+      else:
+        prepared_list_params += [prepared_item_params]
 
     result = dict(
         list=prepared_list_params,
@@ -130,15 +133,20 @@ def generate_values(raw_values):
   if not raw_values:
     return list()
 
-  if not isinstance(raw_values, list):
-    raw_value = raw_values
+  raw_values = (
+      [raw_value]
+      if not isinstance(raw_values, list)
+      else raw_value
+  )
 
-    if not isinstance(raw_value, dict):
-      raw_value = dict(value=raw_value)
+  values = [
+      dict(value=raw_value)
+      for raw_value in raw_values
+      if not isinstance(raw_value, dict)
+      else raw_value
+  ]
 
-    raw_values = [raw_value]
-
-  return raw_values
+  return values
 
 
 def prepare_item_data(raw_data, item_params, default_credential_name, required_keys_info):
