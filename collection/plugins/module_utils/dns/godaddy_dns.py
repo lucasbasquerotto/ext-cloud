@@ -11,11 +11,8 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-import traceback
-
-from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import to_bool
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
-    generate_list_params, generate_values, validate_namespace
+    generate_values, prepare_general_data, prepare_item_data
 )
 
 

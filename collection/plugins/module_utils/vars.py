@@ -134,16 +134,16 @@ def generate_values(raw_values):
     return list()
 
   raw_values = (
-      [raw_value]
+      [raw_values]
       if not isinstance(raw_values, list)
-      else raw_value
+      else raw_values
   )
 
   values = [
       dict(value=raw_value)
-      for raw_value in raw_values
       if not isinstance(raw_value, dict)
       else raw_value
+      for raw_value in raw_values
   ]
 
   return values
