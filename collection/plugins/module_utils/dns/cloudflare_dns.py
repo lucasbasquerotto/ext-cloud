@@ -98,29 +98,51 @@ def expand_item_values(prepared_item_info):
   if not error_msgs:
     dict_values = prepared_item.get('dns_values') or []
     result = [
-        dict(
-            email=prepared_item.get('email'),
-            token=prepared_item.get('token'),
-            state=prepared_item.get('state'),
-
-            zone=prepared_item.get('zone'),
-            dns_type=prepared_item.get('dns_type'),
-            record=prepared_item.get('record'),
-
-            value=value.get('value'),
-
-            ttl=value.get('ttl') or prepared_item.get('ttl'),
-            priority=value.get('priority') or prepared_item.get('priority'),
-            service=value.get('service') or prepared_item.get('service'),
-            protocol=value.get('protocol') or prepared_item.get('protocol'),
-            port=value.get('port') or prepared_item.get('port'),
-            weight=value.get('weight') or prepared_item.get('weight'),
-
-            solo=(value_idx == 1)
+        fill_value(
+            prepared_item=prepared_item,
+            value=value,
+            value_idx=value_idx
         )
-        if isinstance(value, dict)
-        else dict(value=value)
         for value_idx, value in enumerate(dict_values, start=1)
     ]
+    result = (
+        result
+        or
+        (
+            result
+            if (prepared_item.get('state') != 'absent')
+            else [fill_value(prepared_item, value=dict(), value_idx=1)]
+        )
+    )
 
   return dict(result=result, error_msgs=error_msgs)
+
+
+def fill_value(prepared_item, value, value_idx):
+  value_dict = (
+      value
+      if isinstance(value, dict)
+      else dict(value=value)
+  )
+  state = prepared_item.get('state')
+
+  return dict(
+      state=state,
+      solo=(state == 'present') and (value_idx == 1),
+
+      email=prepared_item.get('email'),
+      token=prepared_item.get('token'),
+
+      zone=prepared_item.get('zone'),
+      dns_type=prepared_item.get('dns_type'),
+      record=prepared_item.get('record'),
+
+      value=value_dict.get('value'),
+
+      ttl=value_dict.get('ttl') or prepared_item.get('ttl'),
+      priority=value_dict.get('priority') or prepared_item.get('priority'),
+      service=value_dict.get('service') or prepared_item.get('service'),
+      protocol=value_dict.get('protocol') or prepared_item.get('protocol'),
+      port=value_dict.get('port') or prepared_item.get('port'),
+      weight=value_dict.get('weight') or prepared_item.get('weight'),
+  )
