@@ -12,14 +12,8 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_text
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns import (
-    prepare_data as cloudflare_dns_prepare_data
-)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
-    prepare_data as godaddy_dns_prepare_data
-)
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
-    prepare_data as s3_prepare_data
+    manage_dns as godaddy_manage_dns
 )
 
 from ansible.module_utils._text import to_text
@@ -34,25 +28,22 @@ def main():
   module = AnsibleModule(
       argument_spec=dict(
           identifier=dict(type='str', required=True),
-          raw_data=dict(type='raw', required=True),
+          data=dict(type='raw', required=True),
       )
   )
 
   identifier = module.params['identifier']
-  raw_data = module.params['raw_data']
+  data = module.params['data']
 
   info = None
-  result = None
+  result_data = None
+  changed = False
   error_msgs = list()
 
   if not identifier:
     error_msgs += [['msg: identifier not defined']]
-  elif identifier == 's3':
-    info = s3_prepare_data(raw_data)
   elif identifier == 'godaddy_dns':
-    info = godaddy_dns_prepare_data(raw_data)
-  elif identifier == 'cloudflare_dns':
-    info = cloudflare_dns_prepare_data(raw_data)
+    info = godaddy_manage_dns(prepared_item=data)
   else:
     error_msgs += [['msg: invalid identifier']]
 
@@ -61,10 +52,13 @@ def main():
     error_msgs += (info.get('error_msgs') or list())
 
   if error_msgs:
-    context = 'vars module (identifier: ' + str(identifier or '') + ')'
+    context = 'actions module (identifier: ' + str(identifier or '') + ')'
     module.fail_json(msg=to_text(error_text(error_msgs, context)))
 
-  module.exit_json(changed=False, data=result)
+  changed = result.get('changed')
+  result_data = result.get('data')
+
+  module.exit_json(changed=changed, data=result_data)
 
 
 if __name__ == '__main__':

@@ -13,6 +13,8 @@ __metaclass__ = type  # pylint: disable=invalid-name
 
 import traceback
 
+import requests
+
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
     generate_values, prepare_general_data, prepare_item_data
@@ -108,64 +110,6 @@ def prepare_item(raw_data, item_params):
   return dict(result=result, error_msgs=error_msgs)
 
 
-def manage_dns(prepared_item):
-  error_msgs = list()
-  result = None
-
-  try:
-    api_server_url = prepared_item.get('api_server_url')
-    authorization = prepared_item.get('authorization')
-    state = prepared_item.get('state')
-
-    create = (state == 'present')
-    changed = False
-
-    if create:
-      url_query = dict(
-          url=api_server_url,
-          method='GET',
-          headers=dict(
-              Authorization=authorization,
-              Accept='application/json'
-          ),
-          body_format='json',
-      )
-      # TODO: use url_query
-
-      query_result = dict()
-
-      new_records = prepared_item.get('data') or []
-
-      if ordered(query_result) != ordered(new_records):
-        changed = True
-
-        url_action = dict(
-            url=api_server_url,
-            method='PUT',
-            headers=dict(
-                Authorization=authorization,
-                Accept='application/json'
-            ),
-            body_format='json',
-            body=new_records,
-        )
-        # TODO: use url_action
-    else:
-      # not supported by the goddaddy API
-      display.vv('absent state not supported by the godaddy api')
-
-    result = dict(changed=changed)
-  except Exception as error:
-    error_msgs += [[
-        'msg: error when trying to manage godaddy dns records',
-        'error type: ' + str(type(error)),
-        'error details: ',
-        traceback.format_exc().split('\n'),
-    ]]
-
-  return dict(result=result, error_msgs=error_msgs)
-
-
 def prepare_dns_records(item_params, value_dict):
   result = dict(
       type=item_params.get('dns_type'),
@@ -186,3 +130,51 @@ def prepare_dns_records(item_params, value_dict):
       result.pop(key, None)
 
   return result
+
+
+def manage_dns(prepared_item):
+  error_msgs = list()
+  result = None
+
+  try:
+    api_server_url = prepared_item.get('api_server_url')
+    authorization = prepared_item.get('authorization')
+    state = prepared_item.get('state')
+
+    create = (state == 'present')
+    changed = False
+
+    if create:
+      headers = dict(
+          Authorization=authorization,
+          Accept='application/json'
+      )
+
+      response = requests.get(api_server_url, headers=headers)
+
+      old_records = response.json() or []
+      new_records = prepared_item.get('dns_records') or []
+
+      changed = ordered(old_records) != ordered(new_records)
+
+      if changed:
+        response = requests.put(
+            api_server_url,
+            headers=headers,
+            json=new_records,
+        )
+        response.raise_for_status()
+    else:
+      # not supported by the goddaddy API
+      display.vv('absent state not supported by the godaddy api')
+
+    result = dict(changed=changed)
+  except Exception as error:
+    error_msgs += [[
+        'msg: error when trying to manage godaddy dns records',
+        'error type: ' + str(type(error)),
+        'error details: ',
+        traceback.format_exc().split('\n'),
+    ]]
+
+  return dict(result=result, error_msgs=error_msgs)

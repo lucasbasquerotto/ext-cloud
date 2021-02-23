@@ -10,15 +10,14 @@
   register: ext_dns_data_wrapper
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - godaddy dns (outer)"
-  include_tasks: "godaddy.inner.dns.yml"
-  vars:
-    ext_dns_label: >-
-      [{{ ext_dns_item.state }}]
-      {{ ext_dns_item.dns_type }}
-      ({{ ext_dns_item.record }})
-    ext_dns_title: "{{ inner_service_title }} - godaddy dns - {{ ext_dns_label }}"
+- name: "{{ inner_service_title }} - godaddy dns - action"
+  lrd.ext_cloud.actions:
+    identifier: "godaddy_dns"
+    data: "{{ ext_dns_item }}"
   loop: "{{ ext_dns_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_dns_item
-    label: "{{ ext_dns_label }}"
+    label: >-
+      [{{ ext_dns_item.state }}]
+      {{ ext_dns_item.dns_type }}
+      - {{ ext_dns_item.record }}
