@@ -4,6 +4,10 @@ schemas:
     type: "dict"
     description: "cloudflare dns schema"
     props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_dns"]
       params:
         schema: "params"
         non_empty: true

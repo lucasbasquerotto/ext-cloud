@@ -2,8 +2,8 @@
   lrd.ext_cloud.vars:
     identifier: "godaddy_dns"
     raw_data:
-      namespace: "ext_dns"
       state: "present"
+      namespace: "{{ validator_item.data.namespace | default('') }}"
       params: "{{ validator_item.data.params | default({}) }}"
       credentials: "{{ validator_item.data.credentials | default({}) }}"
       contents: "{{ validator_item.data.contents | default({}) }}"

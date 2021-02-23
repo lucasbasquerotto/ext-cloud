@@ -1,3 +1,9 @@
-- name: "{{ validator_title }} - validate if the collection (with the library) is present"
-  lrd.ext_cloud.collection_validator:
-    input: "[task] {{ validator_item.task }}"
+- name: "{{ validator_title }} - nsupdate dns - validate"
+  lrd.ext_cloud.vars:
+    identifier: "nsupdate_dns"
+    raw_data:
+      state: "present"
+      namespace: "{{ validator_item.data.namespace | default('') }}"
+      params: "{{ validator_item.data.params | default({}) }}"
+      credentials: "{{ validator_item.data.credentials | default({}) }}"
+      contents: "{{ validator_item.data.contents | default({}) }}"

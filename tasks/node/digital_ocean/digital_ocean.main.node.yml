@@ -1,20 +1,5 @@
 # Prepare
 
-- name: "{{ inner_service_title }} - validate namespace (required)"
-  fail:
-    msg: "namespace not specified (expected: 'ext_node')"
-  when: inner_service_namespace == ''
-  tags: ["no_print"]
-
-- name: "{{ inner_service_title }} - validate namespace (ext_node)"
-  fail:
-    msg: |
-      incorrect namespace
-      expected: 'ext_node'
-      received: '{{ inner_service_namespace }}'
-  when: inner_service_namespace != 'ext_node'
-  tags: ["no_print"]
-
 - name: "{{ inner_service_title }} - node - digital ocean - vars"
   set_fact:
     ext_node_title: "{{ inner_service_title }} - node - digital ocean"

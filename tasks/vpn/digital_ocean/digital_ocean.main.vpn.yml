@@ -1,20 +1,5 @@
 # Prepare
 
-- name: "{{ inner_service_title }} - validate namespace (required)"
-  fail:
-    msg: "namespace not specified (expected: 'ext_vpn')"
-  when: inner_service_namespace == ''
-  tags: ["no_print"]
-
-- name: "{{ inner_service_title }} - validate namespace (ext_vpn)"
-  fail:
-    msg: |
-      incorrect namespace
-      expected: 'ext_vpn'
-      received: '{{ inner_service_namespace }}'
-  when: inner_service_namespace != 'ext_vpn'
-  tags: ["no_print"]
-
 - name: "{{ inner_service_title }} - vpn - digital ocean - vars"
   set_fact:
     ext_vpn_title: "{{ inner_service_title }} - vpn - digital ocean"
@@ -31,17 +16,15 @@
 
 - name: "{{ ext_vpn_title }} - ext_vpn_main_credentials"
   set_fact:
-    ext_vpn_main_credentials: "{{ ext_vpn_credentials.vpn | default({}) }}"
-  tags: ["no_print"]
-
-- name: "{{ ext_vpn_title }} - ext_vpn_tags"
-  set_fact:
+    ext_vpn_main_credentials: "{{ tmp_credentials }}"
     ext_vpn_tags: >-
       {{ ext_vpn_params.tags | default([]) }}
     ext_vpn_firewalls: >-
       {{ ext_vpn_params.firewalls | default([]) }}
     ext_vpn_api_token: >-
-      {{ ext_vpn_main_credentials.api_token | default('') }}
+      {{ tmp_credentials.api_token | default('') }}
+  vars:
+    tmp_credentials: "{{ ext_vpn_credentials.vpn | default({}) }}"
   tags: ["no_print"]
 
 - name: >-
@@ -56,49 +39,21 @@
   loop_control:
     loop_var: ext_vpn_item
 
-- name: "{{ ext_vpn_title }} - block - firewalls"
-  block:
-    - name: "{{ ext_vpn_title }} - ext_vpn_firewalls_final - init"
-      set_fact:
-        ext_vpn_firewalls_final: []
-      tags: ["no_print"]
-
-    - name: "{{ ext_vpn_title }} - ext_vpn_firewalls_final - fill (outer)"
-      include_tasks: "digital_ocean.firewall_tags.vpn.yml"
-      vars:
-        ext_vpn_firewall_title: >-
-          {{ ext_vpn_title }} - firewall tags
-          [{{ ext_vpn_firewall.name | default('') }}]
-        ext_vpn_firewall: "{{ ext_vpn_item }}"
-      loop: "{{ ext_vpn_firewalls | default([]) }}"
-      loop_control:
-        loop_var: ext_vpn_item
-        label: "{{ ext_vpn_firewall.name | default('') }}"
-      tags: ["no_print"]
-
-    - name: >-
-        {{ ext_vpn_title }} -
-        {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
-        firewalls
-      lrd.ext_cloud.digital_ocean_firewall:
-        api_token: "{{ ext_vpn_api_token }}"
-        name: "{{ ext_vpn_item.name }}"
-        droplet_ids: "{{ ext_vpn_item.droplet_ids | default([]) }}"
-        tags: "{{ ext_vpn_item.tags | default([]) }}"
-        inbound_rules: "{{ ext_vpn_item.inbound_rules | default([]) }}"
-        outbound_rules: "{{ ext_vpn_item.outbound_rules | default([]) }}"
-        state: "{{ ext_vpn_state }}"
-      loop: "{{ ext_vpn_firewalls_final | default([]) }}"
-      loop_control:
-        loop_var: ext_vpn_item
-        label: "{{ ext_vpn_item.name }}"
-      tags: ["no_print_skipped"]
+- name: >-
+    {{ ext_vpn_title }} -
+    {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
+    firewalls
+  lrd.ext_cloud.digital_ocean_firewall:
+    api_token: "{{ ext_vpn_api_token }}"
+    name: "{{ ext_vpn_item.name }}"
+    droplet_ids: "{{ ext_vpn_item.droplet_ids | default([]) }}"
+    tags: "{{ ext_vpn_item.tags | default([]) }}"
+    inbound_rules: "{{ ext_vpn_item.inbound_rules | default([]) }}"
+    outbound_rules: "{{ ext_vpn_item.outbound_rules | default([]) }}"
+    state: "{{ ext_vpn_state }}"
   when: (ext_vpn_firewalls | default([])) | length > 0
+  loop: "{{ ext_vpn_firewalls | default([]) }}"
+  loop_control:
+    loop_var: ext_vpn_item
+    label: "{{ ext_vpn_item.name }}"
   tags: ["no_print_skipped"]
-
-# Set Result
-
-- name: "{{ ext_vpn_title }} - set result"
-  set_fact:
-    cloud_service_result: "{{ ext_vpn_result }}"
-  tags: ["no_print"]
