@@ -1,29 +1,17 @@
-- name: "{{ ext_dns_title }} - inner vars"
+- name: "{{ ext_dns_title }} - ext_dns_execute"
   set_fact:
-    ext_dns_api_server_url: "{{ ext_dns_item.api_server_url }}"
-    ext_dns_authorization: "{{ ext_dns_item.authorization }}"
-    ext_dns_values: "{{ ext_dns_item.dns_values }}"
-    ext_dns_record_type: "{{ ext_dns_item.dns_type }}"
-    ext_dns_record: "{{ ext_dns_item.record }}"
-    ext_dns_ttl: "{{ ext_dns_params.ttl | default('') }}"
-    ext_dns_priority: "{{ ext_dns_params.priority | default('') }}"
-    ext_dns_service: "{{ ext_dns_params.service | default('') }}"
-    ext_dns_protocol: "{{ ext_dns_params.protocol | default('') }}"
-    ext_dns_port: "{{ ext_dns_params.port | default('') }}"
-    ext_dns_weight: "{{ ext_dns_params.weight | default('') }}"
-    ext_dns_records: []
     ext_dns_execute: true
   tags: ["no_print"]
 
 - name: >-
     {{ ext_dns_title }} - verify if the record is there
-    ({{ ext_dns_api_server_url }})
+    ({{ ext_dns_item.api_server_url }})
   uri:
-    url: "{{ ext_dns_api_server_url }}"
+    url: "{{ ext_dns_item.api_server_url }}"
     method: "GET"
     body_format: "json"
     headers:
-      Authorization: "{{ ext_dns_authorization }}"
+      Authorization: "{{ ext_dns_item.authorization }}"
       Accept: "application/json"
   register: "ext_dns_result"
 
@@ -33,20 +21,10 @@
   tags: ["no_print"]
 
 - block:
-    - name: "{{ ext_dns_title }} - define the records"
-      include_tasks: "godaddy.record.dns.yml"
-      loop: "{{ ext_dns_values }}"
-      loop_control:
-        loop_var: ext_dns_record_item
-        index_var: ext_dns_index
-        label: "{{ ext_dns_index }}"
-      when: ext_dns_record_item.value != ''
-      tags: ["no_print_skipped"]
-
     - include_tasks: "tasks/util/diff.yml"
       vars:
         diff_list_1: "{{ ext_dns_old_records }}"
-        diff_list_2: "{{ ext_dns_records }}"
+        diff_list_2: "{{ ext_dns_item.dns_records }}"
       tags: ["no_print"]
 
     - name: "{{ ext_dns_title }} - get old record"
@@ -57,7 +35,7 @@
 
     - name: "{{ ext_dns_title }} - print body"
       debug:
-        var: ext_dns_records
+        var: ext_dns_item.dns_records
         verbosity: 3
       tags: ["no_print_skipped"]
 
@@ -77,16 +55,15 @@
     {{ ext_dns_title }} - call godaddy api to
     {{ (ext_dns_item.state == 'present')
     | ternary('create/update the record', 'delete the record') }}
-    ({{ ext_dns_api_server_url }})
+    ({{ ext_dns_item.api_server_url }})
   uri:
-    url: "{{ ext_dns_api_server_url }}"
+    url: "{{ ext_dns_item.api_server_url }}"
     method: "PUT"
-    body: "{{ ext_dns_records | to_nice_json }}"
+    body: "{{ ext_dns_item.dns_records | to_nice_json }}"
     body_format: "json"
     headers:
-      Authorization: "{{ ext_dns_authorization }}"
+      Authorization: "{{ ext_dns_item.authorization }}"
       Accept: "application/json"
   changed_when: ext_dns_execute | bool
   when: ext_dns_execute | bool
   tags: ["no_print_skipped"]
-

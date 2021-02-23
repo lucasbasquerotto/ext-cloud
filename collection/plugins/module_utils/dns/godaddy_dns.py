@@ -94,18 +94,16 @@ def prepare_item(raw_data, item_params):
 
     result['api_server_url'] = api_server_url
     result['authorization'] = authorization
-    result['dns_values'] = dns_values
     result['state'] = state
 
     result['zone'] = item_params.get('zone')
     result['dns_type'] = item_params.get('dns_type')
     result['record'] = item_params.get('record')
-    result['ttl'] = item_params.get('ttl')
-    result['priority'] = item_params.get('priority')
-    result['service'] = item_params.get('service')
-    result['protocol'] = item_params.get('protocol')
-    result['port'] = item_params.get('port')
-    result['weight'] = item_params.get('weight')
+
+    result['dns_records'] = [
+        prepare_dns_records(item_params, value_dict)
+        for value_dict in dns_values
+    ] if state == 'present' else []
 
   return dict(result=result, error_msgs=error_msgs)
 
@@ -136,22 +134,7 @@ def manage_dns(prepared_item):
 
       query_result = dict()
 
-      values = prepared_item.get('dns_values')
-
-      new_records = [
-          prepare_new_record(prepared_item, value_dict)
-          for value_dict in values or []
-      ]
-
-      new_records = (
-          new_records
-          or
-          (
-              new_records
-              if (state != 'absent')
-              else [prepare_new_record(prepared_item, value_dict=dict())]
-          )
-      )
+      new_records = prepared_item.get('data') or []
 
       if ordered(query_result) != ordered(new_records):
         changed = True
@@ -183,17 +166,17 @@ def manage_dns(prepared_item):
   return dict(result=result, error_msgs=error_msgs)
 
 
-def prepare_new_record(prepared_item, value_dict):
+def prepare_dns_records(item_params, value_dict):
   result = dict(
-      type=prepared_item.get('dns_type'),
-      name=prepared_item.get('record'),
+      type=item_params.get('dns_type'),
+      name=item_params.get('record'),
       data=value_dict.get('value'),
-      ttl=value_dict.get('ttl') or prepared_item.get('ttl') or 600,
-      priority=value_dict.get('priority') or prepared_item.get('priority'),
-      service=value_dict.get('service') or prepared_item.get('service'),
-      proto=value_dict.get('proto') or prepared_item.get('proto'),
-      port=value_dict.get('port') or prepared_item.get('port'),
-      weight=value_dict.get('weight') or prepared_item.get('weight'),
+      ttl=value_dict.get('ttl') or item_params.get('ttl') or 600,
+      priority=value_dict.get('priority') or item_params.get('priority'),
+      service=value_dict.get('service') or item_params.get('service'),
+      proto=value_dict.get('proto') or item_params.get('proto'),
+      port=value_dict.get('port') or item_params.get('port'),
+      weight=value_dict.get('weight') or item_params.get('weight'),
   )
 
   result_keys = list(result.keys())
