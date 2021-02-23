@@ -67,7 +67,6 @@ def prepare_item(raw_data, item_params):
     item_credentials = item_data.get('credentials')
 
     raw_values = item_params.get('value')
-    raw_values = ['1.2.3.4', '5.6.7.8', '9.0.1.2']
     dns_values = generate_values(raw_values)
 
     if not dns_values:
