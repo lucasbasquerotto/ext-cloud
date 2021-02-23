@@ -12,11 +12,14 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_text
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
-    prepare_data as s3_prepare_data
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns import (
+    prepare_data as cloudflare_dns_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     prepare_data as godaddy_dns_prepare_data
+)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
+    prepare_data as s3_prepare_data
 )
 
 from ansible.module_utils._text import to_text
@@ -38,6 +41,7 @@ def main():
   identifier = module.params['identifier']
   raw_data = module.params['raw_data']
 
+  info = None
   result = None
   error_msgs = list()
 
@@ -47,6 +51,8 @@ def main():
     info = s3_prepare_data(raw_data)
   elif identifier == 'godaddy_dns':
     info = godaddy_dns_prepare_data(raw_data)
+  elif identifier == 'cloudflare_dns':
+    info = cloudflare_dns_prepare_data(raw_data)
   else:
     error_msgs += [['msg: invalid identifier']]
 

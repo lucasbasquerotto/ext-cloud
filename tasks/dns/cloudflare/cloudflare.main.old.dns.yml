@@ -1,0 +1,99 @@
+# Prepare
+
+- name: "{{ inner_service_title }} - validate namespace (required)"
+  fail:
+    msg: "namespace not specified (expected: 'ext_dns')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace (ext_dns)"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_dns'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_dns'
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - dns - cloudflare - vars"
+  set_fact:
+    ext_dns_title: "{{ inner_service_title }} - dns - cloudflare"
+    ext_dns_params: "{{ inner_service_params }}"
+    ext_dns_credentials: "{{ inner_service_credentials }}"
+    ext_dns_contents: "{{ inner_service_contents }}"
+    ext_dns_state: "{{ inner_service_state }}"
+    ext_dns_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
+    ext_dns_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_dns_result: {}
+  tags: ["no_print"]
+
+# Main
+
+- name: "{{ ext_dns_title }} - inner vars"
+  set_fact:
+    ext_dns_zone: "{{ ext_dns_params.zone }}"
+    ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
+    ext_dns_record: "{{ ext_dns_params.record }}"
+    ext_dns_raw_value: "{{ ext_dns_params.value }}"
+    ext_dns_main_credentials: "{{ ext_dns_credentials.dns | default({}) }}"
+    ext_dns_ttl: "{{ ext_dns_params.ttl | default('') }}"
+    ext_dns_priority: "{{ ext_dns_params.priority | default('') }}"
+    ext_dns_service: "{{ ext_dns_params.service | default('') }}"
+    ext_dns_protocol: "{{ ext_dns_params.protocol | default('') }}"
+    ext_dns_port: "{{ ext_dns_params.port | default('') }}"
+    ext_dns_weight: "{{ ext_dns_params.weight | default('') }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - dns values"
+  set_fact:
+    ext_dns_values: >-
+      {{
+        ext_dns_raw_value
+        | default([])
+        | lrd.cloud.simple_to_list
+        | lrd.cloud.simple_dict_prop_list(prop='value')
+        | list
+      }}
+  tags: ["no_print"]
+
+- name: >-
+    {{ ext_dns_title }} - create record -
+    [{{ ext_dns_record_type }}] {{ ext_dns_record }}
+  include_tasks: "cloudflare.record.dns.yml"
+  vars:
+    ext_dns_value: "{{ ext_dns_item.value }}"
+    ext_dns_inner_ttl: "{{ ext_dns_item.ttl | default('') }}"
+    ext_dns_inner_priority: "{{ ext_dns_item.priority | default('') }}"
+    ext_dns_inner_service: "{{ ext_dns_item.service | default('') }}"
+    ext_dns_inner_protocol: "{{ ext_dns_item.protocol | default('') }}"
+    ext_dns_inner_port: "{{ ext_dns_item.port | default('') }}"
+    ext_dns_inner_weight: "{{ ext_dns_item.weight | default('') }}"
+    ext_dns_solo: "{{ ext_dns_index == 0 }}"
+    ext_dns_final_state: "present"
+  loop: "{{ ext_dns_values }}"
+  loop_control:
+    loop_var: ext_dns_item
+    index_var: ext_dns_index
+    label: "{{ ext_dns_index }}"
+  when: ext_dns_state == 'present'
+  tags: ["no_print"]
+
+- name: >-
+    {{ ext_dns_title }} - delete record -
+    [{{ ext_dns_record_type }}] {{ ext_dns_record }}
+  include_tasks: "cloudflare.record.dns.yml"
+  vars:
+    ext_dns_solo: false
+    ext_dns_final_state: "absent"
+  when: >-
+    (ext_dns_state == 'absent')
+    or
+    ((ext_dns_values | length) == 0)
+  tags: ["no_print"]
+
+# Set Result
+
+- name: "{{ ext_dns_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_dns_result }}"
+  tags: ["no_print"]

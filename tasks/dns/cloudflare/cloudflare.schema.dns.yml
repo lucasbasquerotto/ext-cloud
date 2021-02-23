@@ -14,16 +14,22 @@ schemas:
         description: "cloudflare dns credentials"
   params:
     type: "dict"
-    description: "cloudflare dns parameters schema"
+    description: "godaddy dns parameters schema"
     props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          list of records to be created/destroyed; used when defined, instead of considering
+          the parameters as only one definition; instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter; when not defined, will use
+          the outer parameters as one single list item
       zone:
         type: "str"
-        non_empty: true
         description: >-
           dns zone/domain (e.g. 'example.com'); the zone must already exist
       dns_type:
         type: "str"
-        non_empty: true
         choices:
           - "A"
           - "AAAA"
@@ -39,7 +45,6 @@ schemas:
         description: "dns type"
       record:
         type: "str"
-        non_empty: true
         description: "dns record to add/remove (according to state)"
       ttl:
         type: "int"
@@ -62,7 +67,54 @@ schemas:
       value:
         type: "simple_list"
         elem_schema: "dns_value_item"
-        elem_non_empty: "true"
+        description: "list with strings or dictionaries representing the dns record value"
+  list_item_params:
+    type: "dict"
+    description: "godaddy dns parameters schema"
+    props:
+      zone:
+        type: "str"
+        description: >-
+          dns zone/domain (e.g. 'example.com'); the zone must already exist
+      dns_type:
+        type: "str"
+        choices:
+          - "A"
+          - "AAAA"
+          - "CNAME"
+          - "DS"
+          - "MX"
+          - "NS"
+          - "SPF"
+          - "SRV"
+          - "SSHFP"
+          - "TLSA"
+          - "TXT"
+        description: "dns type"
+      record:
+        type: "str"
+        description: "dns record to add/remove (according to state)"
+      ttl:
+        type: "int"
+        description: "dns record ttl (time-to-live)"
+      priority:
+        type: "int"
+        description: "dns record priority (for dns_type=MX and dns_type=SRV)"
+      service:
+        type: "str"
+        description: "dns record service (for dns_type=SRV)"
+      protocol:
+        type: "str"
+        description: "dns record protocol (for dns_type=SRV and dns_type=TLSA)"
+      port:
+        type: "int"
+        description: "dns record port (for dns_type=SRV and dns_type=TLSA)"
+      weight:
+        type: "int"
+        description: "dns record weight (for dns_type=SRV)"
+      value:
+        type: "simple_list"
+        elem_schema: "dns_value_item"
         description: "list with strings or dictionaries representing the dns record value"
   dns_value_item:
     type: "simple_dict"

@@ -67,6 +67,7 @@ def prepare_item(raw_data, item_params):
     item_credentials = item_data.get('credentials')
 
     raw_values = item_params.get('value')
+    raw_values = ['1.2.3.4', '5.6.7.8', '9.0.1.2']
     dns_values = generate_values(raw_values)
 
     if not dns_values:
@@ -90,20 +91,37 @@ def prepare_item(raw_data, item_params):
   return dict(result=result, error_msgs=error_msgs)
 
 
-def expand_item_values(prepared_item):
-  dict_values = prepared_item.get('values') or []
-  expanded_values = [
-      dict(
-          value=value.get('value'),
-          ttl=value.get('ttl') or prepared_item.get('ttl'),
-          priority=value.get('priority') or prepared_item.get('priority'),
-          service=value.get('service') or prepared_item.get('service'),
-          protocol=value.get('protocol') or prepared_item.get('protocol'),
-          port=value.get('port') or prepared_item.get('port'),
-          weight=value.get('weight') or prepared_item.get('weight'),
-      )
-      if isinstance(value, dict)
-      else dict(value=value)
-      for value in dict_values
-  ]
-  return expanded_values
+def expand_item_values(prepared_item_info):
+  prepared_item = prepared_item_info.get('result')
+  error_msgs = prepared_item_info.get('error_msgs') or []
+  result = None
+
+  if not error_msgs:
+    dict_values = prepared_item.get('dns_values') or []
+    result = [
+        dict(
+            email=prepared_item.get('email'),
+            token=prepared_item.get('token'),
+            state=prepared_item.get('state'),
+
+            zone=prepared_item.get('zone'),
+            dns_type=prepared_item.get('dns_type'),
+            record=prepared_item.get('record'),
+
+            value=value.get('value'),
+
+            ttl=value.get('ttl') or prepared_item.get('ttl'),
+            priority=value.get('priority') or prepared_item.get('priority'),
+            service=value.get('service') or prepared_item.get('service'),
+            protocol=value.get('protocol') or prepared_item.get('protocol'),
+            port=value.get('port') or prepared_item.get('port'),
+            weight=value.get('weight') or prepared_item.get('weight'),
+
+            solo=(value_idx == 1)
+        )
+        if isinstance(value, dict)
+        else dict(value=value)
+        for value_idx, value in enumerate(dict_values, start=1)
+    ]
+
+  return dict(result=result, error_msgs=error_msgs)
