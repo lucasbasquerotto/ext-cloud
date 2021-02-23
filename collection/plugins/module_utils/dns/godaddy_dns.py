@@ -11,9 +11,15 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
+import traceback
+
+from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
     generate_values, prepare_general_data, prepare_item_data
 )
+from ansible.utils.display import Display
+
+display = Display()
 
 
 def prepare_data(raw_data):
@@ -102,3 +108,98 @@ def prepare_item(raw_data, item_params):
     result['weight'] = item_params.get('weight')
 
   return dict(result=result, error_msgs=error_msgs)
+
+
+def manage_dns(prepared_item):
+  error_msgs = list()
+  result = None
+
+  try:
+    api_server_url = prepared_item.get('api_server_url')
+    authorization = prepared_item.get('authorization')
+    state = prepared_item.get('state')
+
+    create = (state == 'present')
+    changed = False
+
+    if create:
+      url_query = dict(
+          url=api_server_url,
+          method='GET',
+          headers=dict(
+              Authorization=authorization,
+              Accept='application/json'
+          ),
+          body_format='json',
+      )
+      # TODO: use url_query
+
+      query_result = dict()
+
+      values = prepared_item.get('dns_values')
+
+      new_records = [
+          prepare_new_record(prepared_item, value_dict)
+          for value_dict in values or []
+      ]
+
+      new_records = (
+          new_records
+          or
+          (
+              new_records
+              if (state != 'absent')
+              else [prepare_new_record(prepared_item, value_dict=dict())]
+          )
+      )
+
+      if ordered(query_result) != ordered(new_records):
+        changed = True
+
+        url_action = dict(
+            url=api_server_url,
+            method='PUT',
+            headers=dict(
+                Authorization=authorization,
+                Accept='application/json'
+            ),
+            body_format='json',
+            body=new_records,
+        )
+        # TODO: use url_action
+    else:
+      # not supported by the goddaddy API
+      display.vv('absent state not supported by the godaddy api')
+
+    result = dict(changed=changed)
+  except Exception as error:
+    error_msgs += [[
+        'msg: error when trying to manage godaddy dns records',
+        'error type: ' + str(type(error)),
+        'error details: ',
+        traceback.format_exc().split('\n'),
+    ]]
+
+  return dict(result=result, error_msgs=error_msgs)
+
+
+def prepare_new_record(prepared_item, value_dict):
+  result = dict(
+      type=prepared_item.get('dns_type'),
+      name=prepared_item.get('record'),
+      data=value_dict.get('value'),
+      ttl=value_dict.get('ttl') or prepared_item.get('ttl') or 600,
+      priority=value_dict.get('priority') or prepared_item.get('priority'),
+      service=value_dict.get('service') or prepared_item.get('service'),
+      proto=value_dict.get('proto') or prepared_item.get('proto'),
+      port=value_dict.get('port') or prepared_item.get('port'),
+      weight=value_dict.get('weight') or prepared_item.get('weight'),
+  )
+
+  result_keys = list(result.keys())
+
+  for key in result_keys:
+    if not result.get(key):
+      result.pop(key, None)
+
+  return result
