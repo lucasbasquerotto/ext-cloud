@@ -70,13 +70,13 @@ def prepare_item(raw_data, item_params):
 
     raw_values = item_params.get('value')
     values_aux = generate_values(raw_values)
-    values = [v.get('value') for v in (values_aux or [])]
+    dns_values = [v.get('value') for v in (values_aux or [])]
 
-    if not values:
+    if not dns_values:
       state = 'absent'
 
     result['state'] = state
-    result['values'] = values
+    result['dns_values'] = dns_values
 
     result['key_name'] = item_credentials.get('key_name')
     result['key_secret'] = item_credentials.get('key_secret')

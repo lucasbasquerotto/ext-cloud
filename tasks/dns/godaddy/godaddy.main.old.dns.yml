@@ -1,0 +1,182 @@
+# Prepare
+
+- name: "{{ inner_service_title }} - validate namespace (required)"
+  fail:
+    msg: "namespace not specified (expected: 'ext_dns')"
+  when: inner_service_namespace == ''
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - validate namespace (ext_dns)"
+  fail:
+    msg: |
+      incorrect namespace
+      expected: 'ext_dns'
+      received: '{{ inner_service_namespace }}'
+  when: inner_service_namespace != 'ext_dns'
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - dns - godaddy - vars"
+  set_fact:
+    ext_dns_title: "{{ inner_service_title }} - dns - godaddy"
+    ext_dns_params: "{{ inner_service_params }}"
+    ext_dns_credentials: "{{ inner_service_credentials }}"
+    ext_dns_contents: "{{ inner_service_contents }}"
+    ext_dns_state: "{{ inner_service_state }}"
+    ext_dns_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
+    ext_dns_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_dns_result: {}
+  tags: ["no_print"]
+
+# Main
+
+- name: "{{ ext_dns_title }} - inner vars"
+  set_fact:
+    ext_dns_zone: "{{ ext_dns_params.zone }}"
+    ext_dns_record_type: "{{ ext_dns_params.dns_type }}"
+    ext_dns_record: "{{ ext_dns_params.record }}"
+    ext_dns_raw_value: "{{ ext_dns_params.value }}"
+    ext_dns_main_credentials: "{{ ext_dns_credentials.dns | default({}) }}"
+    ext_dns_ttl: "{{ ext_dns_params.ttl | default('') }}"
+    ext_dns_priority: "{{ ext_dns_params.priority | default('') }}"
+    ext_dns_service: "{{ ext_dns_params.service | default('') }}"
+    ext_dns_protocol: "{{ ext_dns_params.protocol | default('') }}"
+    ext_dns_port: "{{ ext_dns_params.port | default('') }}"
+    ext_dns_weight: "{{ ext_dns_params.weight | default('') }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - dns values"
+  set_fact:
+    ext_dns_values: >-
+      {{
+        ext_dns_raw_value
+        | default([])
+        | lrd.cloud.simple_to_list
+        | lrd.cloud.simple_dict_prop_list(prop='value')
+        | list
+      }}
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - godaddy dns"
+  set_fact:
+    ext_dns_api_server_url: >-
+      {{ ext_dns_main_credentials.api_server }}/{{ ''
+      }}v{{ ext_dns_main_credentials.api_version }}/domains{{ ''
+      }}/{{ ext_dns_params.zone }}/records{{ ''
+      }}/{{ ext_dns_record_type }}{{ ''
+      }}/{{ ext_dns_record }}
+    ext_dns_authorization: >-
+      sso-key {{ ext_dns_main_credentials.api_key }}:{{ ext_dns_main_credentials.api_secret }}
+    ext_dns_final_state: "{{ ext_dns_state }}"
+    ext_dns_records: []
+    ext_dns_execute: true
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - validate required params"
+  fail:
+    msg: "{{ ext_dns_title }} - {{ ext_dns_item.name }} not specified"
+  loop:
+    - { name: "dns_zone", value: "{{ ext_dns_params.zone }}" }
+    - { name: "dns_record_type", value: "{{ ext_dns_record_type }}" }
+    - { name: "dns_record_name", value: "{{ ext_dns_record }}" }
+  loop_control:
+    loop_var: ext_dns_item
+    label: "{{ ext_dns_item.name }}"
+  when: (ext_dns_item.value | default('')) == ''
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - validate state"
+  fail:
+    msg: "{{ ext_dns_title }} - dns state should be either 'present' or 'absent'"
+  when: ext_dns_state not in ['present', 'absent']
+  tags: ["no_print"]
+
+- name: "{{ ext_dns_title }} - define final state"
+  set_fact:
+    ext_dns_final_state: "absent"
+  when: >-
+    (ext_dns_state == 'present')
+    and
+    ((ext_dns_values | length) == 0)
+  tags: ["no_print"]
+
+- name: >-
+    {{ ext_dns_title }} - verify if the record is there
+    ({{ ext_dns_api_server_url }})
+  uri:
+    url: "{{ ext_dns_api_server_url }}"
+    method: "GET"
+    body_format: "json"
+    headers:
+      Authorization: "{{ ext_dns_authorization }}"
+      Accept: "application/json"
+  register: "ext_dns_result"
+
+- name: "{{ ext_dns_title }} - get old record"
+  set_fact:
+    ext_dns_old_records: "{{ ext_dns_result.json | default([]) }}"
+  tags: ["no_print"]
+
+- block:
+    - name: "{{ ext_dns_title }} - define the records"
+      include_tasks: "godaddy.record.dns.yml"
+      loop: "{{ ext_dns_values }}"
+      loop_control:
+        loop_var: ext_dns_record_item
+        index_var: ext_dns_index
+        label: "{{ ext_dns_index }}"
+      when: ext_dns_record_item.value != ''
+      tags: ["no_print_skipped"]
+
+    - include_tasks: "tasks/util/diff.yml"
+      vars:
+        diff_list_1: "{{ ext_dns_old_records }}"
+        diff_list_2: "{{ ext_dns_records }}"
+      tags: ["no_print"]
+
+    - name: "{{ ext_dns_title }} - get old record"
+      set_fact:
+        ext_dns_execute: false
+      when: (diff_list_result | default([]) | length) == 0
+      tags: ["no_print"]
+
+    - name: "{{ ext_dns_title }} - print body"
+      debug:
+        var: ext_dns_records
+        verbosity: 3
+      tags: ["no_print_skipped"]
+
+  when: ext_dns_final_state == 'present'
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_dns_title }} - verify if api should be called to delete the record"
+  set_fact:
+    ext_dns_execute: false
+  when: >-
+    (ext_dns_final_state == 'absent')
+    and
+    ((ext_dns_old_records | length) == 0)
+  tags: ["no_print"]
+
+- name: >-
+    {{ ext_dns_title }} - call godaddy api to
+    {{ (ext_dns_final_state == 'present')
+    | ternary('create/update the record', 'delete the record') }}
+    ({{ ext_dns_api_server_url }})
+  uri:
+    url: "{{ ext_dns_api_server_url }}"
+    method: "PUT"
+    body: "{{ ext_dns_records | to_nice_json }}"
+    body_format: "json"
+    headers:
+      Authorization: "{{ ext_dns_authorization }}"
+      Accept: "application/json"
+  changed_when: ext_dns_execute | bool
+  when: ext_dns_execute | bool
+  tags: ["no_print_skipped"]
+
+# Set Result
+
+- name: "{{ ext_dns_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_dns_result }}"
+  tags: ["no_print"]

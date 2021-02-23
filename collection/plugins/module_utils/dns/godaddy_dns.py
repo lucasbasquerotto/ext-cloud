@@ -70,7 +70,7 @@ def prepare_item(raw_data, item_params):
 
     api_server_url = (
         item_credentials.get('api_server')
-        + '/' + item_credentials.get('api_version')
+        + '/v' + item_credentials.get('api_version')
         + '/domains/' + item_params.get('zone')
         + '/records/' + item_params.get('dns_type')
         + '/' + item_params.get('record')
@@ -81,14 +81,14 @@ def prepare_item(raw_data, item_params):
     )
 
     raw_values = item_params.get('value')
-    values = generate_values(raw_values)
+    dns_values = generate_values(raw_values)
 
-    if not values:
+    if not dns_values:
       state = 'absent'
 
     result['api_server_url'] = api_server_url
     result['authorization'] = authorization
-    result['values'] = values
+    result['dns_values'] = dns_values
     result['state'] = state
 
     result['zone'] = item_params.get('zone')

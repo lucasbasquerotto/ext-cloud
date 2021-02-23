@@ -11,11 +11,8 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-import traceback
-
-from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import to_bool
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
-    generate_list_params, generate_values, validate_namespace
+    generate_values, prepare_general_data, prepare_item_data
 )
 
 
@@ -69,27 +66,15 @@ def prepare_item(raw_data, item_params):
   if not error_msgs:
     item_credentials = item_data.get('credentials')
 
-    api_server_url = (
-        item_credentials.get('api_server')
-        + '/' + item_credentials.get('api_version')
-        + '/domains/' + item_params.get('zone')
-        + '/records/' + item_params.get('dns_type')
-        + '/' + item_params.get('record')
-    )
-    authorization = (
-        'sso-key ' + item_credentials.get('api_key')
-        + ':' + item_credentials.get('api_secret')
-    )
-
     raw_values = item_params.get('value')
-    values = generate_values(raw_values)
+    dns_values = generate_values(raw_values)
 
-    if not values:
+    if not dns_values:
       state = 'absent'
 
-    result['email'] = email
-    result['token'] = token
-    result['values'] = values
+    result['email'] = item_credentials.get('email')
+    result['token'] = item_credentials.get('token')
+    result['dns_values'] = dns_values
     result['state'] = state
 
     result['zone'] = item_params.get('zone')
@@ -104,20 +89,21 @@ def prepare_item(raw_data, item_params):
 
   return dict(result=result, error_msgs=error_msgs)
 
+
 def expand_item_values(prepared_item):
   dict_values = prepared_item.get('values') or []
   expanded_values = [
-    dict(
-        value=value.get('value'),
-        ttl=value.get('ttl') or prepared_item.get('ttl'),
-        priority=value.get('priority') or prepared_item.get('priority'),
-        service=value.get('service') or prepared_item.get('service'),
-        protocol=value.get('protocol') or prepared_item.get('protocol'),
-        port=value.get('port') or prepared_item.get('port'),
-        weight=value.get('weight') or prepared_item.get('weight'),
-    )
-    for value in dict_values
-    if isinstance(value, dict)
-    else dict(value=value)
+      dict(
+          value=value.get('value'),
+          ttl=value.get('ttl') or prepared_item.get('ttl'),
+          priority=value.get('priority') or prepared_item.get('priority'),
+          service=value.get('service') or prepared_item.get('service'),
+          protocol=value.get('protocol') or prepared_item.get('protocol'),
+          port=value.get('port') or prepared_item.get('port'),
+          weight=value.get('weight') or prepared_item.get('weight'),
+      )
+      if isinstance(value, dict)
+      else dict(value=value)
+      for value in dict_values
   ]
   return expanded_values

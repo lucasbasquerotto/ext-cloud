@@ -3,13 +3,13 @@
     ext_dns_record_data_aux:
       type: "{{ ext_dns_record_type }}"
       name: "{{ ext_dns_record }}"
-      data: "{{ ext_dns_item.value | default('') }}"
-      ttl: "{{ ext_dns_ttl | default(ext_dns_item.ttl | default('', true), true) }}"
-      priority: "{{ ext_dns_priority | default(ext_dns_item.priority | default('', true), true) }}"
-      service: "{{ ext_dns_service | default(ext_dns_item.service | default('', true), true) }}"
-      proto: "{{ ext_dns_protocol | default(ext_dns_item.protocol | default('', true), true) }}"
-      port: "{{ ext_dns_port | default(ext_dns_item.port | default('', true), true) }}"
-      weight: "{{ ext_dns_weight | default(ext_dns_item.weight | default('', true), true) }}"
+      data: "{{ ext_dns_record_item.value | default('') }}"
+      ttl: "{{ ext_dns_ttl | default(ext_dns_record_item.ttl | default('', true), true) }}"
+      priority: "{{ ext_dns_priority | default(ext_dns_record_item.priority | default('', true), true) }}"
+      service: "{{ ext_dns_service | default(ext_dns_record_item.service | default('', true), true) }}"
+      proto: "{{ ext_dns_protocol | default(ext_dns_record_item.protocol | default('', true), true) }}"
+      port: "{{ ext_dns_port | default(ext_dns_record_item.port | default('', true), true) }}"
+      weight: "{{ ext_dns_weight | default(ext_dns_record_item.weight | default('', true), true) }}"
   tags: ["no_print"]
 
 - name: "{{ ext_dns_inner_title }} - empty record"
