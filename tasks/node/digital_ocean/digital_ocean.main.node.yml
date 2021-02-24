@@ -26,9 +26,9 @@
 - name: "{{ ext_node_title }} - droplets"
   digital_ocean_droplet:
     unique_name: yes
-    oauth_token: "{{ ext_node_main_credentials.api_token }}"
     name: "{{ ext_node_item_name }}"
     state: "{{ ext_node_item_state }}"
+    oauth_token: "{{ ext_node_main_credentials.api_token }}"
     region_id: "{{ ext_node_params.region_id }}"
     size_id: "{{ ext_node_params.size_id }}"
     image_id: "{{ ext_node_params.image_id }}"

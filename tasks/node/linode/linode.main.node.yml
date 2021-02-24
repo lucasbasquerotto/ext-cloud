@@ -1,0 +1,95 @@
+# Prepare
+
+- name: "{{ inner_service_title }} - node - digital ocean - vars"
+  set_fact:
+    ext_node_title: "{{ inner_service_title }} - node - digital ocean"
+    ext_node_params: "{{ inner_service_params }}"
+    ext_node_credentials: "{{ inner_service_credentials }}"
+    ext_node_contents: "{{ inner_service_contents }}"
+    ext_node_state: "{{ inner_service_state }}"
+    ext_node_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
+    ext_node_tmp_dir: "{{ inner_service_tmp_dir }}"
+    ext_node_result: {}
+  tags: ["no_print"]
+
+# Node Main Vars
+
+- name: "{{ ext_node_title }} - main vars"
+  set_fact:
+    ext_node_main_credentials: "{{ ext_node_credentials.node | default({}) }}"
+    ext_node_user_data: "{{ ext_node_contents.user_data | default('') }}"
+    ext_node_hosts: []
+  tags: ["no_print"]
+
+# Main
+
+# https://www.linode.com/community/questions/20027/feature-request-support-for-idempotent-api-requests
+# https://www.linode.com/community/questions/21107/can-i-have-a-private-subnet-between-linodes
+# https://www.linode.com/community/questions/18262/will-linode-offer-a-cloud-firewall
+# https://www.linode.com/community/questions/21062/how-can-i-fixe-the-external-ip-for-a-kubernetes-cluster
+# https://www.linode.com/community/questions/21103/why-cant-i-enable-private-ip-while-creating-a-linode-instance-using-linode_v4-ap
+
+- name: "{{ ext_node_title }} - instances"
+  community.general.linode_v4:
+    label: "{{ ext_node_item_name }}"
+    state: "{{ ext_node_item_state }}"
+    access_token: "{{ ext_node_main_credentials.access_token }}"
+    type: "{{ ext_node_params.type }}"
+    region: "{{ ext_node_params.region }}"
+    image: "{{ ext_node_params.image }}"
+    root_pass: "{{ ext_node_credentials.root.pass }}"
+    authorized_keys:  "{{ ext_node_contents.authorized_keys | split('\n') }}"
+    stackscript_id: "{{ ext_node_params.stackscript_id | default(omit, true) }}"
+    stackscript_data: "{{ ext_node_params.stackscript_data | default(omit, true) }}"
+    tags: "{{ ext_node_params.tags | default(omit, true) }}"
+  vars:
+    ext_node_item_name: "{{ ext_node_item.name }}"
+    ext_node_item_state: >-
+      {{
+        ext_node_item.absent
+        | default(false)
+        | ternary('absent', ext_node_state)
+      }}
+  loop: "{{ ext_node_params.replicas }}"
+  loop_control:
+    loop_var: ext_node_item
+    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
+  register: ext_node_details
+
+- name: "{{ ext_node_item_title }} - set result (tmp)"
+  set_fact:
+    ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
+  vars:
+    ext_node_item: "{{ ext_node_item_data.ext_node_item | default({}) }}"
+    ext_node_instance: "{{ ext_node_item_data.data.instance | default({}) }}"
+    ext_node_item_name: "{{ ext_node_item.name | default('') }}"
+    ext_node_item_state: >-
+      {{
+        ext_node_item.absent
+        | default(false)
+        | ternary('absent', ext_node_state)
+      }}
+    ext_node_item_result:
+      name: "{{ ext_node_item_name }}"
+      state: "{{ ext_node_item_state }}"
+      private_ip: ""
+      public_ipv4: "{{ ext_node_instance.ipv4[0] | default('') }}"
+      public_ipv6: "{{ ext_node_instance.ipv6 | default('') }}"
+  loop: "{{ ext_node_details.results | default([]) }}"
+  loop_control:
+    loop_var: ext_node_item_data
+    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
+  tags: ["no_print"]
+
+- name: "{{ ext_node_title }} - set result (tmp)"
+  set_fact:
+    ext_node_result:
+      hosts: "{{ ext_node_hosts }}"
+  tags: ["no_print"]
+
+# Set Result
+
+- name: "{{ ext_node_title }} - set result"
+  set_fact:
+    cloud_service_result: "{{ ext_node_result }}"
+  tags: ["no_print"]
