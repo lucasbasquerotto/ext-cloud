@@ -3,11 +3,12 @@ schemas:
   sample_schema:
     type: "dict"
     props:
-      params:
-        schema: "params"
+      input:
+        schema: "input"
         non_empty: true
-  params:
+  input:
     type: "dict"
+    lax: true
     props:
       instance_index:
         type: "int"
