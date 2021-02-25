@@ -1,0 +1,17 @@
+root: "sample_schema"
+schemas:
+  sample_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        non_empty: true
+  params:
+    type: "dict"
+    props:
+      instance_index:
+        type: "int"
+        non_empty: true
+      pod_name:
+        type: "str"
+        non_empty: true
