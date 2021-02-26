@@ -1,20 +1,23 @@
 <html>
-<head>
-    <title>Sample Page</title>
-    <style>
-        .title {
-            font-size: 28px;
-            margin-bottom: 15px;
-        }
+	<head>
+		<title>Sample Page</title>
+		<style>
+			.title {
+				font-size: 28px;
+				margin-bottom: 15px;
+			}
 
-        .item {
-            font-size: 18px;
-        }
-    </style>
-</head>
-<body>
-    <h1 class="title">Sample Page</h1>
-    <div class="item"><b>Instance Index (1-based):</b> {{ input.instance_index }}</div>
-    <div class="item"><b>Pod Name:</b> {{ input.pod_name }}</div>
-</body>
+			.item {
+				font-size: 18px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1 class="title">Sample Page</h1>
+		<div class="item"><b>Instance Type:</b> {{ input.instance_type }}</div>
+		<div class="item">
+			<b>Instance Index (1-based):</b> {{ input.instance_index }}
+		</div>
+		<div class="item"><b>Pod Name:</b> {{ input.pod_name }}</div>
+	</body>
 </html>

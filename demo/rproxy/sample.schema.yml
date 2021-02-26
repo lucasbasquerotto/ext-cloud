@@ -10,6 +10,9 @@ schemas:
     type: "dict"
     lax: true
     props:
+      instance_type:
+        type: "str"
+        non_empty: true
       instance_index:
         type: "int"
         non_empty: true
