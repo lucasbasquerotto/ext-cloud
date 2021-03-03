@@ -84,8 +84,10 @@ fi
 home_directory="$(eval echo ~"${USERNAME}")"
 mkdir --parents "${home_directory}/.ssh"
 
-# Add the provided public keys
-echo "${AUTHORIZED_KEYS}" > "${home_directory}/.ssh/authorized_keys"
+if [ -n "${AUTHORIZED_KEYS}" ]; then
+	# Add the provided public keys
+	echo "${AUTHORIZED_KEYS}" > "${home_directory}/.ssh/authorized_keys"
+fi
 
 # Adjust SSH configuration ownership and permissions
 chmod 0751 "${home_directory}/.ssh"

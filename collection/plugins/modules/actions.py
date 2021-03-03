@@ -48,7 +48,7 @@ def main():
   elif identifier == 'godaddy_dns':
     info = godaddy_manage_dns(prepared_item=data)
   elif identifier == 'linode_stackscript':
-    info = linode_manage_stackscript(prepared_item=data)
+    info = linode_manage_stackscript(data=data)
   else:
     error_msgs += [['msg: invalid identifier']]
 

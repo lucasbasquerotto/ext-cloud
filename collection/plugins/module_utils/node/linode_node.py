@@ -11,6 +11,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
+import json
 import traceback
 
 import requests
@@ -27,7 +28,7 @@ def manage_stackscript(data):
     authorization = 'Bearer ' + api_token
 
     label = data.get('label') or ''
-    page_size = data.get('page_size') or 100
+    page_size = data.get('page_size')
 
     if not label:
       error_msgs += [['msg: label not specified for the stackscript']]
@@ -46,10 +47,13 @@ def manage_stackscript(data):
 
     if not error_msgs:
       api_url = 'https://api.linode.com/v4/linode/stackscripts'
-      api_url_list = api_url + '?page_size=' + str(page_size)
-      headers = dict(Authorization=authorization)
+      api_url_list = api_url + (('?page_size=' + str(page_size)) if page_size else '')
 
-      response = requests.get(api_url_list, headers=headers)
+      headers = dict(Authorization=authorization)
+      list_headers = headers.copy()
+      list_headers['X-Filter'] = json.dumps(dict(is_public=False, label=label))
+      response = requests.get(api_url_list, headers=list_headers)
+
       response.raise_for_status()
 
       old_data_list = response.json() or dict()

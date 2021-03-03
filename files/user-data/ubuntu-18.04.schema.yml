@@ -59,6 +59,7 @@ schemas:
   contents:
     type: "dict"
     description: "user data contents schema"
+    required: true
     props:
       host_ssh_public_keys:
         type: "str"

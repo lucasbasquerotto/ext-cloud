@@ -23,6 +23,10 @@ schemas:
     type: "dict"
     description: "parameters schema for the node task"
     props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "base name for the hosts (equal to the first replica name)"
       replicas:
         type: "list"
         elem_schema: "replica"

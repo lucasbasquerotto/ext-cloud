@@ -1,8 +1,8 @@
 # Prepare
 
-- name: "{{ inner_service_title }} - node - digital ocean - vars"
+- name: "{{ inner_service_title }} - node - linode - vars"
   set_fact:
-    ext_node_title: "{{ inner_service_title }} - node - digital ocean"
+    ext_node_title: "{{ inner_service_title }} - node - linode"
     ext_node_params: "{{ inner_service_params }}"
     ext_node_credentials: "{{ inner_service_credentials }}"
     ext_node_contents: "{{ inner_service_contents }}"
@@ -39,6 +39,9 @@
   lrd.ext_cloud.actions:
     identifier: "linode_stackscript"
     data:
+      label: "{{ ext_node_params.name }}-stackscript"
+      state: "{{ ext_node_state }}"
+      api_token: "{{ ext_node_main_credentials.api_token }}"
       description: "{{ ext_node_params.stackscript.description | default(omit, true) }}"
       images: "{{ ext_node_params.stackscript.images | default([ext_node_params.image], true) }}"
       is_public: "{{ ext_node_params.stackscript.is_public | default(omit, true) }}"
@@ -49,7 +52,7 @@
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_node_title }} - instances"
-  community.general.linode_v4:
+  linode_v4:
     label: "{{ ext_node_item_name }}"
     state: "{{ ext_node_item_state }}"
     access_token: "{{ ext_node_main_credentials.api_token }}"
@@ -57,7 +60,7 @@
     region: "{{ ext_node_params.region }}"
     image: "{{ ext_node_params.image }}"
     root_pass: "{{ ext_node_credentials.root.pass | default(omit, true) }}"
-    authorized_keys:  "{{ ext_node_contents.authorized_keys | split('\n') }}"
+    authorized_keys:  "{{ (ext_node_contents.authorized_keys | default('')).split('\n') }}"
     stackscript_id: "{{ ext_node_stackscript_details.data.id | default(omit, true) }}"
     stackscript_data: "{{ ext_node_params.stackscript_data | default(omit, true) }}"
     tags: "{{ ext_node_params.tags | default(omit, true) }}"
