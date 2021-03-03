@@ -10,12 +10,6 @@
   register: ext_dns_data_wrapper
   tags: ["no_print"]
 
-- debug:
-    var: inner_service_state
-
-- debug:
-    var: ext_dns_data_wrapper
-
 - name: "{{ inner_service_title }} - godaddy dns - action"
   lrd.ext_cloud.actions:
     identifier: "godaddy_dns"
