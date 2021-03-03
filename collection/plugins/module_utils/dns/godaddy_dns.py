@@ -151,6 +151,7 @@ def manage_dns(prepared_item):
       )
 
       response = requests.get(api_server_url, headers=headers)
+      response.raise_for_status()
 
       old_records = response.json() or []
       new_records = prepared_item.get('dns_records') or []

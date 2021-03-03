@@ -2,7 +2,7 @@ root: "node_schema"
 schemas:
   node_schema:
     type: "dict"
-    description: "schema for the digital ocean node task"
+    description: "schema for the linode task"
     props:
       namespace:
         type: "str"
@@ -11,14 +11,14 @@ schemas:
       params:
         schema: "params"
         non_empty: true
-        description: "parameters for the digital ocean node task"
+        description: "parameters for the linode task"
       credentials:
         schema: "credentials"
         non_empty: true
-        description: "credentials for the digital ocean node task"
+        description: "credentials for the linode task"
       contents:
         schema: "contents"
-        description: "contents for the digital ocean node task"
+        description: "contents for the linode task"
   params:
     type: "dict"
     description: "parameters schema for the node task"
@@ -28,24 +28,26 @@ schemas:
         elem_schema: "replica"
         required: true
         description: "node replicas (hosts) that will be created/destroyed"
-      region_id:
+      region:
         type: "str"
         non_empty: true
-        description: "node digital ocean region id"
-      size_id:
+        description: "linode region id"
+      type:
         type: "str"
         non_empty: true
-        description: "node digital ocean size id"
-      image_id:
+        description: "linode type id"
+      image:
         type: "str"
         non_empty: true
-        description: "node digital ocean image id"
-      wait_timeout:
-        type: "int"
-        description: "how long before wait gives up, in seconds"
-      ipv6:
-        type: "bool"
-        description: "when true, enable ipv6 for your droplet"
+        description: "linode image id"
+      stackscript:
+        schema: "stackscript"
+        description: "stackscript information"
+      stackscript_data:
+        type: "dict"
+        description: >-
+          stackscript data to be used in the stackscript when creating the node
+          (when user_data is defined in the contents)
       tags:
         type: "list"
         elem_type: "str"
@@ -64,22 +66,53 @@ schemas:
         description: >-
           when true, the host will be destroyed
           (will force state=absent for the replica)
+  stackscript:
+    type: "dict"
+    description: "stackscript information schema"
+    props:
+      description:
+        type: "str"
+        description: "stackscript description"
+      images:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          list with the images that can be deployed with this stackscript
+          (defaults to a list with the image)
+      is_public:
+        type: "bool"
+        description: "when true, makes the stackscript public (can't be reverted to private)"
+      rev_note:
+        type: "str"
+        description: "notes for the set of revisions made to this stackScript"
   credentials:
     type: "dict"
     description: "credentials schema for the node task"
     props:
       node:
-        schema: "digital_ocean_credentials"
+        schema: "linode_credentials"
         non_empty: true
         description: "node main credentials"
-  digital_ocean_credentials:
+      root:
+        schema: "root_credentials"
+        description: "node root user credentials"
+  linode_credentials:
     type: "dict"
     description: "node main credentials schema"
     props:
       api_token:
         type: "str"
         non_empty: true
-        description: "digital ocean api token"
+        description: "linode api token"
+  root_credentials:
+    type: "dict"
+    description: "node root user credentials schema"
+    lax: true
+    props:
+      pass:
+        type: "str"
+        required: true
+        description: "linode root user password"
   contents:
     type: "dict"
     description: "contents schema for the node task"
@@ -87,3 +120,7 @@ schemas:
       user_data:
         type: "str"
         description: "schema for the user data content that will run when creating the host"
+      authorized_keys:
+        type: "str"
+        description: >-
+          authorized public ssh keys (each per line) that are allowed to access the host

@@ -19,6 +19,12 @@
     ext_node_main_credentials: "{{ ext_node_credentials.node | default({}) }}"
     ext_node_user_data: "{{ ext_node_contents.user_data | default('') }}"
     ext_node_hosts: []
+    ext_node_state_description: >-
+      {{
+        (ext_node_state == 'present')
+        | ternary('create', 'delete')
+      }}
+    ext_node_stackscript_details: {}
   tags: ["no_print"]
 
 # Main
@@ -29,17 +35,30 @@
 # https://www.linode.com/community/questions/21062/how-can-i-fixe-the-external-ip-for-a-kubernetes-cluster
 # https://www.linode.com/community/questions/21103/why-cant-i-enable-private-ip-while-creating-a-linode-instance-using-linode_v4-ap
 
+- name: "{{ ext_node_title }} - manage stackscript ({{ ext_node_state_description }})"
+  lrd.ext_cloud.actions:
+    identifier: "linode_stackscript"
+    data:
+      description: "{{ ext_node_params.stackscript.description | default(omit, true) }}"
+      images: "{{ ext_node_params.stackscript.images | default([ext_node_params.image], true) }}"
+      is_public: "{{ ext_node_params.stackscript.is_public | default(omit, true) }}"
+      rev_note: "{{ ext_node_params.stackscript.rev_note | default(omit, true) }}"
+      script: "{{ ext_node_contents.user_data }}"
+  register: ext_node_stackscript_details
+  when: (ext_node_contents.user_data | default('')) != ''
+  tags: ["no_print_skipped"]
+
 - name: "{{ ext_node_title }} - instances"
   community.general.linode_v4:
     label: "{{ ext_node_item_name }}"
     state: "{{ ext_node_item_state }}"
-    access_token: "{{ ext_node_main_credentials.access_token }}"
+    access_token: "{{ ext_node_main_credentials.api_token }}"
     type: "{{ ext_node_params.type }}"
     region: "{{ ext_node_params.region }}"
     image: "{{ ext_node_params.image }}"
-    root_pass: "{{ ext_node_credentials.root.pass }}"
+    root_pass: "{{ ext_node_credentials.root.pass | default(omit, true) }}"
     authorized_keys:  "{{ ext_node_contents.authorized_keys | split('\n') }}"
-    stackscript_id: "{{ ext_node_params.stackscript_id | default(omit, true) }}"
+    stackscript_id: "{{ ext_node_stackscript_details.data.id | default(omit, true) }}"
     stackscript_data: "{{ ext_node_params.stackscript_data | default(omit, true) }}"
     tags: "{{ ext_node_params.tags | default(omit, true) }}"
   vars:
