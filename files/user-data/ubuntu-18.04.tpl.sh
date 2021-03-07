@@ -90,9 +90,12 @@ if [ -n "${AUTHORIZED_KEYS}" ]; then
 fi
 
 # Adjust SSH configuration ownership and permissions
-chmod 0751 "${home_directory}/.ssh"
-chmod 0640 "${home_directory}/.ssh/authorized_keys"
 chown --recursive "${USERNAME}":"${USERNAME}" "${home_directory}/.ssh"
+chmod 0751 "${home_directory}/.ssh"
+
+if [ -n "${AUTHORIZED_KEYS}" ]; then
+	chmod 0640 "${home_directory}/.ssh/authorized_keys"
+fi
 
 # Disable root SSH login with password
 sed --in-place 's/^PermitRootLogin.*/PermitRootLogin prohibit-password/g' /etc/ssh/sshd_config

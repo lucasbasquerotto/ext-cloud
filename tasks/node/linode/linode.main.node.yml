@@ -29,12 +29,6 @@
 
 # Main
 
-# https://www.linode.com/community/questions/20027/feature-request-support-for-idempotent-api-requests
-# https://www.linode.com/community/questions/21107/can-i-have-a-private-subnet-between-linodes
-# https://www.linode.com/community/questions/18262/will-linode-offer-a-cloud-firewall
-# https://www.linode.com/community/questions/21062/how-can-i-fixe-the-external-ip-for-a-kubernetes-cluster
-# https://www.linode.com/community/questions/21103/why-cant-i-enable-private-ip-while-creating-a-linode-instance-using-linode_v4-ap
-
 - name: "{{ ext_node_title }} - manage stackscript ({{ ext_node_state_description }})"
   lrd.ext_cloud.actions:
     identifier: "linode_stackscript"
@@ -60,7 +54,7 @@
     region: "{{ ext_node_params.region }}"
     image: "{{ ext_node_params.image }}"
     root_pass: "{{ ext_node_credentials.root.pass | default(omit, true) }}"
-    authorized_keys:  "{{ (ext_node_contents.authorized_keys | default('')).split('\n') }}"
+    authorized_keys: "{{ ext_node_keys }}"
     stackscript_id: "{{ ext_node_stackscript_details.data.id | default(omit, true) }}"
     stackscript_data: "{{ ext_node_params.stackscript_data | default(omit, true) }}"
     tags: "{{ ext_node_params.tags | default(omit, true) }}"
@@ -72,6 +66,8 @@
         | default(false)
         | ternary('absent', ext_node_state)
       }}
+    ext_node_keys_str: "{{ ext_node_contents.authorized_keys | default('') }}"
+    ext_node_keys: "{{ (ext_node_keys_str != '') | ternary(ext_node_keys_str.split('\n'), []) }}"
   loop: "{{ ext_node_params.replicas }}"
   loop_control:
     loop_var: ext_node_item
@@ -82,8 +78,8 @@
   set_fact:
     ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
   vars:
-    ext_node_item: "{{ ext_node_item_data.ext_node_item | default({}) }}"
-    ext_node_instance: "{{ ext_node_item_data.data.instance | default({}) }}"
+    ext_node_item: "{{ ext_node_item_data[ext_node_item_data.ansible_loop_var] | default({}) }}"
+    ext_node_instance: "{{ ext_node_item_data.instance | default({}) }}"
     ext_node_item_name: "{{ ext_node_item.name | default('') }}"
     ext_node_item_state: >-
       {{
@@ -96,7 +92,7 @@
       state: "{{ ext_node_item_state }}"
       private_ip: ""
       public_ipv4: "{{ ext_node_instance.ipv4[0] | default('') }}"
-      public_ipv6: "{{ ext_node_instance.ipv6 | default('') }}"
+      public_ipv6: "{{ ext_node_instance.ipv6 | default('') | regex_replace('(.*)/64', '\\1') }}"
   loop: "{{ ext_node_details.results | default([]) }}"
   loop_control:
     loop_var: ext_node_item_data
