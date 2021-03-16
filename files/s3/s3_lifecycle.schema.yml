@@ -37,12 +37,15 @@ schemas:
       remove_delete_markers:
         type: "bool"
         description: "when true, remove 'delete' markers with no other versions; defaults to false"
+      abort_incomplete_multipart_upload_days:
+        type: "int"
+        description: "days after which incomplete multipart upload objects will be removed"
       expiration_days:
         type: "int"
-        description: "days after which the objects will be expired"
+        description: "days after which the objects will be removed"
       older_versions_expiration_days:
         type: "int"
-        description: "days after which the objects from older versions (non-current objects) will be expired"
+        description: "days after which the objects from older versions (non-current objects) will be removed"
       filter_prefix:
         type: "str"
         description: "the bucket prefix over which the rule will be applied; defaults to '/'"
