@@ -1,0 +1,83 @@
+{% set ns_rules = namespace(list=[]) %}
+
+{% for rule in params.rules | default([]) %}
+
+  {% if rule.when | default(true) | bool %}
+
+    {% set var_rule_name = rule.name | default('unnamed-' + (loop.index | string), true) %}
+    {% set var_status = ((rule.enabled | default('', true) | string) != '')
+      | ternary(rule.enabled | default(true), true) | bool | ternary('Enabled', 'Disabled')
+    %}
+
+    {% set var_rule_item = {
+        'ID': var_rule_name,
+        'Status': var_status
+      }
+    %}
+
+    {% set var_filter_prefix = rule.filter_prefix | default('') %}
+
+    {% if var_filter_prefix != '' %}
+
+      {% set var_rule_item = var_rule_item | combine({
+          'Filter': {
+            'Prefix': var_filter_prefix
+          }
+        })
+      %}
+
+    {% endif %}
+
+    {% set var_expiration_days = rule.expiration_days | default(0, true) | string %}
+    {% set var_remove_delete_markers = rule.remove_delete_markers | default(false, true) | bool %}
+    {% set var_expiration = {} %}
+
+    {% if (var_expiration_days | int) > 0 %}
+
+      {% set var_expiration = var_expiration | combine({
+          'Days': var_expiration_days
+        })
+      %}
+
+    {% endif %}
+
+    {% if var_remove_delete_markers %}
+
+      {% set var_expiration = var_expiration | combine({
+          'DeleteMarker': true
+        })
+      %}
+
+    {% endif %}
+
+    {% if (var_expiration | dict2items | length) > 0 %}
+
+      {% set var_rule_item = var_rule_item | combine({
+          'Expiration': var_expiration
+        })
+      %}
+
+    {% endif %}
+
+    {% set var_older_versions_expiration_days = rule.older_versions_expiration_days | default(0, true) | string %}
+
+    {% if (var_older_versions_expiration_days | int) > 0 %}
+
+      {% set var_rule_item = var_rule_item | combine({
+          'NoncurrentVersionExpiration': {
+            'NoncurrentDays': var_older_versions_expiration_days
+          }
+        })
+      %}
+
+    {% endif %}
+
+    {% set ns_rules.list = ns_rules.list + [var_rule_item] %}
+
+  {% endif %}
+
+{% endfor %}
+
+{% set var_rules_data = { 'Rules': ns_rules.list } %}
+
+{{ var_rules_data | to_nice_json }}
