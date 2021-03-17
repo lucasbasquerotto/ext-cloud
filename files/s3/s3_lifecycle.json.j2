@@ -5,28 +5,19 @@
   {% if rule.when | default(true) | bool %}
 
     {% set var_rule_name = rule.name | default('unnamed-' + (loop.index | string), true) %}
+    {% set var_filter_prefix = rule.filter_prefix | default('') %}
     {% set var_status = ((rule.enabled | default('') | string) != '')
       | ternary(rule.enabled | default(true), true) | bool | ternary('Enabled', 'Disabled')
     %}
 
     {% set var_rule_item = {
         'ID': var_rule_name,
+        'Filter': {
+          'Prefix': var_filter_prefix
+        },
         'Status': var_status
       }
     %}
-
-    {% set var_filter_prefix = rule.filter_prefix | default('') %}
-
-    {% if var_filter_prefix != '' %}
-
-      {% set var_rule_item = var_rule_item | combine({
-          'Filter': {
-            'Prefix': var_filter_prefix
-          }
-        })
-      %}
-
-    {% endif %}
 
     {% set var_expiration_days = rule.expiration_days | default(0, true) | string %}
     {% set var_remove_delete_markers = rule.remove_delete_markers | default(false, true) | bool %}
@@ -69,6 +60,13 @@
           }
         })
       %}
+
+    {% endif %}
+
+    {% if ((var_expiration_days | int) == 0) and ((var_older_versions_expiration_days | int) == 0) %}
+
+      {% set error = {} %}
+      {{ error['rule.' + var_rule_name + 'expiration_days.and.older_versions_expiration_days.undefined'] }}
 
     {% endif %}
 
