@@ -19,11 +19,12 @@
       }
     %}
 
-    {% set var_expiration_days = rule.expiration_days | default(0, true) | string %}
+    {% set var_expiration_days = rule.expiration_days | default(-1) | string %}
+    {% set var_expiration_days = (var_expiration_days != '') | ternary(var_expiration_days, '-1') %}
     {% set var_remove_delete_markers = rule.remove_delete_markers | default(false, true) | bool %}
     {% set var_expiration = {} %}
 
-    {% if (var_expiration_days | int) > 0 %}
+    {% if (var_expiration_days | int) >= 0 %}
 
       {% set var_expiration = var_expiration | combine({
           'Days': (var_expiration_days | int)
@@ -50,9 +51,14 @@
 
     {% endif %}
 
-    {% set var_older_versions_expiration_days = rule.older_versions_expiration_days | default(0, true) | string %}
+    {% set var_older_versions_expiration_days = rule.older_versions_expiration_days
+      | default(-1) | string
+    %}
+    {% set var_older_versions_expiration_days = (var_older_versions_expiration_days != '')
+      | ternary(var_older_versions_expiration_days, '-1')
+    %}
 
-    {% if (var_older_versions_expiration_days | int) > 0 %}
+    {% if (var_older_versions_expiration_days | int) >= 0 %}
 
       {% set var_rule_item = var_rule_item | combine({
           'NoncurrentVersionExpiration': {
@@ -63,10 +69,21 @@
 
     {% endif %}
 
-    {% if ((var_expiration_days | int) == 0) and ((var_older_versions_expiration_days | int) == 0) %}
+    {% if
+      (not var_remove_delete_markers)
+      and
+      ((var_expiration_days | int) < 0)
+      and
+      ((var_older_versions_expiration_days | int) < 0)
+    %}
 
       {% set error = {} %}
       {{ error['rule.' + var_rule_name + '.params.expiration_days.and.older_versions_expiration_days.both_undefined'] }}
+
+    {% elif var_remove_delete_markers and ((var_expiration_days | int) >= 0) %}
+
+      {% set error = {} %}
+      {{ error['rule.' + var_rule_name + '.params.remove_delete_markers-equal-true.and.expiration_days-defined'] }}
 
     {% endif %}
 
@@ -82,8 +99,6 @@
       %}
 
     {% endif %}
-
-
 
     {% set ns_rules.list = ns_rules.list + [var_rule_item] %}
 
