@@ -66,7 +66,7 @@
     {% if ((var_expiration_days | int) == 0) and ((var_older_versions_expiration_days | int) == 0) %}
 
       {% set error = {} %}
-      {{ error['rule.' + var_rule_name + '.params.expiration_days.and.older_versions_expiration_days.undefined'] }}
+      {{ error['rule.' + var_rule_name + '.params.expiration_days.and.older_versions_expiration_days.both_undefined'] }}
 
     {% endif %}
 
