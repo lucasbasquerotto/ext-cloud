@@ -1,5 +1,3 @@
-{% set var_pods = input.pods | default([]) %}
-
 {% macro pod_task(arg_pod, arg_name, arg_task, arg_cron) %}
 
 {% set var_log_dir = (arg_pod.data_dir + '/log/cron') | quote %}
@@ -16,6 +14,20 @@
 
 {% endmacro %}
 
+{% set var_pods = input.pods | default([]) %}
+
+{% if (input.pod_name | default('')) != '' %}
+
+	{% set var_pods = [{
+			'name': input.pod_name,
+			'description': input.pod_description,
+			'data_dir': input.data_dir,
+			'pod_dir': input.pod_dir,
+		}]
+	%}
+
+{% endif %}
+
 {% for var_pod in var_pods %}
 
 ###
@@ -23,7 +35,7 @@
 ###
 
 {% set var_tasks = (params.tasks is mapping)
-    | ternary(params.tasks[var_pod.name] | default([]), params.tasks)
+	| ternary(params.tasks[var_pod.name] | default([]), params.tasks)
 %}
 
 {% for var_task in var_tasks %}
