@@ -38,6 +38,9 @@ schemas:
         description: >-
           task name (used for the log file name, and for the task if
           the 'task' property is not specified)
+      when:
+        type: "bool"
+        description: "when false, the task is not included in the cron file; defaults to true"
       task:
         type: "str"
         description: >-

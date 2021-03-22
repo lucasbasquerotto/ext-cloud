@@ -40,7 +40,11 @@
 
 {% for var_task in var_tasks %}
 
+{% if var_task.when | default(true) | bool %}
+
 {{ pod_task(var_pod, var_task.name, var_task.task | default(var_task.name), var_task.cron) }}
+
+{% endif %}
 
 {% endfor %}
 {% endfor %}
