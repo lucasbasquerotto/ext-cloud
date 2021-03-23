@@ -1,4 +1,4 @@
-FROM lucasbasquerotto/cloud:1.6.1
+FROM lucasbasquerotto/cloud:1.6.2
 
 RUN yes | pip3 install \
     boto \
