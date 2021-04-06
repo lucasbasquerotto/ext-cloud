@@ -6,6 +6,7 @@
     task_compose_params: "{{ tmp_params.compose | default({}) }}"
   vars:
     tmp_params: "{{ params.task.params }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ params.title }} - download the docker compose executable file"
@@ -23,6 +24,7 @@
     ((task_compose_params.src | default('')) != '')
     or
     ((task_compose_params.version | default('')) != '')
+  no_log: "{{ env_no_log }}"
 
 - name: "{{ params.title }} - ensure docker is running"
   become: "{{ params.task.root | default(false) }}"
@@ -30,3 +32,4 @@
     name: docker
     state: started
   when: task_params.start_service | default(false) | bool
+  no_log: "{{ env_no_log }}"

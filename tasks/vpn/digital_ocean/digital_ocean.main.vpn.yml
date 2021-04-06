@@ -10,6 +10,7 @@
     ext_vpn_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_vpn_tmp_dir: "{{ inner_service_tmp_dir }}"
     ext_vpn_result: {}
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Main
@@ -25,6 +26,7 @@
       {{ tmp_credentials.api_token | default('') }}
   vars:
     tmp_credentials: "{{ ext_vpn_credentials.vpn | default({}) }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: >-
@@ -38,6 +40,7 @@
   loop: "{{ ext_vpn_tags | default([]) }}"
   loop_control:
     loop_var: ext_vpn_item
+  no_log: "{{ env_no_log }}"
 
 - name: >-
     {{ ext_vpn_title }} -
@@ -56,4 +59,5 @@
   loop_control:
     loop_var: ext_vpn_item
     label: "{{ ext_vpn_item.name }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]

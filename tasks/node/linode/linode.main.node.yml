@@ -10,6 +10,7 @@
     ext_node_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_node_tmp_dir: "{{ inner_service_tmp_dir }}"
     ext_node_result: {}
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Node Main Vars
@@ -25,6 +26,7 @@
         | ternary('create', 'delete')
       }}
     ext_node_stackscript_details: {}
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Main
@@ -43,6 +45,7 @@
       script: "{{ ext_node_contents.user_data }}"
   register: ext_node_stackscript_details
   when: (ext_node_contents.user_data | default('')) != ''
+  no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]
 
 - name: "{{ ext_node_title }} - instances"
@@ -73,6 +76,7 @@
     loop_var: ext_node_item
     label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
   register: ext_node_details
+  no_log: "{{ env_no_log }}"
 
 - name: "{{ ext_node_item_title }} - set result (tmp)"
   set_fact:
@@ -97,12 +101,14 @@
   loop_control:
     loop_var: ext_node_item_data
     label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ ext_node_title }} - set result (tmp)"
   set_fact:
     ext_node_result:
       hosts: "{{ ext_node_hosts }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Set Result
@@ -110,4 +116,5 @@
 - name: "{{ ext_node_title }} - set result"
   set_fact:
     cloud_service_result: "{{ ext_node_result }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]

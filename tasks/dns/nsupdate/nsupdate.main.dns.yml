@@ -4,6 +4,7 @@
   fail:
     msg: "namespace not specified (expected: 'ext_dns')"
   when: inner_service_namespace == ''
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ inner_service_title }} - validate namespace (ext_dns)"
@@ -13,6 +14,7 @@
       expected: 'ext_dns'
       received: '{{ inner_service_namespace }}'
   when: inner_service_namespace != 'ext_dns'
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ inner_service_title }} - dns - nsupdate - vars"
@@ -25,6 +27,7 @@
     ext_dns_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_dns_tmp_dir: "{{ inner_service_tmp_dir }}"
     ext_dns_result: {}
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Main
@@ -40,6 +43,7 @@
     ext_dns_protocol: "{{ ext_dns_params.protocol | default('') }}"
     ext_dns_port: "{{ ext_dns_params.port | default('') }}"
     ext_dns_weight: "{{ ext_dns_params.weight | default('') }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ ext_dns_title }} - dns values"
@@ -53,6 +57,7 @@
         | map(attribute='value')
         | list
       }}
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: >-
@@ -73,10 +78,12 @@
     port: "{{ ext_dns_port | default(omit, true) }}"
     weight: "{{ ext_dns_weight | default(omit, true) }}"
     state: "{{ ext_dns_state }}"
+  no_log: "{{ env_no_log }}"
 
 # Set Result
 
 - name: "{{ ext_dns_title }} - set result"
   set_fact:
     cloud_service_result: "{{ ext_dns_result }}"
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]

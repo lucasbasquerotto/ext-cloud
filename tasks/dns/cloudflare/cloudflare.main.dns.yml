@@ -8,6 +8,7 @@
       credentials: "{{ inner_service_credentials }}"
       contents: "{{ inner_service_contents }}"
   register: ext_dns_data_wrapper
+  no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ inner_service_title }} - cloudflare dns - main"
@@ -34,3 +35,4 @@
       [{{ ext_dns_item.state }}]
       {{ ext_dns_item.dns_type }}
       ({{ ext_dns_item.record }})
+  no_log: "{{ env_no_log }}"
