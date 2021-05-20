@@ -23,6 +23,11 @@ schemas:
         description: >-
           tasks for all pods (when defined as a list) or for
           specific named pods (when defined as a dict)
+      run_file:
+        type: "str"
+        description: >-
+          path to the file to run the command, relative to the pod
+          repository directory; defaults to 'run'
   pod_tasks:
     type: "list"
     elem_schema: "pod_task"

@@ -1,0 +1,38 @@
+root: "template_schema"
+schemas:
+  template_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        required: true
+      credentials:
+        schema: "credentials"
+        required: true
+      input:
+        type: "dict"
+        required: true
+  params:
+    type: "dict"
+    props:
+      hostname:
+        type: "str"
+        non_empty: true
+        description: "mailcow hostname"
+  credentials:
+    type: "dict"
+    props:
+      db:
+        schema: "db"
+        required: true
+  db:
+    type: "dict"
+    props:
+      db_pass:
+        type: "str"
+        non_empty: true
+        description: "mailcow database password"
+      db_root:
+        type: "str"
+        non_empty: true
+        description: "mailcow database root password"

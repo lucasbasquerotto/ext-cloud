@@ -1,0 +1,39 @@
+root: "template_schema"
+schemas:
+  template_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        required: true
+      input:
+        type: "dict"
+  params:
+    type: "dict"
+    props:
+      s3_cli:
+        type: "str"
+        non_empty: true
+        choices: ["awscli", "mc", "rclone"]
+        description: "s3 client"
+      s3_container_image:
+        type: "str"
+        non_empty: true
+        description: "s3 cliente container image"
+      s3_alias:
+        type: "str"
+        non_empty: true
+        description: "s3 alias (profile)"
+      bucket_name:
+        type: "str"
+        non_empty: true
+        description: "s3 bucket name"
+      bucket_path:
+        type: "str"
+        description: "s3 bucket path"
+      endpoint:
+        type: "str"
+        description: "s3 endpoint"
+      backup_dir:
+        type: "str"
+        description: "local backup directory (defaults to '/opt/backup')"

@@ -2,7 +2,7 @@
 
 {% set var_log_dir = (arg_pod.data_dir + '/log/cron') | quote %}
 {% set var_log_file = var_log_dir + '/' + (arg_name | quote) + ".`date '+\%F'`.log" %}
-{% set var_run_cmd = (arg_pod.pod_dir + '/run') | quote %}
+{% set var_run_cmd = (arg_pod.pod_dir + '/' + (params.run_file | default('run', true))) | quote %}
 
 {{ arg_cron }}{{
 ''
