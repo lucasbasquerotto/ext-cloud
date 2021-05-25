@@ -96,7 +96,7 @@
       state: "{{ ext_node_item_state }}"
       private_ip: ""
       public_ipv4: "{{ ext_node_instance.ipv4[0] | default('') }}"
-      public_ipv6: "{{ ext_node_instance.ipv6 | default('') | regex_replace('(.*)/64', '\\1') }}"
+      public_ipv6: "{{ ext_node_instance.ipv6 | default('') | regex_replace('(.*)/(.*)', '\\1') }}"
   loop: "{{ ext_node_details.results | default([]) }}"
   loop_control:
     loop_var: ext_node_item_data
