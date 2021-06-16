@@ -24,6 +24,7 @@ def prepare_data(raw_data):
           'zone',
           'dns_type',
           'record',
+          'proxied',
           'ttl',
           'priority',
           'service',
@@ -80,6 +81,7 @@ def prepare_item(raw_data, item_params):
     result['zone'] = item_params.get('zone')
     result['dns_type'] = item_params.get('dns_type')
     result['record'] = item_params.get('record')
+    result['proxied'] = item_params.get('proxied')
     result['ttl'] = item_params.get('ttl')
     result['priority'] = item_params.get('priority')
     result['service'] = item_params.get('service')
@@ -139,6 +141,7 @@ def fill_value(prepared_item, value, value_idx):
 
       value=value_dict.get('value'),
 
+      proxied=value_dict.get('proxied') or prepared_item.get('proxied'),
       ttl=value_dict.get('ttl') or prepared_item.get('ttl'),
       priority=value_dict.get('priority') or prepared_item.get('priority'),
       service=value_dict.get('service') or prepared_item.get('service'),

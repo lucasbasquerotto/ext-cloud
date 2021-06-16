@@ -14,7 +14,7 @@
 - name: "{{ inner_service_title }} - cloudflare dns - main"
   cloudflare_dns:
     zone: "{{ ext_dns_item.zone }}"
-    proxied: no
+    proxied: "{{ ext_dns_item.proxied }}"
     solo: "{{ ext_dns_item.solo }}"
     type: "{{ ext_dns_item.dns_type }}"
     record: "{{ ext_dns_item.record | default(omit, true) }}"
