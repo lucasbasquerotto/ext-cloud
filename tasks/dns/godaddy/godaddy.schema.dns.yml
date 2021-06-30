@@ -50,6 +50,10 @@ schemas:
       record:
         type: "str"
         description: "dns record to add/remove (according to state)"
+      proxied:
+        type: "bool"
+        description: "proxy through external network or just use dns"
+        choices: [null, false]
       ttl:
         type: "int"
         description: "dns record ttl (time-to-live)"
@@ -98,6 +102,10 @@ schemas:
       record:
         type: "str"
         description: "dns record to add/remove (according to state)"
+      proxied:
+        type: "bool"
+        description: "proxy through external network or just use dns"
+        choices: [null, false]
       ttl:
         type: "int"
         description: "dns record ttl (time-to-live)"
@@ -129,6 +137,10 @@ schemas:
         type: "str"
         non_empty: true
         description: "dns record value"
+      proxied:
+        type: "bool"
+        description: "proxy through external network or just use dns"
+        choices: [null, false]
       ttl:
         type: "int"
         description: >-

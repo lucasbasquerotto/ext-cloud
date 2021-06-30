@@ -22,7 +22,7 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns i
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     prepare_data as godaddy_dns_prepare_data
 )
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_nameserver import (
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
     prepare_data as godaddy_nameserver_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (

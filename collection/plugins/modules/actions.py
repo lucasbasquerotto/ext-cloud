@@ -19,6 +19,9 @@ from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_t
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     manage_dns as godaddy_manage_dns
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
+    prepare_data as godaddy_manage_nameserver
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.linode_node import (
     manage_stackscript as linode_manage_stackscript
 )
@@ -49,6 +52,8 @@ def main():
 
   if not identifier:
     error_msgs += [['msg: identifier not defined']]
+  elif identifier == 'godaddy_nameserver':
+    info = godaddy_manage_nameserver(prepared_item=data)
   elif identifier == 'godaddy_dns':
     info = godaddy_manage_dns(prepared_item=data)
   elif identifier == 'linode_stackscript':

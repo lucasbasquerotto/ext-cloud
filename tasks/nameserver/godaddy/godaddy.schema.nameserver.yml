@@ -27,9 +27,9 @@ schemas:
       zone:
         type: "str"
         description: "dns zone/domain (e.g. 'example.com'); the zone must already exist"
-      name_servers:
+      nameservers:
         type: "list"
-        elem_type: "string"
+        elem_type: "str"
         description: "list with strings representing each nameserver"
   list_item_params:
     type: "dict"
@@ -39,22 +39,22 @@ schemas:
         type: "str"
         non_empty: true
         description: "dns zone/domain (e.g. 'example.com'); the zone must already exist"
-      name_servers:
+      nameservers:
         type: "list"
-        elem_type: "string"
+        elem_type: "str"
         required: true
         description: "list with strings representing each nameserver"
   credentials:
     type: "dict"
-    description: "godaddy dns credentials schema"
+    description: "godaddy nameserver credentials schema"
     props:
-      dns:
+      nameserver:
         schema: "godaddy_credentials"
         non_empty: true
-        description: "godaddy dns main credentials"
+        description: "godaddy nameserver main credentials"
   godaddy_credentials:
     type: "dict"
-    description: "godaddy dns main credentials schema"
+    description: "godaddy nameserver main credentials schema"
     props:
       api_server:
         type: "str"

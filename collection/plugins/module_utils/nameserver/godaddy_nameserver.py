@@ -34,7 +34,7 @@ def prepare_data(raw_data):
       raw_data=raw_data,
       item_keys=[
           'zone',
-          'name_servers',
+          'nameservers',
       ],
       fn_prepare_item=lambda p: prepare_item(raw_data, p),
   )
@@ -48,7 +48,7 @@ def prepare_item(raw_data, item_params):
   required_keys_info = dict(
       params=[
           'zone',
-          'name_servers',
+          'nameservers',
       ],
       credentials=[
           'api_server',
@@ -92,10 +92,10 @@ def prepare_item(raw_data, item_params):
 
     result['zone'] = item_params.get('zone')
 
-    name_servers = item_params.get('name_servers')
+    nameservers = item_params.get('nameservers')
 
-    result['name_servers'] = name_servers if (
-        state == 'present' and name_servers
+    result['nameservers'] = nameservers if (
+        state == 'present' and nameservers
     ) else [None]
 
   return dict(result=result, error_msgs=error_msgs)
@@ -123,7 +123,7 @@ def manage_nameserver(prepared_item):
       response.raise_for_status()
 
       old_records = response.json().get('nameServers') or []
-      new_records = prepared_item.get('name_servers') or []
+      new_records = prepared_item.get('nameservers') or []
 
       changed = ordered(old_records) != ordered(new_records)
 
@@ -131,7 +131,7 @@ def manage_nameserver(prepared_item):
         response = requests.patch(
             api_server_url,
             headers=headers,
-            json=new_records,
+            json={'nameServers': new_records},
         )
         response.raise_for_status()
     else:

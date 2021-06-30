@@ -179,28 +179,28 @@ def prepare_item_data(raw_data, item_params, default_credential_name, required_k
       ]]
 
     for required_key in required_params_keys:
-      if not item_params.get(required_key):
+      if item_params.get(required_key) is None:
         error_msgs += [[
             'parameter name: ' + str(required_key),
             'msg: required property not present in the parameters',
         ]]
 
     for required_key in required_credentials_keys:
-      if not item_credentials.get(required_key):
+      if item_credentials.get(required_key) is None:
         error_msgs += [[
             'credential name: ' + str(required_key),
             'msg: required property not present in the credentials',
         ]]
 
     for required_key in required_contents_keys:
-      if not contents.get(required_key):
+      if contents.get(required_key) is None:
         error_msgs += [[
             'content name: ' + str(required_key),
             'msg: required property not present in the contents',
         ]]
 
     for required_key in required_input_keys:
-      if not input_params.get(required_key):
+      if input_params.get(required_key) is None:
         error_msgs += [[
             'input name: ' + str(required_key),
             'msg: required property not present in the input',
