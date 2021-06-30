@@ -1,6 +1,6 @@
-- name: "{{ validator_title }} - fastly dns - validate"
+- name: "{{ validator_title }} - fastly cdn - validate"
   lrd.ext_cloud.vars:
-    identifier: "fastly_dns"
+    identifier: "fastly_cdn"
     raw_data:
       state: "present"
       namespace: "{{ validator_item.data.namespace | default('') }}"

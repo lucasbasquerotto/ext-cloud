@@ -11,12 +11,28 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - fastly cdn - action"
-  lrd.ext_cloud.actions:
-    identifier: "fastly_cdn"
-    data: "{{ ext_cdn_item }}"
+- name: "{{ inner_service_title }} - fastly cdn - execute"
+  lrd.ext_cloud.fastly_cdn:
+    api_token: "{{ ext_cdn_item.api_token }}"
+    name: "{{ ext_cdn_item.name }}"
+    activate_new_version: "{{ ext_cdn_item.activate_new_version }}"
+    domains: "{{ ext_cdn_item.domains }}"
+    healthchecks: "{{ ext_cdn_item.healthchecks }}"
+    backends: "{{ ext_cdn_item.backends }}"
+    cache_settings: "{{ ext_cdn_item.cache_settings }}"
+    conditions: "{{ ext_cdn_item.conditions }}"
+    directors: "{{ ext_cdn_item.directors }}"
+    gzips: "{{ ext_cdn_item.gzips }}"
+    headers: "{{ ext_cdn_item.headers }}"
+    request_settings: "{{ ext_cdn_item.request_settings }}"
+    response_objects: "{{ ext_cdn_item.response_objects }}"
+    snippets: "{{ ext_cdn_item.snippets }}"
+    s3s: "{{ ext_cdn_item.s3s }}"
+    syslogs: "{{ ext_cdn_item.syslogs }}"
+    settings: "{{ ext_cdn_item.settings }}"
+    state: "{{ ext_cdn_item.state }}"
   loop: "{{ ext_cdn_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_cdn_item
-    label: "[{{ ext_cdn_item.state }}] - {{ ext_cdn_item.domain }}"
+    label: "[{{ ext_cdn_item.state }}] {{ ext_cdn_item.name }}"
   no_log: "{{ env_no_log }}"
