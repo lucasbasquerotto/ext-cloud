@@ -442,7 +442,7 @@ schemas:
         type: "str"
       format:
         type: "str"
-        description: "defaults to '%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'"
+        description: 'defaults to ''%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'''
       format_version:
         type: "int"
         description: "defaults to 2"
@@ -451,7 +451,7 @@ schemas:
         description: "defaults to 0"
       message_type:
         type: "str"
-        choices: [null, 'classic', 'loggly', 'logplex', 'blank']
+        choices: [null, "classic", "loggly", "logplex", "blank"]
         description: "defaults to 'classic'"
       path:
         type: "str"
@@ -492,12 +492,12 @@ schemas:
         description: "defaults to 2"
       format:
         type: "str"
-        description: "defaults to '%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'"
+        description: 'defaults to ''%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'''
       ipv4:
         type: "str"
       message_type:
         type: "str"
-        choices: [null, 'classic', 'loggly', 'logplex', 'blank']
+        choices: [null, "classic", "loggly", "logplex", "blank"]
         description: "defaults to 'classic'"
       placement:
         type: "str"
@@ -516,7 +516,7 @@ schemas:
     type: "dict"
     description: "handles default settings for a service"
     props:
-      'general.default_ttl':
+      "general.default_ttl":
         type: "int"
         description: "defaults to 3600"
   credentials:
