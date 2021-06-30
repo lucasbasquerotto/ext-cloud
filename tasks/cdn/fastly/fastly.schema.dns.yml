@@ -1,0 +1,537 @@
+root: "cdn_schema"
+schemas:
+  cdn_schema:
+    type: "dict"
+    description: "fastly cdn schema"
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_cdn"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "fastly cdn parameters"
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "fastly cdn credentials"
+  params:
+    type: "dict"
+    description: "fastly cdn parameters schema"
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          list of records to be created/destroyed; used when defined, instead of considering
+          the parameters as only one definition; instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter; when not defined, will use
+          the outer parameters as one single list item
+      name:
+        type: "str"
+        non_empty: true
+        description: "the unique name for the service to create"
+      activate_new_version:
+        type: "bool"
+        description: >-
+          configures whether newly created versions should be activated automatically;
+          defaults to true
+      domains:
+        type: "list"
+        elem_schema: "domain"
+        description: "list of domain names to serve as entry points for your service"
+      backends:
+        type: "list"
+        elem_schema: "backend"
+        description: "list of backends to service requests from your domains"
+      cache_settings:
+        type: "list"
+        elem_schema: "cache_setting"
+        description: "list of cache settings"
+      conditions:
+        type: "list"
+        elem_schema: "condition"
+        description: "list of conditions"
+      directors:
+        type: "list"
+        elem_schema: "director"
+        description: "list of directors"
+      gzips:
+        type: "list"
+        elem_schema: "gzip"
+        description: "list of gzip configurations"
+      headers:
+        type: "list"
+        elem_schema: "header"
+        description: "list of headers to manipulate for each request"
+      healthchecks:
+        type: "list"
+        elem_schema: "healthcheck"
+        description: "list of healthchecks to manipulate for each request"
+      request_settings:
+        type: "list"
+        elem_schema: "request_setting"
+        description: "list of request settings"
+      response_objects:
+        type: "list"
+        elem_schema: "response_object"
+        description: "list of response objects"
+      vcl_snippets:
+        type: "list"
+        elem_schema: "vcl_snippet"
+        description: "list of vcl snippets"
+      s3s:
+        type: "list"
+        elem_schema: "s3"
+        description: "list of s3 loggers"
+      syslogs:
+        type: "list"
+        elem_schema: "syslog"
+        description: "list of syslog loggers"
+      settings:
+        schema: "settings"
+        description: "handles default settings for a service"
+  list_item_params:
+    type: "dict"
+    description: "fastly cdn parameters list schema"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "the unique name for the service to create"
+      activate_new_version:
+        type: "bool"
+        description: >-
+          configures whether newly created versions should be activated automatically;
+          defaults to true
+      domains:
+        type: "list"
+        elem_schema: "domain"
+        description: "list of domain names to serve as entry points for your service"
+      backends:
+        type: "list"
+        elem_schema: "backend"
+        description: "list of backends to service requests from your domains"
+      cache_settings:
+        type: "list"
+        elem_schema: "cache_setting"
+        description: "list of cache settings"
+      conditions:
+        type: "list"
+        elem_schema: "condition"
+        description: "list of conditions"
+      directors:
+        type: "list"
+        elem_schema: "director"
+        description: "list of directors"
+      gzips:
+        type: "list"
+        elem_schema: "gzip"
+        description: "list of gzip configurations"
+      headers:
+        type: "list"
+        elem_schema: "header"
+        description: "list of headers to manipulate for each request"
+      healthchecks:
+        type: "list"
+        elem_schema: "healthcheck"
+        description: "list of healthchecks to manipulate for each request"
+      request_settings:
+        type: "list"
+        elem_schema: "request_setting"
+        description: "list of request settings"
+      response_objects:
+        type: "list"
+        elem_schema: "response_object"
+        description: "list of response objects"
+      vcl_snippets:
+        type: "list"
+        elem_schema: "vcl_snippet"
+        description: "list of vcl snippets"
+      s3s:
+        type: "list"
+        elem_schema: "s3"
+        description: "list of s3 loggers"
+      syslogs:
+        type: "list"
+        elem_schema: "syslog"
+        description: "list of syslog loggers"
+      settings:
+        schema: "settings"
+        description: "handles default settings for a service"
+  domain:
+    type: "dict"
+    description: "domain name to serve as entry point for your service"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      comment:
+        type: "str"
+  backend:
+    type: "dict"
+    description: "backend to service requests from your domains"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      port:
+        type: "str"
+        description: "defaults to 80"
+      address:
+        type: "str"
+      request_condition:
+        type: "str"
+      ssl_hostname:
+        type: "str"
+      ssl_ca_cert:
+        type: "str"
+      ssl_cert_hostname:
+        type: "str"
+      shield:
+        type: "str"
+      healthcheck:
+        type: "str"
+      weight:
+        type: "int"
+        description: "defaults to 100"
+      connect_timeout:
+        type: "int"
+        description: "defaults to 1000"
+      first_byte_timeout:
+        type: "int"
+        description: "defaults to 15000"
+      between_bytes_timeout:
+        type: "int"
+        description: "defaults to 10000"
+      error_threshold:
+        type: "int"
+        description: "defaults to 0"
+      max_conn:
+        type: "int"
+        description: "defaults to 200"
+  cache_setting:
+    type: "dict"
+    description: "cache setting"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      action:
+        type: "str"
+        choices: ["cache", "pass", "restart", null]
+      cache_condition:
+        type: "str"
+      stale_ttl:
+        type: "int"
+        description: "defaults to 0"
+  condition:
+    type: "dict"
+    description: "condition"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      comment:
+        type: "str"
+      priority:
+        type: "int"
+        description: "defaults to 0"
+      statement:
+        type: "str"
+        non_empty: true
+      type:
+        type: "str"
+        non_empty: true
+        choices: ["REQUEST", "PREFETCH", "CACHE", "RESPONSE"]
+  director:
+    type: "dict"
+    description: "director"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      backends:
+        type: "list"
+      capacity:
+        type: "int"
+        description: "defaults to 100"
+      comment:
+        type: "str"
+      quorum:
+        type: "int"
+        description: "defaults to 75"
+      shield:
+        type: "str"
+      type:
+        type: "int"
+        description: "defaults to 1"
+      retries:
+        type: "int"
+        description: "defaults to 5"
+  gzip:
+    type: "dict"
+    description: "gzip configuration"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      cache_condition:
+        type: "str"
+      content_types:
+        type: "str"
+      extensions:
+        type: "str"
+  header:
+    type: "dict"
+    description: "header to manipulate for each request"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      action:
+        type: "str"
+        choices: ["set", "append", "delete", "regex", "regex_repeat"]
+        description: "defaults to set"
+      dst:
+        type: "str"
+        non_empty: true
+      ignore_if_set:
+        type: "int"
+        description: "defaults to 0"
+      priority:
+        type: "int"
+        description: "defaults to 100"
+      regex:
+        type: "str"
+      request_condition:
+        type: "str"
+      response_condition:
+        type: "str"
+      cache_condition:
+        type: "str"
+      src:
+        type: "str"
+        non_empty: true
+      substitution:
+        type: "str"
+      type:
+        type: "str"
+        non_empty: true
+        choices: ["request", "fetch", "cache", "response"]
+  healthcheck:
+    type: "dict"
+    description: "healthcheck to manipulate for each request"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      check_interval:
+        type: "int"
+      comment:
+        type: "str"
+      expected_response:
+        type: "int"
+        description: "defaults to 200"
+      host:
+        type: "str"
+        non_empty: true
+      http_version:
+        type: "str"
+        description: "defaults to 1.1"
+      initial:
+        type: "int"
+      method:
+        type: "str"
+        description: "defaults to HEAD"
+      path:
+        type: "str"
+      threshold:
+        type: "int"
+      timeout:
+        type: "int"
+      window:
+        type: "int"
+  request_setting:
+    type: "dict"
+    description: "equest setting"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      request_condition:
+        type: "str"
+      force_miss:
+        type: "int"
+        description: "defaults to 0"
+      force_ssl:
+        type: "int"
+        description: "defaults to 0"
+      action:
+        type: "str"
+        choices: [null, "lookup", "pass"]
+      bypass_busy_wait:
+        type: "int"
+        description: "defaults to 0"
+      max_stale_age:
+        type: "int"
+        description: "defaults to 0"
+      hash_keys:
+        type: "str"
+      xff:
+        type: "str"
+        choices: [null, "clear", "leave", "append", "append_all", "overwrite"]
+      timer_support:
+        type: "int"
+        description: "defaults to 0"
+      geo_headers:
+        type: "int"
+        description: "defaults to 0"
+      default_host:
+        type: "str"
+  response_object:
+    type: "dict"
+    description: "response object"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      request_condition:
+        type: "str"
+      response:
+        type: "str"
+        description: "defaults to 'Ok'"
+      status:
+        type: "int"
+        description: "defaults to 200"
+      content:
+        type: "str"
+      content_type:
+        type: "str"
+  vcl_snippet:
+    type: "dict"
+    description: "vcl snippet"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      dynamic:
+        type: "int"
+        description: "defaults to 0"
+      type:
+        type: "str"
+        description: "defaults to 'init'"
+      content:
+        type: "str"
+      priority:
+        type: "int"
+        description: "defaults to 100"
+  s3:
+    type: "dict"
+    description: "s3 logger"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      access_key:
+        type: "str"
+      bucket_name:
+        type: "str"
+      domain:
+        type: "str"
+      format:
+        type: "str"
+        description: "defaults to '%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'"
+      format_version:
+        type: "int"
+        description: "defaults to 2"
+      gzip_level:
+        type: "int"
+        description: "defaults to 0"
+      message_type:
+        type: "str"
+        choices: [null, 'classic', 'loggly', 'logplex', 'blank']
+        description: "defaults to 'classic'"
+      path:
+        type: "str"
+        description: "defaults to '/'"
+      period:
+        type: "int"
+        description: "defaults to 3600"
+      placement:
+        type: "str"
+      redundancy:
+        type: "str"
+      response_condition:
+        type: "str"
+      secret_key:
+        type: "str"
+      server_side_encryption_kms_key_id:
+        type: "str"
+      server_side_encryption:
+        type: "str"
+      timestamp_format:
+        type: "str"
+        description: "defaults to '%Y-%m-%dT%H'"
+  syslog:
+    type: "dict"
+    description: "syslog logger"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+      hostname:
+        type: "str"
+      port:
+        type: "int"
+      address:
+        type: "str"
+      format_version:
+        type: "str"
+        description: "defaults to 2"
+      format:
+        type: "str"
+        description: "defaults to '%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'"
+      ipv4:
+        type: "str"
+      message_type:
+        type: "str"
+        choices: [null, 'classic', 'loggly', 'logplex', 'blank']
+        description: "defaults to 'classic'"
+      placement:
+        type: "str"
+      response_condition:
+        type: "str"
+      tls_ca_cert:
+        type: "str"
+      tls_hostname:
+        type: "str"
+      token:
+        type: "str"
+      use_tls:
+        type: "int"
+        description: "defaults to 0"
+  settings:
+    type: "dict"
+    description: "handles default settings for a service"
+    props:
+      'general.default_ttl':
+        type: "int"
+        description: "defaults to 3600"
+  credentials:
+    type: "dict"
+    description: "fastly cdn credentials schema"
+    props:
+      cdn:
+        schema: "fastly_credentials"
+        non_empty: true
+        description: "fastly cdn main credentials"
+  fastly_credentials:
+    type: "dict"
+    description: "fastly cdn main credentials schema"
+    props:
+      api_key:
+        type: "str"
+        non_empty: true
+        description: "fastly api key"

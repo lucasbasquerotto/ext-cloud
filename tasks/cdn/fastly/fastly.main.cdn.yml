@@ -1,0 +1,22 @@
+- name: "{{ inner_service_title }} - fastly cdn - vars"
+  lrd.ext_cloud.vars:
+    identifier: "fastly_cdn"
+    raw_data:
+      namespace: "ext_cdn"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_cdn_data_wrapper
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - fastly cdn - action"
+  lrd.ext_cloud.actions:
+    identifier: "fastly_cdn"
+    data: "{{ ext_cdn_item }}"
+  loop: "{{ ext_cdn_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_cdn_item
+    label: "[{{ ext_cdn_item.state }}] - {{ ext_cdn_item.domain }}"
+  no_log: "{{ env_no_log }}"
