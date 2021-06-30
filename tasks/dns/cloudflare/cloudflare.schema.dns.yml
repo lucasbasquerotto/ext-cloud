@@ -77,7 +77,7 @@ schemas:
         description: "list with strings or dictionaries representing the dns record value"
   list_item_params:
     type: "dict"
-    description: "godaddy dns parameters schema"
+    description: "godaddy dns parameters list schema"
     props:
       zone:
         type: "str"

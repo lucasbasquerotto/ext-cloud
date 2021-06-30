@@ -30,20 +30,11 @@ display = Display()
 
 def prepare_data(raw_data):
   return prepare_general_data(
-      expected_namespace='ext_dns',
+      expected_namespace='ext_nameserver',
       raw_data=raw_data,
       item_keys=[
           'zone',
-          'dns_type',
-          'record',
-          'ttl',
-          'priority',
-          'service',
-          'protocol',
-          'port',
-          'weight',
-          'credential',
-          'value',
+          'name_servers',
       ],
       fn_prepare_item=lambda p: prepare_item(raw_data, p),
   )
@@ -57,8 +48,7 @@ def prepare_item(raw_data, item_params):
   required_keys_info = dict(
       params=[
           'zone',
-          'dns_type',
-          'record',
+          'name_servers',
       ],
       credentials=[
           'api_server',
@@ -71,7 +61,7 @@ def prepare_item(raw_data, item_params):
   info = prepare_item_data(
       raw_data=raw_data,
       item_params=item_params,
-      default_credential_name='dns',
+      default_credential_name='nameserver',
       required_keys_info=required_keys_info,
   )
   item_data = info.get('result')
@@ -84,8 +74,6 @@ def prepare_item(raw_data, item_params):
         item_credentials.get('api_server')
         + '/v' + item_credentials.get('api_version')
         + '/domains/' + item_params.get('zone')
-        + '/records/' + item_params.get('dns_type')
-        + '/' + item_params.get('record')
     )
     authorization = (
         'sso-key ' + item_credentials.get('api_key')
@@ -103,40 +91,17 @@ def prepare_item(raw_data, item_params):
     result['state'] = state
 
     result['zone'] = item_params.get('zone')
-    result['dns_type'] = item_params.get('dns_type')
-    result['record'] = item_params.get('record')
 
-    result['dns_records'] = [
-        prepare_dns_records(item_params, value_dict)
-        for value_dict in dns_values
-    ] if state == 'present' else []
+    name_servers = item_params.get('name_servers')
+
+    result['name_servers'] = name_servers if (
+        state == 'present' and name_servers
+    ) else [None]
 
   return dict(result=result, error_msgs=error_msgs)
 
 
-def prepare_dns_records(item_params, value_dict):
-  result = dict(
-      type=item_params.get('dns_type'),
-      name=item_params.get('record'),
-      data=value_dict.get('value'),
-      ttl=value_dict.get('ttl') or item_params.get('ttl') or 600,
-      priority=value_dict.get('priority') or item_params.get('priority'),
-      service=value_dict.get('service') or item_params.get('service'),
-      proto=value_dict.get('proto') or item_params.get('proto'),
-      port=value_dict.get('port') or item_params.get('port'),
-      weight=value_dict.get('weight') or item_params.get('weight'),
-  )
-
-  result_keys = list(result.keys())
-
-  for key in result_keys:
-    if not result.get(key):
-      result.pop(key, None)
-
-  return result
-
-
-def manage_dns(prepared_item):
+def manage_nameserver(prepared_item):
   error_msgs = list()
   result = None
 
@@ -157,13 +122,13 @@ def manage_dns(prepared_item):
       response = requests.get(api_server_url, headers=headers)
       response.raise_for_status()
 
-      old_records = response.json() or []
-      new_records = prepared_item.get('dns_records') or []
+      old_records = response.json().get('nameServers') or []
+      new_records = prepared_item.get('name_servers') or []
 
       changed = ordered(old_records) != ordered(new_records)
 
       if changed:
-        response = requests.put(
+        response = requests.patch(
             api_server_url,
             headers=headers,
             json=new_records,
@@ -176,7 +141,7 @@ def manage_dns(prepared_item):
     result = dict(changed=changed)
   except Exception as error:
     error_msgs += [[
-        'msg: error when trying to manage godaddy dns records',
+        'msg: error when trying to manage godaddy nameservers',
         'error type: ' + str(type(error)),
         'error details: ',
         traceback.format_exc().split('\n'),

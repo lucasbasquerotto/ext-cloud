@@ -8,6 +8,10 @@
 # pylint: disable=import-error
 # pylint: disable=broad-except
 
+# pyright: reportUnusedImport=true
+# pyright: reportUnusedVariable=true
+# pyright: reportMissingImports=false
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
@@ -15,6 +19,7 @@ import json
 import traceback
 
 import requests
+
 
 def manage_stackscript(data):
   error_msgs = list()
@@ -47,7 +52,8 @@ def manage_stackscript(data):
 
     if not error_msgs:
       api_url = 'https://api.linode.com/v4/linode/stackscripts'
-      api_url_list = api_url + (('?page_size=' + str(page_size)) if page_size else '')
+      api_url_list = api_url + \
+          (('?page_size=' + str(page_size)) if page_size else '')
 
       headers = dict(Authorization=authorization)
       list_headers = headers.copy()
@@ -90,12 +96,14 @@ def manage_stackscript(data):
         if same_label_list:
           changed = False
 
-          same_label_item = same_label_list[0] if (len(same_label_list) > 0) else None
+          same_label_item = same_label_list[0] if (
+              len(same_label_list) > 0) else None
           resource_id = same_label_item.get('id')
 
           api_url_update = api_url + '/' + str(resource_id)
 
-          response = requests.put(api_url_update, headers=headers, json=data_to_send)
+          response = requests.put(
+              api_url_update, headers=headers, json=data_to_send)
           response.raise_for_status()
         else:
           response = requests.post(api_url, headers=headers, json=data_to_send)

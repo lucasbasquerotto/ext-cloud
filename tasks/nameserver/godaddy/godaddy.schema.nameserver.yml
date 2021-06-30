@@ -1,0 +1,74 @@
+root: "nameserver_schema"
+schemas:
+  nameserver_schema:
+    type: "dict"
+    description: "godaddy nameserver schema"
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_nameserver"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "godaddy nameserver parameters"
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "godaddy nameserver credentials"
+  params:
+    type: "dict"
+    description: "godaddy nameserver parameters schema"
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: "list of domains (zones) with a list of nameservers for each domain"
+      zone:
+        type: "str"
+        description: "dns zone/domain (e.g. 'example.com'); the zone must already exist"
+      name_servers:
+        type: "list"
+        elem_type: "string"
+        description: "list with strings representing each nameserver"
+  list_item_params:
+    type: "dict"
+    description: "godaddy nameserver parameters list schema"
+    props:
+      zone:
+        type: "str"
+        non_empty: true
+        description: "dns zone/domain (e.g. 'example.com'); the zone must already exist"
+      name_servers:
+        type: "list"
+        elem_type: "string"
+        required: true
+        description: "list with strings representing each nameserver"
+  credentials:
+    type: "dict"
+    description: "godaddy dns credentials schema"
+    props:
+      dns:
+        schema: "godaddy_credentials"
+        non_empty: true
+        description: "godaddy dns main credentials"
+  godaddy_credentials:
+    type: "dict"
+    description: "godaddy dns main credentials schema"
+    props:
+      api_server:
+        type: "str"
+        non_empty: true
+        description: "godaddy api server"
+      api_version:
+        type: "str"
+        non_empty: true
+        description: "godaddy api version:"
+      api_key:
+        type: "str"
+        non_empty: true
+        description: "godaddy api key"
+      api_secret:
+        type: "str"
+        non_empty: true
+        description: "godaddy api secret"

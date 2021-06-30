@@ -8,6 +8,10 @@
 # pylint: disable=import-error
 # pylint: disable=broad-except
 
+# pyright: reportUnusedImport=true
+# pyright: reportUnusedVariable=true
+# pyright: reportMissingImports=false
+
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
@@ -17,6 +21,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns i
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     prepare_data as godaddy_dns_prepare_data
+)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_nameserver import (
+    prepare_data as godaddy_nameserver_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
     prepare_data as s3_prepare_data
@@ -49,6 +56,8 @@ def main():
     error_msgs += [['msg: identifier not defined']]
   elif identifier == 's3':
     info = s3_prepare_data(raw_data)
+  elif identifier == 'godaddy_nameserver':
+    info = godaddy_nameserver_prepare_data(raw_data)
   elif identifier == 'godaddy_dns':
     info = godaddy_dns_prepare_data(raw_data)
   elif identifier == 'cloudflare_dns':
