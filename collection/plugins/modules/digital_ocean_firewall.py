@@ -295,8 +295,8 @@ class DOFirewall(object):
     self.firewalls = self.get_firewalls()
 
   def get_firewalls(self):
-    base_url = self.baseurl
-    response = self.rest.get("%s" % base_url)
+    base_url = self.baseurl + '?'
+    response = self.rest.get('%s' % base_url)
     status_code = response.status_code
     status_code_success = 200
 
