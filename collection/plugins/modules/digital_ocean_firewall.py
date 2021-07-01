@@ -344,25 +344,15 @@ class DOFirewall(object):
     return obj
 
   def fill_source_and_destination_defaults_inner(self, obj):
-    addresses = obj.get('addresses')
+    addresses = obj.get('addresses') or []
 
-    if addresses is None:
-      addresses = []
+    droplet_ids = obj.get('droplet_ids') or []
+    droplet_ids = [str(droplet_id) for droplet_id in droplet_ids]
 
-    droplet_ids = obj.get('droplet_ids')
+    load_balancer_uids = obj.get('load_balancer_uids') or []
+    load_balancer_uids = [str(uid) for uid in load_balancer_uids]
 
-    if droplet_ids is None:
-      droplet_ids = []
-
-    load_balancer_uids = obj.get('load_balancer_uids')
-
-    if load_balancer_uids is None:
-      load_balancer_uids = []
-
-    tags = obj.get('tags')
-
-    if tags is None:
-      tags = []
+    tags = obj.get('tags') or []
 
     data = {
         "addresses": addresses,
@@ -401,18 +391,15 @@ class DOFirewall(object):
       outbound_rules = []
     else:
       outbound_rules = [self.fill_protocol_defaults(x) for x in outbound_rules]
-      outbound_rules = [self.fill_sources_and_destinations_defaults(
-          x, 'destinations') for x in outbound_rules]
+      outbound_rules = [
+          self.fill_sources_and_destinations_defaults(x, 'destinations')
+          for x in outbound_rules
+      ]
 
-    droplet_ids = obj.get('droplet_ids')
+    droplet_ids = obj.get('droplet_ids') or []
+    droplet_ids = [str(droplet_id) for droplet_id in droplet_ids]
 
-    if droplet_ids is None:
-      droplet_ids = []
-
-    tags = obj.get('tags')
-
-    if tags is None:
-      tags = []
+    tags = obj.get('tags') or []
 
     data = {
         "name": obj.get('name'),
@@ -471,11 +458,6 @@ class DOFirewall(object):
           "droplet_ids": data.get('droplet_ids'),
           "tags": data.get('tags')
       }
-
-      self.module.fail_json(msg=dict(
-          user=self.data_to_compare(user_data),
-          rule=self.data_to_compare(rule_data)
-      ))
 
       if self.data_to_compare(user_data) == self.data_to_compare(rule_data):
         self.module.exit_json(changed=False, data=rule)
