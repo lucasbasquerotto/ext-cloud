@@ -1,0 +1,91 @@
+root: "cdn_schema"
+schemas:
+  cdn_schema:
+    type: "dict"
+    description: "stackpath cdn schema"
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_cdn"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "stackpath cdn parameters"
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "stackpath cdn credentials"
+  params:
+    type: "dict"
+    description: "stackpath cdn parameters schema"
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          list of records to be created/destroyed; used when defined, instead of considering
+          the parameters as only one definition; instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter; when not defined, will use
+          the outer parameters as one single list item
+      name:
+        type: "str"
+        non_empty: true
+        description: "the unique name for the service to create"
+  list_item_params:
+    type: "dict"
+    description: "stackpath cdn parameters list schema"
+    props:
+      stack_slug:
+        type: "str"
+        non_empty: true
+        description: >-
+          the slug for the stack to create (used for idempotency);
+          if some data changes, specify another slug (optionally
+          specifying to delete the previous slug after creating the new one)
+      stack_name:
+        type: "str"
+        description: "the stack name"
+      domain:
+        type: "str"
+        non_empty: true
+        description: "the site's domain name"
+      origin:
+        schema: "origin"
+        description: "the site's origin"
+      features:
+        type: "list"
+        elem_type: "str"
+        description: "a list of features desired on the site"
+      configuration:
+        schema: "configuration"
+        description: "advanced configuration options"
+      previous_slug:
+        type: "str"
+        description: >-
+          the previous slug to delete when some data changed (optional);
+          must be differente than stack_slug
+  credentials:
+    type: "dict"
+    description: "stackpath cdn credentials schema"
+    props:
+      cdn:
+        schema: "stackpath_credentials"
+        non_empty: true
+        description: "stackpath cdn main credentials"
+  stackpath_credentials:
+    type: "dict"
+    description: "stackpath cdn main credentials schema"
+    props:
+      client_id:
+        type: "str"
+        non_empty: true
+        description: "stackpath client id"
+      client_secret:
+        type: "str"
+        non_empty: true
+        description: "stackpath client secret"
+      grant_type:
+        type: "str"
+        non_empty: true
+        description: "stackpath grant type"

@@ -19,6 +19,9 @@ from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_t
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.fastly_cdn import (
     prepare_data as fastly_cdn_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.stackpath_cdn import (
+    prepare_data as stackpath_cdn_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns import (
     prepare_data as cloudflare_dns_prepare_data
 )
@@ -67,6 +70,8 @@ def main():
     info = cloudflare_dns_prepare_data(raw_data)
   elif identifier == 'fastly_cdn':
     info = fastly_cdn_prepare_data(raw_data)
+  elif identifier == 'stackpath_cdn':
+    info = stackpath_cdn_prepare_data(raw_data)
   else:
     error_msgs += [['msg: invalid identifier']]
 

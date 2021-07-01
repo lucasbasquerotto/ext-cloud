@@ -16,6 +16,9 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_text
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.stackpath_cdn import (
+    prepare_data as stackpath_manage_cdn
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     manage_dns as godaddy_manage_dns
 )
@@ -56,6 +59,8 @@ def main():
     info = godaddy_manage_nameserver(prepared_item=data)
   elif identifier == 'godaddy_dns':
     info = godaddy_manage_dns(prepared_item=data)
+  elif identifier == 'stackpath_cdn':
+    info = stackpath_manage_cdn(prepared_item=data)
   elif identifier == 'linode_stackscript':
     info = linode_manage_stackscript(data=data)
   else:
