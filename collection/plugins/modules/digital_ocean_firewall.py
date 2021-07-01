@@ -302,11 +302,15 @@ class DOFirewall(object):
 
     if status_code != status_code_success:
       error = response.json
+      info = response.info
 
       if error:
         error.update({'status_code': status_code})
         error.update({'status_code_success': status_code_success})
         self.module.fail_json(msg=error)
+      elif info:
+        info.update({'status_code_success': status_code_success})
+        self.module.fail_json(msg=info)
       else:
         msg_error = 'Failed to retrieve firewalls from Digital Ocean'
         self.module.fail_json(
