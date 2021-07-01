@@ -18,6 +18,63 @@ __metaclass__ = type  # pylint: disable=invalid-name
 import traceback
 
 
+def prepare_default_data(data_info):
+  expected_namespace = data_info.get('expected_namespace')
+  raw_data = data_info.get('raw_data')
+  params_keys = data_info.get('params_keys')
+
+  return prepare_general_data(
+      expected_namespace=expected_namespace,
+      raw_data=raw_data,
+      item_keys=params_keys,
+      fn_prepare_item=lambda p: prepare_default_item(
+          data_info=data_info,
+          item_params=p,
+      ),
+  )
+
+
+def prepare_default_item(data_info, item_params):
+  error_msgs = list()
+  result = dict()
+
+  raw_data = data_info.get('raw_data')
+  params_keys = data_info.get('params_keys')
+  credentials_keys = data_info.get('credentials_keys')
+  default_credential_name = data_info.get('default_credential_name')
+  required_keys_info = data_info.get('required_keys_info')
+  fn_finalize_item = data_info.get('fn_finalize_item')
+
+  state = raw_data.get('state')
+
+  info = prepare_item_data(
+      raw_data=raw_data,
+      item_params=item_params,
+      default_credential_name=default_credential_name,
+      required_keys_info=required_keys_info,
+  )
+  item_data = info.get('result')
+  error_msgs += (info.get('error_msgs') or [])
+
+  if not error_msgs:
+    item_credentials = item_data.get('credentials')
+
+    result['state'] = state
+
+    for key in credentials_keys:
+      result[key] = item_credentials.get(key)
+
+    for key in params_keys:
+      result[key] = item_params.get(key)
+
+    if fn_finalize_item:
+      info = fn_finalize_item(result)
+      result = info.get('result')
+      error_msgs = info.get('error_msgs') or []
+
+  return dict(result=result, error_msgs=error_msgs)
+
+
 def prepare_general_data(raw_data, expected_namespace, item_keys, fn_prepare_item):
   error_msgs = list()
 
@@ -179,28 +236,28 @@ def prepare_item_data(raw_data, item_params, default_credential_name, required_k
       ]]
 
     for required_key in required_params_keys:
-      if item_params.get(required_key) is None:
+      if not item_params.get(required_key):
         error_msgs += [[
             'parameter name: ' + str(required_key),
             'msg: required property not present in the parameters',
         ]]
 
     for required_key in required_credentials_keys:
-      if item_credentials.get(required_key) is None:
+      if not item_credentials.get(required_key):
         error_msgs += [[
             'credential name: ' + str(required_key),
             'msg: required property not present in the credentials',
         ]]
 
     for required_key in required_contents_keys:
-      if contents.get(required_key) is None:
+      if not contents.get(required_key):
         error_msgs += [[
             'content name: ' + str(required_key),
             'msg: required property not present in the contents',
         ]]
 
     for required_key in required_input_keys:
-      if input_params.get(required_key) is None:
+      if not input_params.get(required_key):
         error_msgs += [[
             'input name: ' + str(required_key),
             'msg: required property not present in the input',

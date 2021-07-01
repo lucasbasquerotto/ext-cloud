@@ -177,7 +177,7 @@ schemas:
         type: "str"
         non_empty: true
       port:
-        type: "str"
+        type: "int"
         description: "defaults to 80"
       address:
         type: "str"

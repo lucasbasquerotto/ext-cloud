@@ -20,85 +20,65 @@ import traceback
 import requests
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
-    generate_values, prepare_general_data, prepare_item_data
-)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 from ansible.utils.display import Display
 
 display = Display()
 
+params_keys = [
+    'zone',
+    'nameservers',
+]
+
+credentials_keys = [
+    'api_server',
+    'api_version',
+    'api_key',
+    'api_secret',
+]
+
 
 def prepare_data(raw_data):
-  return prepare_general_data(
+  required_keys_info = dict(
+      params=['zone'],
+      credentials=[],
+  )
+
+  data_info = dict(
       expected_namespace='ext_nameserver',
       raw_data=raw_data,
-      item_keys=[
-          'zone',
-          'nameservers',
-      ],
-      fn_prepare_item=lambda p: prepare_item(raw_data, p),
-  )
-
-
-def prepare_item(raw_data, item_params):
-  error_msgs = list()
-  result = dict()
-  state = raw_data.get('state')
-
-  required_keys_info = dict(
-      params=[
-          'zone',
-          'nameservers',
-      ],
-      credentials=[
-          'api_server',
-          'api_version',
-          'api_key',
-          'api_secret',
-      ],
-  )
-
-  info = prepare_item_data(
-      raw_data=raw_data,
-      item_params=item_params,
+      params_keys=params_keys,
+      credentials_keys=credentials_keys,
       default_credential_name='nameserver',
       required_keys_info=required_keys_info,
+      fn_finalize_item=lambda item: finalize_item(item),
   )
-  item_data = info.get('result')
-  error_msgs += (info.get('error_msgs') or [])
 
-  if not error_msgs:
-    item_credentials = item_data.get('credentials')
+  return prepare_default_data(data_info)
 
-    api_server_url = (
-        item_credentials.get('api_server')
-        + '/v' + item_credentials.get('api_version')
-        + '/domains/' + item_params.get('zone')
-    )
-    authorization = (
-        'sso-key ' + item_credentials.get('api_key')
-        + ':' + item_credentials.get('api_secret')
-    )
 
-    raw_values = item_params.get('value')
-    dns_values = generate_values(raw_values)
+def finalize_item(item):
+  error_msgs = list()
 
-    if not dns_values:
-      state = 'absent'
+  state = item.get('state')
+  nameservers = item.get('nameservers')
+  api_server_url = (
+      item.get('api_server')
+      + '/v' + item.get('api_version')
+      + '/domains/' + item.get('zone')
+  )
+  authorization = (
+      'sso-key ' + item.get('api_key')
+      + ':' + item.get('api_secret')
+  )
 
-    result['api_server_url'] = api_server_url
-    result['authorization'] = authorization
-    result['state'] = state
+  item['api_server_url'] = api_server_url
+  item['authorization'] = authorization
+  item['nameservers'] = nameservers if (
+      nameservers and (state == 'present')
+  ) else [None]
 
-    result['zone'] = item_params.get('zone')
-
-    nameservers = item_params.get('nameservers')
-
-    result['nameservers'] = nameservers if (
-        state == 'present' and nameservers
-    ) else [None]
-
-  return dict(result=result, error_msgs=error_msgs)
+  return dict(result=item, error_msgs=error_msgs)
 
 
 def manage_nameserver(prepared_item):

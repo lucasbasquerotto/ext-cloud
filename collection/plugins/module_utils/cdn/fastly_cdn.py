@@ -15,9 +15,7 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
-    prepare_general_data, prepare_item_data
-)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
     'domains',
@@ -40,42 +38,19 @@ credentials_keys = ['api_key']
 
 
 def prepare_data(raw_data):
-  return prepare_general_data(
+  required_keys_info = dict(
+      params=['domains', 'backends'],
+      credentials=[],
+  )
+
+  data_info = dict(
       expected_namespace='ext_cdn',
       raw_data=raw_data,
-      item_keys=params_keys,
-      fn_prepare_item=lambda p: prepare_item(raw_data, p),
-  )
-
-
-def prepare_item(raw_data, item_params):
-  error_msgs = list()
-  result = dict()
-  state = raw_data.get('state')
-
-  required_keys_info = dict(
-      params=params_keys,
-      credentials=credentials_keys,
-  )
-
-  info = prepare_item_data(
-      raw_data=raw_data,
-      item_params=item_params,
+      params_keys=params_keys,
+      credentials_keys=credentials_keys,
       default_credential_name='cdn',
       required_keys_info=required_keys_info,
+      fn_finalize_item=None,
   )
-  item_data = info.get('result')
-  error_msgs += (info.get('error_msgs') or [])
 
-  if not error_msgs:
-    item_credentials = item_data.get('credentials')
-
-    result['state'] = state
-
-    for key in credentials_keys:
-      result[key] = item_credentials.get(key)
-
-    for key in params_keys:
-      result[key] = item_params.get(key)
-
-  return dict(result=result, error_msgs=error_msgs)
+  return prepare_default_data(data_info)
