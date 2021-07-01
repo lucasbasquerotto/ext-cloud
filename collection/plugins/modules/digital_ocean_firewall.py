@@ -437,6 +437,8 @@ class DOFirewall(object):
     status_code = resp.status_code
     if status_code != status_code_success:
       error = resp.json
+      error.update({'context': 'error when trying to ' +
+                    ('create' if (id is None) else 'update') + ' firewalls'})
       error.update({'status_code': status_code})
       error.update({'status_code_success': status_code_success})
       self.module.fail_json(msg=error)
@@ -469,6 +471,11 @@ class DOFirewall(object):
           "droplet_ids": data.get('droplet_ids'),
           "tags": data.get('tags')
       }
+
+      self.module.fail_json(msg=dict(
+          user=self.data_to_compare(user_data),
+          rule=self.data_to_compare(rule_data)
+      ))
 
       if self.data_to_compare(user_data) == self.data_to_compare(rule_data):
         self.module.exit_json(changed=False, data=rule)

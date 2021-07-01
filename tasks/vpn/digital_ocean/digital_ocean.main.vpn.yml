@@ -29,6 +29,43 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
+- name: "(test) create a firewall named my_firewall"
+  lrd.ext_cloud.digital_ocean_firewall:
+    api_token: "{{ ext_vpn_api_token }}"
+    name: my-firewall
+    state: present
+    inbound_rules:
+      - protocol: "tcp"
+        ports: "22"
+        sources:
+          addresses: ["1.2.3.4"]
+          droplet_ids: ["123456", "1234556"]
+          load_balancer_uids: ["111222", "333444"]
+          tags: ["tag-1", "tag-2"]
+      - protocol: "tcp"
+        ports: "80"
+        sources:
+          addresses: ["0.0.0.0/0", "::/0"]
+      - protocol: "tcp"
+        ports: "443"
+        sources:
+          addresses: ["0.0.0.0/0", "::/0"]
+    outbound_rules:
+      - protocol: "tcp"
+        ports: "1-65535"
+        destinations:
+          addresses: ["0.0.0.0/0", "::/0"]
+      - protocol: "udp"
+        ports: "1-65535"
+        destinations:
+          addresses: ["0.0.0.0/0", "::/0"]
+      - protocol: "icmp"
+        ports: "1-65535"
+        destinations:
+          addresses: ["0.0.0.0/0", "::/0"]
+    droplet_ids: ["555666", "777888"]
+    tags: ["sample"]
+
 - name: >-
     {{ ext_vpn_title }} -
     {{ (ext_vpn_state == 'present') | ternary('create', 'destroy')}}
