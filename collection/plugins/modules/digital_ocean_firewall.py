@@ -12,123 +12,148 @@
 
 from __future__ import absolute_import, division, print_function
 from ansible.module_utils._text import to_native
-from ansible.module_utils.digital_ocean import DigitalOceanHelper
+from ansible_collections.community.digitalocean.plugins.module_utils.digital_ocean import DigitalOceanHelper
 from ansible.module_utils.basic import AnsibleModule
 from traceback import format_exc
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
 
 DOCUMENTATION = '''
 ---
 module: digital_ocean_firewall
-short_description: Manage cloud firewalls within Digital Ocean
+short_description: Manage cloud firewalls within DigitalOcean
 description:
-    - This module can be used to add or remove firewalls on the Digital Ocean cloud platform.
-author: "Anthony Bond (@BondAnthony) and Lucas Basquerotto (@lucasbasquerotto)"
-version_added: "2.9"
+    - This module can be used to add or remove firewalls on the DigitalOcean cloud platform.
+author:
+    - Anthony Bond (@BondAnthony)
+    - Lucas Basquerotto (@lucasbasquerotto)
+version_added: "1.1.0"
 options:
   name:
+    type: str
     description:
      - Name of the firewall rule to create or manage
     required: true
   state:
+    type: str
+    choices: ['present', 'absent']
+    default: present
     description:
       - Assert the state of the firewall rule. Set to 'present' to create or update and 'absent' to remove.
-    default: present
-    choices: ['present', 'absent']
   droplet_ids:
+    type: list
+    elements: str
     description:
      - List of droplet ids to be assigned to the firewall
     required: false
-    type: list
   tags:
+    type: list
+    elements: str
     description:
       - List of tags to be assigned to the firewall
     required: false
-    type: list
   inbound_rules:
-    description:
-      - Firewall rules specifically targeting inbound network traffic into Digital Ocean
-    required: true
     type: list
+    elements: dict
+    description:
+      - Firewall rules specifically targeting inbound network traffic into DigitalOcean
+    required: true
     suboptions:
       protocol:
+        type: str
+        choices: ['udp', 'tcp', 'icmp']
+        default: tcp
         description:
           - Network protocol to be accepted.
-        required: true
-        choices: ['udp', 'tcp', 'icmp']
+        required: false
       ports:
+        type: str
         description:
           - The ports on which traffic will be allowed, single, range, or all
         required: true
       sources:
+        type: dict
         description:
           - Dictionary of locations from which inbound traffic will be accepted
         required: true
         suboptions:
           addresses:
+            type: list
+            elements: str
             description:
               - List of strings containing the IPv4 addresses, IPv6 addresses, IPv4 CIDRs,
                 and/or IPv6 CIDRs to which the firewall will allow traffic
             required: false
           droplet_ids:
+            type: list
+            elements: str
             description:
               - List of integers containing the IDs of the Droplets to which the firewall will allow traffic
             required: false
           load_balancer_uids:
+            type: list
+            elements: str
             description:
               - List of strings containing the IDs of the Load Balancers to which the firewall will allow traffic
             required: false
           tags:
+            type: list
+            elements: str
             description:
               - List of strings containing the names of Tags corresponding to groups of Droplets to
                 which the Firewall will allow traffic
             required: false
   outbound_rules:
-    description:
-      - Firewall rules specifically targeting outbound network traffic from Digital Ocean
-    required: true
     type: list
+    elements: dict
+    description:
+      - Firewall rules specifically targeting outbound network traffic from DigitalOcean
+    required: true
     suboptions:
       protocol:
+        type: str
+        choices: ['udp', 'tcp', 'icmp']
+        default: tcp
         description:
           - Network protocol to be accepted.
-        required: true
-        choices: ['udp', 'tcp', 'icmp']
+        required: false
       ports:
+        type: str
         description:
           - The ports on which traffic will be allowed, single, range, or all
         required: true
       destinations:
+        type: dict
         description:
           - Dictionary of locations from which outbound traffic will be allowed
         required: true
         suboptions:
           addresses:
+            type: list
+            elements: str
             description:
               - List of strings containing the IPv4 addresses, IPv6 addresses, IPv4 CIDRs,
                 and/or IPv6 CIDRs to which the firewall will allow traffic
             required: false
           droplet_ids:
+            type: list
+            elements: str
             description:
               - List of integers containing the IDs of the Droplets to which the firewall will allow traffic
             required: false
           load_balancer_uids:
+            type: list
+            elements: str
             description:
               - List of strings containing the IDs of the Load Balancers to which the firewall will allow traffic
             required: false
           tags:
+            type: list
+            elements: str
             description:
               - List of strings containing the names of Tags corresponding to groups of Droplets to
                 which the Firewall will allow traffic
             required: false
-requirements:
-  - "python >= 2.6"
 extends_documentation_fragment: digital_ocean.documentation
 '''
 
@@ -137,9 +162,9 @@ EXAMPLES = '''
 # Allows tcp connections to ports 80 and 443 from any source
 # Allows outbound access to any destination for protocols tcp, udp and icmp
 # The firewall rules will be applied to any droplets with the tag "sample"
-- name: Create a Firewall named my_firewall
+- name: Create a Firewall named my-firewall
   digital_ocean_firewall:
-    name: my_firewall
+    name: my-firewall
     state: present
     inbound_rules:
       - protocol: "tcp"
@@ -212,7 +237,7 @@ data:
                         "::/0"
                     ]
                 },
-                "ports": "80"
+                "ports": "80",
                 "protocol": "tcp"
             },
             {
@@ -222,11 +247,11 @@ data:
                         "::/0"
                     ]
                 },
-                "ports": "443"
+                "ports": "443",
                 "protocol": "tcp"
             }
         ],
-        "name": "my_firewall",
+        "name": "my-firewall",
         "outbound_rules": [
             {
                 "destinations": {
@@ -235,7 +260,7 @@ data:
                         "::/0"
                     ]
                 },
-                "ports": "1-65535"
+                "ports": "1-65535",
                 "protocol": "tcp"
             },
             {
@@ -245,7 +270,7 @@ data:
                         "::/0"
                     ]
                 },
-                "ports": "1-65535"
+                "ports": "1-65535",
                 "protocol": "udp"
             },
             {
@@ -255,7 +280,7 @@ data:
                         "::/0"
                     ]
                 },
-                "ports": "1-65535"
+                "ports": "1-65535",
                 "protocol": "icmp"
             }
         ],
@@ -267,10 +292,10 @@ data:
 
 
 address_spec = dict(
-    addresses=dict(type='list', required=False),
-    droplet_ids=dict(type='list', required=False),
-    load_balancer_uids=dict(type='list', required=False),
-    tags=dict(type='list', required=False),
+    addresses=dict(type='list', elements='str', required=False),
+    droplet_ids=dict(type='list', elements='str', required=False),
+    load_balancer_uids=dict(type='list', elements='str', required=False),
+    tags=dict(type='list', elements='str', required=False),
 )
 
 inbound_spec = dict(
@@ -493,12 +518,12 @@ def main():
   argument_spec.update(
       name=dict(type='str', required=True),
       state=dict(type='str', choices=['present', 'absent'], default='present'),
-      droplet_ids=dict(type='list', required=False),
-      tags=dict(type='list', required=False),
-      inbound_rules=dict(type='list', required=True,
-                         elements='dict', options=inbound_spec),
-      outbound_rules=dict(type='list', required=True,
-                          elements='dict', options=outbound_spec),
+      droplet_ids=dict(type='list', elements='str', required=False),
+      tags=dict(type='list', elements='str', required=False),
+      inbound_rules=dict(type='list', elements='dict',
+                         options=inbound_spec, required=True),
+      outbound_rules=dict(type='list', elements='dict',
+                          options=outbound_spec, required=True),
   )
   module = AnsibleModule(argument_spec=argument_spec)
 
