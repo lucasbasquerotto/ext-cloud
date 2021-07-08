@@ -17,13 +17,13 @@ __metaclass__ = type  # pylint: disable=invalid-name
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_text
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.stackpath_cdn import (
-    prepare_data as stackpath_manage_cdn
+    manage_cdn as stackpath_manage_cdn
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     manage_dns as godaddy_manage_dns
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
-    prepare_data as godaddy_manage_nameserver
+    manage_nameserver as godaddy_manage_nameserver
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.linode_node import (
     manage_stackscript as linode_manage_stackscript
