@@ -85,7 +85,7 @@ def prepare_item(raw_data, item_params):
     result['zone'] = item_params.get('zone')
     result['dns_type'] = item_params.get('dns_type')
     result['record'] = item_params.get('record')
-    result['proxied'] = item_params.get('proxied')
+    result['proxied'] = item_params.get('proxied') or False
     result['ttl'] = item_params.get('ttl')
     result['priority'] = item_params.get('priority')
     result['service'] = item_params.get('service')
