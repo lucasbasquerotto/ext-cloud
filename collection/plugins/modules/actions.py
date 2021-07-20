@@ -41,7 +41,7 @@ def main():
   module = AnsibleModule(
       argument_spec=dict(
           identifier=dict(type='str', required=True),
-          data=dict(no_log=True, type='raw', required=True),
+          data=dict(type='raw', required=True),
       )
   )
 
