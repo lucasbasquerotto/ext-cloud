@@ -40,6 +40,9 @@ schemas:
         type: "list"
         elem_type: "str"
         description: "firewall tags (will be applied to droplets/nodes with the these tags)"
+      when:
+        type: "bool"
+        description: "when false, the firewall is ignored; defaults to true"
       inbound_rules:
         type: "list"
         elem_schema: "inbound_rule"

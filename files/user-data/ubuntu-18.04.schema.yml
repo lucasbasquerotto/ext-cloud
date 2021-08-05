@@ -29,6 +29,9 @@ schemas:
       install_podman:
         type: "bool"
         description: "when true, installs podman in the host; defaults to false"
+      install_node_exporter:
+        type: "bool"
+        description: "when true, installs node_exporter in the host; defaults to false"
       install_packages:
         type: "bool"
         description: "when true, installs some utilities in the host; defaults to false"

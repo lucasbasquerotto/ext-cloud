@@ -54,7 +54,7 @@
     inbound_rules: "{{ ext_vpn_item.inbound_rules | default([]) }}"
     outbound_rules: "{{ ext_vpn_item.outbound_rules | default([]) }}"
     state: "{{ ext_vpn_state }}"
-  when: (ext_vpn_firewalls | default([])) | length > 0
+  when: ext_vpn_item.when | default(true) | bool
   loop: "{{ ext_vpn_firewalls | default([]) }}"
   loop_control:
     loop_var: ext_vpn_item
