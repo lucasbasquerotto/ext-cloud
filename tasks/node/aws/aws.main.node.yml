@@ -1,0 +1,56 @@
+- name: "{{ inner_service_title }} - aws node - vars"
+  lrd.ext_cloud.vars:
+    identifier: "aws_node"
+    raw_data:
+      namespace: "ext_node"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_node_data_wrapper
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - aws node - execute"
+  community.aws.ec2_instance:
+    name: "{{ ext_node_item.name }}"
+    state: "{{ ext_node_item.state }}"
+    access_key: "{{ ext_node_item.access_key }}"
+    secret_key: "{{ ext_node_item.secret_key }}"
+    image_id: "{{ ext_node_item.image_id }}"
+    region: "{{ ext_node_item.region }}"
+    instance_type: "{{ ext_node_item.instance_type }}"
+    vpc_subnet_id: "{{ ext_node_item.vpc_subnet_id | default(omit, true) }}"
+    network: "{{ ext_node_item.network | default(omit, true) }}"
+    security_groups: "{{ ext_node_item.security_groups | default(omit, true) }}"
+    volumes:
+      - device_name: /dev/sda1
+        ebs:
+          delete_on_termination: true
+    cpu_options: "{{ ext_node_item.cpu_options | default(omit, true) }}"
+    purge_tags: "{{ ext_node_item.purge_tags | default(omit, true) }}"
+    detailed_monitoring: "{{ ext_node_item.detailed_monitoring | default(omit, true) }}"
+    user_data: "{{ ext_node_item.user_data | default(omit, true) }}"
+    termination_protection: "{{ ext_node_item.termination_protection | default(omit, true) }}"
+    wait_timeout: "{{ ext_node_item.wait_timeout }}"
+    wait: true
+  loop: "{{ ext_node_data_wrapper.data.replicas }}"
+  loop_control:
+    loop_var: ext_node_item
+    label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
+  no_log: "{{ env_no_log }}"
+
+    name: "{{ ext_node_item.name }}"
+    state: "{{ ext_node_item.state }}"
+    oauth_token: "{{ ext_node_item.oauth_token }}"
+    region_id: "{{ ext_node_item.region_id }}"
+    size_id: "{{ ext_node_item.size_id }}"
+    image_id: "{{ ext_node_item.image_id }}"
+    wait_timeout: "{{ ext_node_item.wait_timeout }}"
+    monitoring: "{{ ext_node_item.monitoring | default(omit, true) }}"
+    resize_disk: "{{ ext_node_item.resize_disk | default(omit, true) }}"
+    ipv6: "{{ ext_node_item.ipv6 | default(omit, true) }}"
+    private_networking: true
+
+- name: start an instance with a cpu_options
+  community.aws.ec2_instance:
