@@ -50,6 +50,12 @@ schemas:
       ipv6:
         type: "bool"
         description: "when true, enable ipv6 for your droplet"
+      monitoring:
+        type: "bool"
+        description: "when true, indicates whether to install the digital ocean agent for monitoring"
+      resize_disk:
+        type: "bool"
+        description: "when true, increases the disk size (only if the size dictates an increase)"
       tags:
         type: "list"
         elem_type: "str"
