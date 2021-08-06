@@ -39,18 +39,3 @@
     loop_var: ext_node_item
     label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
-
-    name: "{{ ext_node_item.name }}"
-    state: "{{ ext_node_item.state }}"
-    oauth_token: "{{ ext_node_item.oauth_token }}"
-    region_id: "{{ ext_node_item.region_id }}"
-    size_id: "{{ ext_node_item.size_id }}"
-    image_id: "{{ ext_node_item.image_id }}"
-    wait_timeout: "{{ ext_node_item.wait_timeout }}"
-    monitoring: "{{ ext_node_item.monitoring | default(omit, true) }}"
-    resize_disk: "{{ ext_node_item.resize_disk | default(omit, true) }}"
-    ipv6: "{{ ext_node_item.ipv6 | default(omit, true) }}"
-    private_networking: true
-
-- name: start an instance with a cpu_options
-  community.aws.ec2_instance:
