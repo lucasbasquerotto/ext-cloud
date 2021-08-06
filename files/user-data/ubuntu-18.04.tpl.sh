@@ -2,19 +2,21 @@
 set -eEou pipefail
 
 err() {
-    echo "[$(date --utc '+%F %X')] Error occurred:" >> "/var/log/setup.log"
-    echo "Caller: $(caller)" >> "/var/log/setup.log"
+    echo "[$(date --utc '+%F %X')] Error occurred:" 2>&1 >> "/var/log/setup.log"
+    echo "Caller: $(caller)" 2>&1 >> "/var/log/setup.log"
 	awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n", NR, (NR==L ? ">>>" : ""), $0 }' L="$1" "$0" \
 		>> "/var/log/setup.log"
-	echo "Setup Finished - Error" >> "/var/log/setup.log"
+	echo "Setup Finished - Error" 2>&1 >> "/var/log/setup.log"
 }
+
+trap 'err "$LINENO"; exit 3;' ERR
 
 function error {
-	echo -e "[error] $(date '+%F %T') - ${BASH_SOURCE[0]}:${BASH_LINENO[0]}: ${*}" >&2
+	echo -e "[error] $(date '+%F %T') - ${BASH_SOURCE[0]}:${BASH_LINENO[0]}: ${*}" \
+		2>&1 >> "/var/log/setup.log"
+	echo "Setup Finished - Error" 2>&1 >> "/var/log/setup.log"
 	exit 2
 }
-
-trap 'err "$LINENO"; exit $LINENO;' ERR
 
 ########################
 ### SCRIPT VARIABLES ###
@@ -48,13 +50,12 @@ DOCKER_COMPOSE_VERSION="{{ params.docker_compose_version | default('1.27.4', tru
 NODE_EXPORTER_VERSION="{{ params.node_exporter_version | default('1.2.0', true) }}"
 
 EXPECTED_CHECKSUM="{{
-		(params.node_exporter_version | default('') != '')
-		| ternary(
-			params.node_exporter_checksum | default(''),
-			'f7ef26fb10d143dc4211281d7a2e8b13c4fe1bd0d7abbdff6735a6efdb4b5e56'
-		)
-	}}
-"
+	(params.node_exporter_version | default('') != '')
+	| ternary(
+		params.node_exporter_checksum | default(''),
+		'f7ef26fb10d143dc4211281d7a2e8b13c4fe1bd0d7abbdff6735a6efdb4b5e56'
+	)
+}}"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -86,7 +87,7 @@ else
 	passwd --delete "${USERNAME}"
 	echo "$USERNAME:$PASSWORD" | chpasswd
 
-	echo "[$(date --utc '+%F %X')] New password defined for $USERNAME" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] New password defined for $USERNAME" 2>&1 >> "/var/log/setup.log"
 fi
 
 if [ "${encrypted_root_pw}" != "*" ]; then
@@ -137,22 +138,22 @@ TCPKeepAlive yes
 ClientAliveCountMax 10000
 " >> /etc/ssh/sshd_config
 
-echo "[$(date --utc '+%F %X')] Create the user directories" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Create the user directories" 2>&1 >> "/var/log/setup.log"
 
 for dir in "${USER_DIRECTORIES[@]}"; do
-	echo "[$(date --utc '+%F %X')] Create the user directory: $dir" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Create the user directory: $dir" 2>&1 >> "/var/log/setup.log"
 	mkdir -p "$dir"
 	chown "${USERNAME}":"${USERNAME}" "$dir"
 done
 
-echo "[$(date --utc '+%F %X')] Main logic finished" >> "/var/log/setup.log"
+echo "[$(date --utc '+%F %X')] Main logic finished" 2>&1 >> "/var/log/setup.log"
 
 ########################
 ###      DOCKER      ###
 ########################
 
 if [ "$INSTALL_DOCKER" = 'true' ]; then
-	echo "[$(date --utc '+%F %X')] Preparing Docker Installation..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Preparing Docker Installation..." 2>&1 >> "/var/log/setup.log"
 
 	# First, update your existing list of packages
 	apt update
@@ -172,14 +173,14 @@ if [ "$INSTALL_DOCKER" = 'true' ]; then
 	# Finally, install Docker
 	apt install -y docker-ce
 
-	echo "[$(date --utc '+%F %X')] Docker Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Docker Installed" 2>&1 >> "/var/log/setup.log"
 
 	# Install Docker Compose
 	curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
 		-o /usr/local/bin/docker-compose
 	chmod +x /usr/local/bin/docker-compose
 
-	echo "[$(date --utc '+%F %X')] Docker Compose Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Docker Compose Installed" 2>&1 >> "/var/log/setup.log"
 fi
 
 ########################
@@ -187,27 +188,27 @@ fi
 ########################
 
 if [ "$INSTALL_PODMAN" = 'true' ]; then
-	echo "[$(date --utc '+%F %X')] Preparing Podman Installation..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Preparing Podman Installation..." 2>&1 >> "/var/log/setup.log"
 
 	. /etc/os-release
 
-	echo "[$(date --utc '+%F %X')] Environment Loaded for Podman Installation..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Environment Loaded for Podman Installation..." 2>&1 >> "/var/log/setup.log"
 
 	echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" \
 		| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
 	curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key" \
 		| apt-key add -
 
-	echo "[$(date --utc '+%F %X')] Podman repository added (apt)..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Podman repository added (apt)..." 2>&1 >> "/var/log/setup.log"
 
 	apt-get update
 	apt-get -y upgrade
 
-	echo "[$(date --utc '+%F %X')] Packages updated for Podman Installation (apt)..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Packages updated for Podman Installation (apt)..." 2>&1 >> "/var/log/setup.log"
 
 	apt-get -y install podman
 
-	echo "[$(date --utc '+%F %X')] Podman Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Podman Installed" 2>&1 >> "/var/log/setup.log"
 fi
 
 ########################
@@ -215,14 +216,20 @@ fi
 ########################
 
 if [ "$INSTALL_NODE_EXPORTER" = 'true' ]; then
-	mkdir -p /tmp/setup
-	cd /tmp/setup
+	echo "[$(date --utc '+%F %X')] Preparing Node Exporter Installation..." 2>&1 >> "/var/log/setup.log"
+
 	base_url='https://github.com/prometheus/node_exporter/releases/download'
 	name="node_exporter-$NODE_EXPORTER_VERSION.linux-amd64"
-	wget "$base_url/v$NODE_EXPORTER_VERSION/$name.tar.gz"
-	tar xvfz "$name.tar.gz"
 
-	checksum="$(sha256sum "$name.tar.gz")"
+	mkdir -p /tmp/setup
+	cd /tmp/setup
+
+	wget "$base_url/v$NODE_EXPORTER_VERSION/$name.tar.gz" 2>&1 >> "/var/log/setup.log"
+	tar xvfz "$name.tar.gz" 2>&1 >> "/var/log/setup.log"
+
+	echo "[$(date --utc '+%F %X')] Node Exporter Downloaded" 2>&1 >> "/var/log/setup.log"
+
+	checksum="$(sha256sum "$name.tar.gz" | awk '{print $1}')"
 
 	if [ -n "$EXPECTED_CHECKSUM" ] && [ "$checksum" != "$EXPECTED_CHECKSUM" ]; then
 		error "checksum doesn't match (expected: $EXPECTED_CHECKSUM, found: $checksum)"
@@ -249,20 +256,24 @@ if [ "$INSTALL_NODE_EXPORTER" = 'true' ]; then
 		WantedBy=multi-user.target
 	CONF
 
-	systemctl daemon-reload
-	systemctl start node_exporter
-	systemctl enable node_exporter
+	echo "[$(date --utc '+%F %X')] Node Exporter Prepared" 2>&1 >> "/var/log/setup.log"
+
+	systemctl daemon-reload >> "/var/log/setup.log"
+	systemctl start node_exporter >> "/var/log/setup.log"
+	systemctl enable node_exporter >> "/var/log/setup.log"
 
 	if ! systemctl is-active --quiet node_exporter; then
 		error "node_exporter service is not active"
 	fi
+
+	echo "[$(date --utc '+%F %X')] Node Exporter Installed" 2>&1 >> "/var/log/setup.log"
 fi
 ########################
 ###      OTHERS      ###
 ########################
 
 if [ "$INSTALL_PACKAGES" = 'true' ]; then
-	echo "[$(date --utc '+%F %X')] Installing Packages..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Installing Packages..." 2>&1 >> "/var/log/setup.log"
 
 	# First, update your existing list of packages
 	apt update
@@ -270,7 +281,7 @@ if [ "$INSTALL_PACKAGES" = 'true' ]; then
 	# Next, install the packages
 	apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
 
-	echo "[$(date --utc '+%F %X')] Packages Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Packages Installed" 2>&1 >> "/var/log/setup.log"
 fi
 
 ########################
@@ -279,4 +290,4 @@ fi
 
 rm -rf /tmp/setup
 
-echo "Setup Finished - Success" >> "/var/log/setup.log"
+echo "Setup Finished - Success" 2>&1 >> "/var/log/setup.log"
