@@ -10,4 +10,17 @@
   register: ext_storage_data_wrapper
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
-# TODO
+
+- name: "{{ inner_service_title }} - digital ocean storage - execute"
+  community.digitalocean.digital_ocean_block_storage:
+    command: create
+    state: "{{ ext_storage_item.state }}"
+    oauth_token: "{{ ext_storage_item.api_token }}"
+    volume_name: "{{ ext_storage_item.name }}"
+    region: "{{ ext_storage_item.region }}"
+    block_size: "{{ ext_storage_item.block_size }}"
+  loop: "{{ ext_storage_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_storage_item
+    label: "[{{ ext_storage_item.state }}] {{ ext_storage_item.name }}"
+  no_log: "{{ env_no_log }}"

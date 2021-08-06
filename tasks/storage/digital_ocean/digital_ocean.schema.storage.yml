@@ -41,7 +41,6 @@ schemas:
           defaults to true
       region:
         type: "str"
-        non_empty: true
         description: "digital ocean region"
       block_size:
         type: "int"
@@ -50,14 +49,6 @@ schemas:
     type: "dict"
     description: "digital ocean storage parameters list schema"
     props:
-      stack_slug:
-        type: "str"
-        non_empty: true
-        description: >-
-          the slug for the stack to create (used for idempotency);
-          if some data changes, specify another slug (optionally
-          specifying to delete the previous slug after creating the new one);
-          this slug should not be specified in different services
       name:
         type: "str"
         description: "block storage name"
@@ -68,7 +59,6 @@ schemas:
           defaults to true
       region:
         type: "str"
-        non_empty: true
         description: "digital ocean region"
       block_size:
         type: "int"
