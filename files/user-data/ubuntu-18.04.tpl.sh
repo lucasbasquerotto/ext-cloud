@@ -1,5 +1,4 @@
 #!/bin/bash
-#shellcheck disable=SC1073,SC1083,SC1088,SC2129
 set -eEou pipefail
 
 err() {
@@ -10,13 +9,18 @@ err() {
 	echo "Setup Finished - Error" >> "/var/log/setup.log"
 }
 
+function error {
+	echo -e "[error] $(date '+%F %T') - ${BASH_SOURCE[0]}:${BASH_LINENO[0]}: ${*}" >&2
+	exit 2
+}
+
 trap 'err "$LINENO"; exit $LINENO;' ERR
 
 ########################
 ### SCRIPT VARIABLES ###
 ########################
 
-#shellcheck disable=SC1036
+#shellcheck disable=SC1009,SC1072,SC1073,SC1083
 USER_DIRECTORIES=( {{ params.user_directories | default([]) | join(' ') }} )
 
 # Name of the user to create and grant sudo privileges
@@ -37,8 +41,20 @@ SHELL
 
 INSTALL_DOCKER="{{ params.install_docker | default(false) | bool | ternary('true', 'false') }}"
 INSTALL_PODMAN="{{ params.install_podman | default(false) | bool | ternary('true', 'false') }}"
+INSTALL_NODE_EXPORTER="{{ params.install_node_exporter | default(false) | bool | ternary('true', 'false') }}"
 INSTALL_PACKAGES="{{ params.install_packages | default(false) | bool | ternary('true', 'false') }}"
-DOCKER_COMPOSE_VERSION="{{ params.docker_compose_version | default('1.27.4') }}"
+
+DOCKER_COMPOSE_VERSION="{{ params.docker_compose_version | default('1.27.4', true) }}"
+NODE_EXPORTER_VERSION="{{ params.node_exporter_version | default('1.2.0', true) }}"
+
+EXPECTED_CHECKSUM="{{
+		(params.node_exporter_version | default('') != '')
+		| ternary(
+			params.node_exporter_checksum | default(''),
+			'f7ef26fb10d143dc4211281d7a2e8b13c4fe1bd0d7abbdff6735a6efdb4b5e56'
+		)
+	}}
+"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -195,23 +211,72 @@ if [ "$INSTALL_PODMAN" = 'true' ]; then
 fi
 
 ########################
+###  NODE EXPORTER   ###
+########################
+
+if [ "$INSTALL_NODE_EXPORTER" = 'true' ]; then
+	mkdir -p /tmp/setup
+	cd /tmp/setup
+	base_url='https://github.com/prometheus/node_exporter/releases/download'
+	name="node_exporter-$NODE_EXPORTER_VERSION.linux-amd64"
+	wget "$base_url/v$NODE_EXPORTER_VERSION/$name.tar.gz"
+	tar xvfz "$name.tar.gz"
+
+	checksum="$(sha256sum "$name.tar.gz")"
+
+	if [ -n "$EXPECTED_CHECKSUM" ] && [ "$checksum" != "$EXPECTED_CHECKSUM" ]; then
+		error "checksum doesn't match (expected: $EXPECTED_CHECKSUM, found: $checksum)"
+	fi
+
+	useradd --no-create-home --shell /bin/false node_exporter
+
+	cp "$name"/node_exporter /usr/local/bin
+	chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+	cat > /etc/systemd/system/node_exporter.service <<-CONF
+		[Unit]
+		Description=Node Exporter
+		Wants=network-online.target
+		After=network-online.target
+
+		[Service]
+		User=node_exporter
+		Group=node_exporter
+		Type=simple
+		ExecStart=/usr/local/bin/node_exporter
+
+		[Install]
+		WantedBy=multi-user.target
+	CONF
+
+	systemctl daemon-reload
+	systemctl start node_exporter
+	systemctl enable node_exporter
+
+	if ! systemctl is-active --quiet node_exporter; then
+		error "node_exporter service is not active"
+	fi
+fi
+########################
 ###      OTHERS      ###
 ########################
 
 if [ "$INSTALL_PACKAGES" = 'true' ]; then
-echo "[$(date --utc '+%F %X')] Installing Packages..." >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Installing Packages..." >> "/var/log/setup.log"
 
-# First, update your existing list of packages
-apt update
+	# First, update your existing list of packages
+	apt update
 
-# Next, install the packages
-apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
+	# Next, install the packages
+	apt install -y jq gnupg2 pass inotify-tools haveged python3-pip
 
-echo "[$(date --utc '+%F %X')] Packages Installed" >> "/var/log/setup.log"
+	echo "[$(date --utc '+%F %X')] Packages Installed" >> "/var/log/setup.log"
 fi
 
 ########################
 ###       END        ###
 ########################
+
+rm -rf /tmp/setup
 
 echo "Setup Finished - Success" >> "/var/log/setup.log"
