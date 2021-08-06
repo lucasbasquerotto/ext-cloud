@@ -1,120 +1,56 @@
-# Prepare
-
-- name: "{{ inner_service_title }} - node - digital ocean - vars"
-  set_fact:
-    ext_node_title: "{{ inner_service_title }} - node - digital ocean"
-    ext_node_params: "{{ inner_service_params }}"
-    ext_node_credentials: "{{ inner_service_credentials }}"
-    ext_node_contents: "{{ inner_service_contents }}"
-    ext_node_state: "{{ inner_service_state }}"
-    ext_node_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
-    ext_node_tmp_dir: "{{ inner_service_tmp_dir }}"
-    ext_node_result: {}
-  no_log: "{{ env_no_log }}"
-  tags: ["no_print"]
-
-# Node Main Vars
-
-- name: "{{ ext_node_title }} - main vars"
-  set_fact:
-    ext_node_main_credentials: "{{ ext_node_credentials.node | default({}) }}"
-    ext_node_user_data: "{{ ext_node_contents.user_data | default('') }}"
-    ext_node_hosts: []
+- name: "{{ inner_service_title }} - digital ocean node - vars"
+  lrd.ext_cloud.vars:
+    identifier: "digital_ocean_node"
+    raw_data:
+      namespace: "ext_node"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_node_data_wrapper
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Main
 
-- name: "{{ ext_node_title }} - volumes (create)"
-  digital_ocean_block_storage:
+- name: "{{ inner_service_title }} - digital ocean node - volumes (create)"
+  community.digitalocean.digital_ocean_block_storage:
     command: create
-    state: "{{ ext_node_volume_state }}"
-    volume_name: "{{ ext_node_volume.name | default(ext_node_volume_name, true) }}"
-    region: "{{ ext_node_params.region_id }}"
-    block_size: "{{ ext_node_volume.block_size }}"
-  vars:
-    ext_node_replica: "{{ ext_node_item[0] }}"
-    ext_node_volume: "{{ ext_node_item[1] }}"
-    ext_node_item_state: >-
-      {{
-        ext_node_item.absent
-        | default(false)
-        | ternary('absent', ext_node_state)
-      }}
-    ext_node_volume_state: "{{ ext_node_volume.state | default(ext_node_item_state, true) }}"
-    ext_node_volume_name: >-
-      {{ ext_node_volume.prefix | default('')
-      }}{{ ext_node_replica.name
-      }}{{ ext_node_volume.suffix | default('') }}
-  when: ext_node_volume_state == 'present'
-  loop: "{{ ext_node_params.replicas | product(ext_node_params.volumes_to_create | default([])) }}"
+    state: "{{ ext_node_item.state }}"
+    oauth_token: "{{ ext_node_item.oauth_token }}"
+    volume_name: "{{ ext_node_item.name }}"
+    region: "{{ ext_node_item.region }}"
+    block_size: "{{ ext_node_item.block_size }}"
+  loop: "{{ ext_node_data_wrapper.data.volumes_to_create }}"
   loop_control:
     loop_var: ext_node_item
-    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
-  register: ext_node_details
+    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
 
-- name: "{{ ext_node_title }} - droplets"
-  digital_ocean_droplet:
+- name: "{{ inner_service_title }} - digital ocean node - droplets"
+  community.digitalocean.digital_ocean_droplet:
     unique_name: true
-    name: "{{ ext_node_item_name }}"
-    state: "{{ ext_node_item_state }}"
-    oauth_token: "{{ ext_node_main_credentials.api_token }}"
-    region_id: "{{ ext_node_params.region_id }}"
-    size_id: "{{ ext_node_params.size_id }}"
-    image_id: "{{ ext_node_params.image_id }}"
-    wait_timeout: "{{ ext_node_params.wait_timeout | default(300, true) }}"
+    name: "{{ ext_node_item.name }}"
+    state: "{{ ext_node_item.state }}"
+    oauth_token: "{{ ext_node_item.oauth_token }}"
+    region_id: "{{ ext_node_item.region_id }}"
+    size_id: "{{ ext_node_item.size_id }}"
+    image_id: "{{ ext_node_item.image_id }}"
+    wait_timeout: "{{ ext_node_item.wait_timeout }}"
+    monitoring: "{{ ext_node_item.monitoring | default(omit, true) }}"
+    resize_disk: "{{ ext_node_item.resize_disk | default(omit, true) }}"
+    ipv6: "{{ ext_node_item.ipv6 | default(omit, true) }}"
+    user_data: "{{ ext_node_item.user_data | default(omit, true) }}"
     private_networking: true
-    monitoring: "{{ ext_node_params.monitoring | default(omit, true) }}"
-    resize_disk: "{{ ext_node_params.resize_disk | default(omit, true) }}"
-    ipv6: "{{ ext_node_params.ipv6 | default(omit, true) }}"
-    user_data: "{{ ext_node_user_data | default(omit, true) }}"
-  vars:
-    ext_node_item_name: "{{ ext_node_item.name }}"
-    ext_node_item_state: >-
-      {{
-        ext_node_item.absent
-        | default(false)
-        | ternary('absent', ext_node_state)
-      }}
-  loop: "{{ ext_node_params.replicas }}"
+  loop: "{{ ext_node_data_wrapper.data.droplets }}"
   loop_control:
     loop_var: ext_node_item
-    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
+    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
   register: ext_node_details
   no_log: "{{ env_no_log }}"
 
-- name: "{{ ext_node_title }} - volumes (destroy)"
-  digital_ocean_block_storage:
-    command: create
-    state: "{{ ext_node_volume_state }}"
-    volume_name: "{{ ext_node_volume.name | default(ext_node_volume_name, true) }}"
-    region: "{{ ext_node_params.region_id }}"
-    block_size: "{{ ext_node_volume.block_size }}"
-  vars:
-    ext_node_replica: "{{ ext_node_item[0] }}"
-    ext_node_volume: "{{ ext_node_item[1] }}"
-    ext_node_item_state: >-
-      {{
-        ext_node_item.absent
-        | default(false)
-        | ternary('absent', ext_node_state)
-      }}
-    ext_node_volume_state: "{{ ext_node_volume.state | default(ext_node_item_state, true) }}"
-    ext_node_volume_name: >-
-      {{ ext_node_volume.prefix | default('')
-      }}{{ ext_node_replica.name
-      }}{{ ext_node_volume.suffix | default('') }}
-  when: ext_node_volume_state == 'absent'
-  loop: "{{ ext_node_params.replicas | product(ext_node_params.volumes_to_create | default([])) }}"
-  loop_control:
-    loop_var: ext_node_item
-    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
-  register: ext_node_details
-  no_log: "{{ env_no_log }}"
-
-- name: "{{ ext_node_title }} - tag the droplets"
-  digital_ocean_tag:
+- name: "{{ inner_service_title }} - digital ocean node - tag the droplets"
+  community.digitalocean.digital_ocean_tag:
     api_token: "{{ ext_node_main_credentials.api_token }}"
     resource_id: "{{ ext_node_droplet.id }}"
     name: "{{ ext_node_tag }}"
@@ -123,13 +59,6 @@
     ext_node_item: "{{ ext_node_item_data.0.ext_node_item }}"
     ext_node_droplet: "{{ ext_node_item_data.0.data.droplet }}"
     ext_node_tag: "{{ ext_node_item_data.1 }}"
-    ext_node_item_name: "{{ ext_node_item.name }}"
-    ext_node_item_state: >-
-      {{
-        ext_node_item.absent
-        | default(false)
-        | ternary('absent', ext_node_state)
-      }}
   loop: >-
     {{
       (ext_node_details.results | default([]))
@@ -138,27 +67,34 @@
     }}
   loop_control:
     loop_var: ext_node_item_data
-    label: "{{ ext_node_item_name }} - {{ ext_node_tag }}"
-  when: ext_node_item_state == 'present'
+    label: "{{ ext_node_item.name }} - {{ ext_node_tag }}"
+  when: ext_node_item.state == 'present'
   no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]
 
-- name: "{{ ext_node_item_title }} - set result (tmp)"
+- name: "{{ inner_service_title }} - digital ocean node - volumes (destroy)"
+  community.digitalocean.digital_ocean_block_storage:
+    command: create
+    state: "{{ ext_node_item.state }}"
+    oauth_token: "{{ ext_node_item.oauth_token }}"
+    volume_name: "{{ ext_node_item.name }}"
+    region: "{{ ext_node_item.region }}"
+    block_size: "{{ ext_node_item.block_size }}"
+  loop: "{{ ext_node_data_wrapper.data.volumes_to_destroy }}"
+  loop_control:
+    loop_var: ext_node_item
+    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - digital ocean node - set hosts"
   set_fact:
     ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
   vars:
     ext_node_item: "{{ ext_node_item_data.ext_node_item | default({}) }}"
     ext_node_droplet: "{{ ext_node_item_data.data.droplet | default({}) }}"
-    ext_node_item_name: "{{ ext_node_item.name | default('') }}"
-    ext_node_item_state: >-
-      {{
-        ext_node_item.absent
-        | default(false)
-        | ternary('absent', ext_node_state)
-      }}
     ext_node_item_result:
-      name: "{{ ext_node_item_name }}"
-      state: "{{ ext_node_item_state }}"
+      name: "{{ ext_node_item.name }}"
+      state: "{{ ext_node_item.state }}"
       private_ip: >-
         {{
           ext_node_droplet.networks.v4
@@ -189,21 +125,15 @@
   loop: "{{ ext_node_details.results | default([]) }}"
   loop_control:
     loop_var: ext_node_item_data
-    label: "{{ ext_node_item_name }} ({{ ext_node_item_state }})"
-  no_log: "{{ env_no_log }}"
-  tags: ["no_print"]
-
-- name: "{{ ext_node_title }} - set result (tmp)"
-  set_fact:
-    ext_node_result:
-      hosts: "{{ ext_node_hosts }}"
+    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 # Set Result
 
-- name: "{{ ext_node_title }} - set result"
+- name: "{{ inner_service_title }} - digital ocean node - set result"
   set_fact:
-    cloud_service_result: "{{ ext_node_result }}"
+    cloud_service_result:
+      hosts: "{{ ext_node_hosts }}"
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]

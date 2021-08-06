@@ -26,7 +26,6 @@
     ext_dns_state: "{{ inner_service_state }}"
     ext_dns_base_dir_prefix: "{{ inner_service_base_dir_prefix }}"
     ext_dns_tmp_dir: "{{ inner_service_tmp_dir }}"
-    ext_dns_result: {}
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
@@ -79,11 +78,3 @@
     weight: "{{ ext_dns_weight | default(omit, true) }}"
     state: "{{ ext_dns_state }}"
   no_log: "{{ env_no_log }}"
-
-# Set Result
-
-- name: "{{ ext_dns_title }} - set result"
-  set_fact:
-    cloud_service_result: "{{ ext_dns_result }}"
-  no_log: "{{ env_no_log }}"
-  tags: ["no_print"]

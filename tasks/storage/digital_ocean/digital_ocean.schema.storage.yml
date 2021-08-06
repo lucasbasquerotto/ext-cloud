@@ -1,0 +1,91 @@
+root: "storage_schema"
+schemas:
+  storage_schema:
+    type: "dict"
+    description: "schema for the digital ocean storage task"
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_storage"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "parameters for the digital ocean storage task"
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "credentials for the digital ocean storage task"
+      contents:
+        schema: "contents"
+        description: "contents for the digital ocean storage task"
+  params:
+    type: "dict"
+    description: "parameters schema for the storage task"
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          list of records to be created/destroyed; used when defined, instead of considering
+          the parameters as only one definition; instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter; when not defined, will use
+          the outer parameters as one single list item
+      name:
+        type: "str"
+        description: "block storage name"
+      when:
+        type: "bool"
+        description: >-
+          when false, the block storage is ignored (won't be created or destroyed);
+          defaults to true
+      region:
+        type: "str"
+        non_empty: true
+        description: "digital ocean region"
+      block_size:
+        type: "int"
+        description: "block storage size (in gb)"
+  list_item_params:
+    type: "dict"
+    description: "digital ocean storage parameters list schema"
+    props:
+      stack_slug:
+        type: "str"
+        non_empty: true
+        description: >-
+          the slug for the stack to create (used for idempotency);
+          if some data changes, specify another slug (optionally
+          specifying to delete the previous slug after creating the new one);
+          this slug should not be specified in different services
+      name:
+        type: "str"
+        description: "block storage name"
+      when:
+        type: "bool"
+        description: >-
+          when false, the block storage is ignored (won't be created or destroyed);
+          defaults to true
+      region:
+        type: "str"
+        non_empty: true
+        description: "digital ocean region"
+      block_size:
+        type: "int"
+        description: "block storage size (in gb)"
+  credentials:
+    type: "dict"
+    description: "credentials schema for the storage task"
+    props:
+      storage:
+        schema: "digital_ocean_credentials"
+        non_empty: true
+        description: "storage main credentials"
+  digital_ocean_credentials:
+    type: "dict"
+    description: "storage main credentials schema"
+    props:
+      api_token:
+        type: "str"
+        non_empty: true
+        description: "digital ocean api token"

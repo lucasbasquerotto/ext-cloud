@@ -1,9 +1,9 @@
-- name: "{{ validator_title }} - digital ocean node - validate"
+- name: "{{ validator_title }} - digital ocean storage - validate"
   lrd.ext_cloud.vars:
-    identifier: "digital_ocean_node"
+    identifier: "digital_ocean_storage"
     raw_data:
       state: "present"
-      namespace: "ext_node"
+      namespace: "ext_storage"
       params: "{{ validator_item.data.params | default({}) }}"
       credentials: "{{ validator_item.data.credentials | default({}) }}"
       contents: "{{ validator_item.data.contents | default({}) }}"

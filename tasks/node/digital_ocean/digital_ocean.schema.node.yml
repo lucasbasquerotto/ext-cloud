@@ -32,6 +32,14 @@ schemas:
         elem_schema: "replica"
         required: true
         description: "node replicas (hosts) that will be created/destroyed"
+      replica_volumes:
+        type: "list"
+        elem_schema: "replica_volume"
+        description: "node replicas volumes that will be created/destroyed and attached to the droplet"
+      volumes_to_attach:
+        type: "list"
+        elem_type: "str"
+        description: "volume names (previously created) to be attached to the droplet"
       region_id:
         type: "str"
         non_empty: true
@@ -74,6 +82,33 @@ schemas:
         description: >-
           when true, the host will be destroyed
           (will force state=absent for the replica)
+  replica_volume:
+    type: "dict"
+    description: "node replica volume schema for the node task"
+    props:
+      prefix:
+        type: "str"
+        description: >-
+          prefix used to be included in the volume name; the volume name will follow the format
+          '<prefix><replica_name><suffix>'; defaults to an empty string
+      suffix:
+        type: "str"
+        description: >-
+          suffix used to be included in the volume name; the volume name will follow the format
+          '<prefix><replica_name><suffix>'; defaults to an empty string
+      when:
+        type: "bool"
+        description: >-
+          when false, the block storage is ignored (won't be created or destroyed);
+          defaults to true
+      can_destroy:
+        type: "bool"
+        description: >-
+          when true, the block storage is destroyed when the replica is destroyed;
+          defaults to false
+      block_size:
+        type: "int"
+        description: "block storage size (in gb)"
   credentials:
     type: "dict"
     description: "credentials schema for the node task"
