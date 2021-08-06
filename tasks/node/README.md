@@ -10,9 +10,11 @@ Each host/replica name is in the form `<node_name>-host-<replica_index>`, with `
 
 ## Digital Ocean
 
-- **Task:** [digital_ocean.main.node.yml](digital_ocean.main.node.yml)
+- **Task:** [digital_ocean.main.node.yml](digital_ocean/digital_ocean.main.node.yml)
 
-- **Schema:** [digital_ocean.schema.node.yml](digital_ocean.schema.node.yml)
+- **Schema:** [digital_ocean.schema.node.yml](digital_ocean/digital_ocean.schema.node.yml)
+
+- **Validator:** [digital_ocean.validator.node.yml](digital_ocean/digital_ocean.validator.node.yml)
 
 This task creates droplets at Digital Ocean. It's possible to assign tags to the droplets so as to provide a VPN-like behaviour (if there are firewalls associated with those tags).
 
@@ -53,13 +55,15 @@ services:
     namespace: "ext_node"
     task: "tasks/node/digital_ocean.main.node.yml"
     schema: "tasks/node/digital_ocean.schema.node.yml"
+    validator: "tasks/node/digital_ocean.validator.node.yml"
     credentials:
       node: "digital_ocean"
     params:
       image_id: "ubuntu-18-04-x64"
-      ipv6: true
       region_id: "ams3"
       size_id: "s-1vcpu-1gb"
+      ipv6: true
+      monitoring: true
       tags:
         - "auto"
         - "dmz"
@@ -93,4 +97,4 @@ The above example will create the following Digital Ocean Droplets (Hosts):
 
 Each droplet (host) will be created in the Digital Ocean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with size `s-1vcpu-1gb` (1 cpu and memory of 1 GB) and will have the following tags: `auto` and `dmz`.
 
-After creating the droplet, the instructions defined at the [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being templated with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `node_setup` parameters defined for the node).
+After creating the droplet, the instructions defined at the template [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being filled with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `node_setup` parameters defined for the node).

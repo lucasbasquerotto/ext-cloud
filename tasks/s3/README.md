@@ -4,6 +4,8 @@
 
 - **Schema:** [schema.s3.yml](schema.s3.yml)
 
+- **Validator:** [validator.s3.yml](validator.s3.yml)
+
 This task can be used to create and destroy S3 buckets in a given endpoint. The buckets permissions can be specified as well. Take a look at the schema file to know which parameters this task expects, as well as what each parameter represents. The `namespace` of this service task is `ext_s3`.
 
 _Example #1:_
@@ -15,6 +17,7 @@ services:
     namespace: "ext_s3"
     task: "tasks/s3/aws.main.s3.yml"
     schema: "tasks/s3/schema.s3.yml"
+    validator: "tasks/s3/validator.s3.yml"
     credentials:
       s3: "s3"
     params:
@@ -51,6 +54,7 @@ services:
     namespace: "ext_s3"
     task: "tasks/s3/aws.main.s3.yml"
     schema: "tasks/s3/schema.s3.yml"
+    validator: "tasks/s3/validator.s3.yml"
     credentials:
       s3: "s3"
 credentials:

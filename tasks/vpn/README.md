@@ -4,9 +4,11 @@ The tasks defined here manage VPNs or provide a VPN-like functionality. Take a l
 
 ## Digital Ocean
 
-- **Task:** [digital_ocean.main.vpn.yml](digital_ocean.main.vpn.yml)
+- **Task:** [digital_ocean.main.vpn.yml](digital_ocean/digital_ocean.main.vpn.yml)
 
-- **Schema:** [digital_ocean.schema.vpn.yml](digital_ocean.schema.vpn.yml)
+- **Schema:** [digital_ocean.schema.vpn.yml](digital_ocean/digital_ocean.schema.vpn.yml)
+
+- **Validator:** [digital_ocean.validator.vpn.yml](digital_ocean/digital_ocean.validator.vpn.yml)
 
 This task creates tags and firewalls at Digital Ocean so as to provide a VPN-like behaviour. It's possible to create firewalls that restrict ports and IPs, and associate them to tags so that resources (like droplets) with those tags will be restricted by the created firewalls.
 
@@ -19,6 +21,7 @@ services:
     namespace: "ext_vpn"
     task: "tasks/vpn/digital_ocean.main.vpn.yml"
     schema: "tasks/vpn/digital_ocean.schema.vpn.yml"
+    validator: "tasks/vpn/digital_ocean.validator.vpn.yml"
     credentials:
       vpn: "digital_ocean"
     params:

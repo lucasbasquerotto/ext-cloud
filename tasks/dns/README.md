@@ -4,9 +4,11 @@ The tasks defined here manage DNS records, creating and destroying the records i
 
 ## CloudFlare
 
-- **Task:** [cloudflare.main.dns.yml](cloudflare.main.dns.yml)
+- **Task:** [cloudflare.main.dns.yml](cloudflare/cloudflare.main.dns.yml)
 
-- **Schema:** [cloudflare.schema.dns.yml](cloudflare.schema.dns.yml)
+- **Schema:** [cloudflare.schema.dns.yml](cloudflare/cloudflare.schema.dns.yml)
+
+- **Validator:** [cloudflare.validator.dns.yml](cloudflare/cloudflare.validator.dns.yml)
 
 _Example:_
 
@@ -44,6 +46,7 @@ services:
     namespace: "ext_dns"
     task: "tasks/dns/cloudflare.main.dns.yml"
     schema: "tasks/dns/cloudflare.schema.dns.yml"
+    validator: "tasks/dns/cloudflare.validator.dns.yml"
     credentials:
       dns: "cloudflare"
     params:
@@ -63,9 +66,11 @@ The service `service_dns` above will call `service_dns_item` 4 times to create t
 
 ## Godaddy
 
-- **Task:** [godaddy.main.dns.yml](godaddy.main.dns.yml)
+- **Task:** [godaddy.main.dns.yml](godaddy/godaddy.main.dns.yml)
 
-- **Schema:** [godaddy.schema.dns.yml](godaddy.schema.dns.yml)
+- **Schema:** [godaddy.schema.dns.yml](godaddy/godaddy.schema.dns.yml)
+
+- **Validator:** [godaddy.validator.dns.yml](godaddy/godaddy.validator.dns.yml)
 
 _Example:_
 
@@ -76,6 +81,7 @@ services:
     namespace: "ext_dns"
     task: "tasks/dns/godaddy.main.dns.yml"
     schema: "tasks/dns/godaddy.schema.dns.yml"
+    validator: "tasks/dns/godaddy.validator.dns.yml"
     credentials:
       dns: "godaddy"
     params:
