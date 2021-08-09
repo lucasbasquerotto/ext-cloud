@@ -20,11 +20,13 @@ import traceback
 
 def prepare_default_data(data_info):
   expected_namespace = data_info.get('expected_namespace')
+  list_name = data_info.get('list_name')
   raw_data = data_info.get('raw_data')
   params_keys = data_info.get('params_keys')
 
   return prepare_general_data(
       expected_namespace=expected_namespace,
+      list_name=list_name,
       raw_data=raw_data,
       item_keys=params_keys,
       fn_prepare_item=lambda p: prepare_default_item(
@@ -38,11 +40,12 @@ def prepare_default_item(data_info, item_params):
   error_msgs = list()
   result = dict()
 
-  raw_data = data_info.get('raw_data')
-  params_keys = data_info.get('params_keys')
-  credentials_keys = data_info.get('credentials_keys')
+  raw_data = data_info.get('raw_data', {})
+  params_keys = data_info.get('params_keys', {})
+  credentials_keys = data_info.get('credentials_keys', {})
+  contents_keys = data_info.get('contents_keys', {})
   default_credential_name = data_info.get('default_credential_name')
-  required_keys_info = data_info.get('required_keys_info')
+  required_keys_info = data_info.get('required_keys_info', {})
   fn_finalize_item = data_info.get('fn_finalize_item')
 
   state = raw_data.get('state')
@@ -57,9 +60,13 @@ def prepare_default_item(data_info, item_params):
   error_msgs += (info.get('error_msgs') or [])
 
   if not error_msgs:
+    item_contents = item_data.get('contents')
     item_credentials = item_data.get('credentials')
 
     result['state'] = state
+
+    for key in contents_keys:
+      result[key] = item_contents.get(key)
 
     for key in credentials_keys:
       result[key] = item_credentials.get(key)
@@ -80,13 +87,18 @@ def prepare_general_data(raw_data, expected_namespace, item_keys, fn_prepare_ite
 
   try:
     namespace = raw_data.get('namespace')
+    list_name = raw_data.get('list_name', 'list')
     params = raw_data.get('params')
 
     if expected_namespace:
       info = validate_namespace(namespace, expected_namespace)
       error_msgs += (info.get('error_msgs') or list())
 
-    list_params = generate_list_params(params, item_keys)
+    list_params = generate_list_params(
+        params=params,
+        keys=item_keys,
+        list_name=list_name
+    )
 
     prepared_list_params = list()
 
@@ -149,8 +161,9 @@ def validate_namespace(namespace, expected_namespace):
     return dict(error_msgs=error_msgs)
 
 
-def generate_list_params(params, keys):
-  raw_list_params = params.get('list')
+def generate_list_params(params, keys, list_name):
+  raw_list_params = params.get(list_name)
+
   raw_list_params = (
       raw_list_params
       if (raw_list_params is not None)

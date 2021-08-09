@@ -54,7 +54,7 @@ schemas:
         description: "node digital ocean image id"
       wait_timeout:
         type: "int"
-        description: "how long before wait gives up, in seconds"
+        description: "how long to wait (in seconds) for the instance to finish booting/terminating"
       ipv6:
         type: "bool"
         description: "when true, enable ipv6 for your droplet"

@@ -1,0 +1,10 @@
+- name: "{{ validator_title }} - aws node - validate"
+  lrd.ext_cloud.vars:
+    identifier: "aws_node"
+    raw_data:
+      state: "present"
+      namespace: "ext_node"
+      params: "{{ validator_item.data.params | default({}) }}"
+      credentials: "{{ validator_item.data.credentials | default({}) }}"
+      contents: "{{ validator_item.data.contents | default({}) }}"
+  no_log: "{{ env_no_log }}"

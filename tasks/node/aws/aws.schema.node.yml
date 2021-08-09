@@ -1,0 +1,229 @@
+root: "node_schema"
+schemas:
+  node_schema:
+    type: "dict"
+    description: "schema for the aws node task"
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_node"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "parameters for the aws node task"
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "credentials for the aws node task"
+      contents:
+        schema: "contents"
+        description: "contents for the aws node task"
+  params:
+    type: "dict"
+    description: "parameters schema for the node task"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "base name for the hosts (equal to the first replica name)"
+      replicas:
+        type: "list"
+        elem_schema: "replica"
+        required: true
+        description: "node replicas (hosts) that will be created/destroyed"
+      volumes:
+        type: "list"
+        elem_schema: "volume"
+        description: "node replicas volumes that will be created/destroyed and attached to the instance"
+      detailed_monitoring:
+        type: "bool"
+        description: >-
+          whether to allow detailed cloudwatch metrics to be collected, enabling more detailed alerting
+      ebs_optimized:
+        type: "bool"
+        description: "whether the instance should use optimized ebs volumes"
+      region:
+        type: "str"
+        non_empty: true
+        description: "the aws region to use"
+      image_id:
+        type: "str"
+        non_empty: true
+        description: "node aws image id"
+      instance_type:
+        type: "str"
+        non_empty: true
+        description: "aws instance type"
+      instance_initiated_shutdown_behavior:
+        type: "str"
+        description: "whether to stop or terminate an instance upon shutdown"
+        choices: ["stop", "terminate"]
+      network:
+        type: "dict"
+        description: "specifications for a network interface"
+      security_groups:
+        type: "list"
+        elem_type: "str"
+        description: "a list of security group ids or names"
+      state:
+        type: "str"
+        choices:
+          - "present"
+          - "terminated"
+          - "running"
+          - "started"
+          - "stopped"
+          - "restarted"
+          - "rebooted"
+          - "absent"
+        description: "goal state for the instances"
+      tags:
+        type: "map"
+        elem_type: "str"
+        description: >-
+          a hash/dictionary of tags to add to the new instance or to add/remove from an existing one
+      termination_protection:
+        type: "bool"
+        description: >-
+          whether to enable termination protection; this service will not terminate an instance with
+          termination protection active, it must be turned off first
+      purge_tags:
+        type: "bool"
+        description: >-
+          delete any tags not specified in the task that are on the instance;
+          this means you have to specify all the desired tags on each task affecting
+          an instance; defualts to false
+      vpc_subnet_id:
+        type: "str"
+        description: >-
+          the subnet id in which to launch the instance (vpc); if none is provided,
+          it will chose the default zone of the default vpc
+      wait_timeout:
+        type: "int"
+        description: "how long to wait (in seconds) for the instance to finish booting/terminating"
+  replica:
+    type: "dict"
+    description: "node replica schema for the node task"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "node replica (host) name (must be unique among all replicas)"
+      absent:
+        type: "bool"
+        description: >-
+          when true, the host will be destroyed
+          (will force state=absent for the replica)
+  cpu_options:
+    type: "dict"
+    description: "ebs volume options schema for the node task"
+    props:
+      core_count:
+        type: "int"
+        non_empty: true
+        description: "number of cores to enable"
+      threads_per_core:
+        type: "int"
+        non_empty: true
+        description: "number of threads per core"
+  network:
+    type: "dict"
+    description: "specifications schema for a network interface"
+    props:
+      assign_public_ip:
+        type: "bool"
+        description: "when true, assigns a public IP address to the interface"
+      delete_on_termination:
+        type: "bool"
+        description: "delete the interface when the instance it is attached to is terminated"
+      description:
+        type: "str"
+        description: "a description for the network interface"
+      device_index:
+        type: "int"
+        description: "the index of the interface to modify"
+      groups:
+        type: "list"
+        elem_type: "str"
+        description: "a list of security group IDs to attach to the interface"
+      interfaces:
+        type: "list"
+        elem_type: "str"
+        description: "a list of eni ids"
+      ipv6_addresses:
+        type: "list"
+        elem_type: "str"
+        description: "a list of ipv6 addresses to assign to the network interface"
+      private_ip_address:
+        type: "str"
+        description: "an ipv4 address to assign to the interface"
+      private_ip_address:
+        type: "list"
+        elem_type: "str"
+        description: "a list of ipv4 addresses to assign to the network interface"
+      source_dest_check:
+        type: "bool"
+        description: "controls whether source/destination checking is enabled on the interface"
+      subnet_id:
+        type: "bool"
+        description: "the subnet to connect the network interface to"
+  volume:
+    type: "dict"
+    description: "node replica volume schema for the node task"
+    props:
+      device_name:
+        type: "str"
+        description: "name of the device"
+      virtual_name:
+        type: "str"
+        description: "virtual name of the device"
+      ebs:
+        schema: "ebs_options"
+        description: "ebs options"
+  ebs_options:
+    type: "dict"
+    description: "ebs volume options schema for the node task"
+    props:
+      volume_type:
+        type: "str"
+        description: "ebs volume type"
+      volume_size:
+        type: "int"
+        description: "ebs volume size (gb)"
+      kms_key_id:
+        type: "str"
+        description: "ebs kms key id"
+      iops:
+        type: "int"
+        description: "ebs iops"
+      delete_on_termination:
+        type: "bool"
+        description: "when true, the ebs volume will be deleted when the droplet is terminated"
+  credentials:
+    type: "dict"
+    description: "credentials schema for the node task"
+    props:
+      node:
+        schema: "aws_credentials"
+        non_empty: true
+        description: "node main credentials"
+  aws_credentials:
+    type: "dict"
+    description: "node main credentials schema"
+    props:
+      access_key:
+        type: "str"
+        non_empty: true
+        description: "aws access key"
+      secret_key:
+        type: "str"
+        non_empty: true
+        description: "aws secret key"
+  contents:
+    type: "dict"
+    description: "contents schema for the node task"
+    props:
+      user_data:
+        type: "str"
+        description: "schema for the user data content that will run when creating the host"
