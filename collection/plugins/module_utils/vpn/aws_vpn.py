@@ -18,22 +18,13 @@ __metaclass__ = type  # pylint: disable=invalid-name
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
-    'availability_zone',
-    'cpu_options',
-    'detailed_monitoring',
-    'ebs_optimized',
-    'image_id',
-    'instance_type',
-    'name',
-    'network',
-    'region',
-    'replicas',
-    'security_groups',
-    'instance_initiated_shutdown_behavior',
-    'termination_protection',
-    'volumes',
-    'vpc_subnet_id',
-    'wait_timeout',
+    "name",
+    "region",
+    "description",
+    "vpc_id",
+    "tags",
+    "rules",
+    "rules_egress",
 ]
 
 credentials_keys = [
@@ -46,29 +37,19 @@ contents_keys = ['user_data']
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['region', 'instance_type'],
+      params=['name', 'region'],
   )
 
   data_info = dict(
-      expected_namespace='ext_node',
-      list_name='replicas',
+      expected_namespace='ext_vpn',
+      list_name='security_groups',
       raw_data=raw_data,
       params_keys=params_keys,
       credentials_keys=credentials_keys,
       contents_keys=contents_keys,
-      default_credential_name='node',
+      default_credential_name='vpn',
       required_keys_info=required_keys_info,
-      fn_finalize_item=lambda item: finalize_item(item),
+      fn_finalize_item=None,
   )
 
   return prepare_default_data(data_info)
-
-
-def finalize_item(item):
-  if not item.get('volumes'):
-    item['volumes'] = [dict(
-        device_name='/dev/sda1',
-        ebs=dict(delete_on_termination=False),
-    )]
-
-  return dict(result=item)

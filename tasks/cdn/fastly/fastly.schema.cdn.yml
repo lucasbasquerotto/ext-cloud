@@ -96,6 +96,9 @@ schemas:
     type: "dict"
     description: "fastly cdn parameters list schema"
     props:
+      when:
+        type: "bool"
+        description: "when false, ignores the item; defaults to true"
       name:
         type: "str"
         non_empty: true

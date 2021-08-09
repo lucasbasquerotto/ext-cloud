@@ -87,12 +87,6 @@ schemas:
         description: >-
           whether to enable termination protection; this service will not terminate an instance with
           termination protection active, it must be turned off first
-      purge_tags:
-        type: "bool"
-        description: >-
-          delete any tags not specified in the task that are on the instance;
-          this means you have to specify all the desired tags on each task affecting
-          an instance; defualts to false
       vpc_subnet_id:
         type: "str"
         description: >-

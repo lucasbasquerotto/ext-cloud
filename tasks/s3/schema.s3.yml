@@ -43,6 +43,9 @@ schemas:
     type: "dict"
     description: "parameters schema for the s3 task params list items"
     props:
+      when:
+        type: "bool"
+        description: "when false, ignores the item; defaults to true"
       bucket:
         type: "str"
         description: "s3 bucket name"

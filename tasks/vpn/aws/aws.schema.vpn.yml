@@ -1,0 +1,162 @@
+root: "vpn_schema"
+schemas:
+  vpn_schema:
+    type: "dict"
+    description: "schema for the aws vpn task"
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_vpn"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "parameters for the aws vpn task"
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "credentials for the aws vpn task"
+      contents:
+        schema: "contents"
+        description: "contents for the aws vpn task"
+  params:
+    type: "dict"
+    description: "parameters schema for the vpn task"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "base name for the hosts (equal to the first replica name)"
+      security_groups:
+        type: "list"
+        elem_schema: "security_group"
+        required: true
+        description: "create/delete an aws security group"
+  security_group:
+    type: "dict"
+    description: "security group schema"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "security group name"
+      region:
+        type: "str"
+        non_empty: true
+        description: "security group region"
+      description:
+        type: "str"
+        description: "security group description"
+      vpc_id:
+        type: "str"
+        description: "id of the vpc to create the group in"
+      tags:
+        type: "map"
+        elem_type: "str"
+        description: "a dictionary of one or more tags to assign to the security group"
+      rules:
+        type: "list"
+        elem_type: "security_group_inbound_rule"
+        required: true
+        description: "security group with inbound rules"
+      rules_egress:
+        type: "list"
+        elem_type: "security_group_outbound_rule"
+        required: true
+        description: "security group with outbound rules"
+  security_group_inbound_rule:
+    type: "dict"
+    description: "security group rule schema"
+    props:
+      cidr_ip:
+        type: "simple_list"
+        elem_type: "str"
+        description: "the ipv4 cidr (or a list) range traffic is coming from"
+      cidr_ipv6:
+        type: "simple_list"
+        elem_type: "str"
+        description: "the ipv6 cidr (or a list) range traffic is coming from"
+      from_port:
+        type: "int"
+        description: >-
+          the start of the range of ports that traffic is coming from;
+          a value of -1 indicates all ports
+      ip_prefix:
+        type: "str"
+        description: "the ip prefix that traffic is coming from"
+      ports:
+        type: "simple_list"
+        elem_type: "primitive"
+        description: >-
+          accepts a single port value or a list of values including ranges
+          (from_port-to_port) that traffic is coming from
+      proto:
+        type: "str"
+        choices: ["tcp", "udp", "icmp", "icmpv6"]
+        description: "the ip protocol name"
+      rule_desc:
+        type: "str"
+        description: "a description for the rule"
+      to_port:
+        type: "int"
+        description: >-
+          the end of the range of ports that traffic is coming from;
+          a value of -1 indicates all ports
+  security_group_outbound_rule:
+    type: "dict"
+    description: "security group rule schema"
+    props:
+      cidr_ip:
+        type: "simple_list"
+        elem_type: "str"
+        description: "the ipv4 cidr (or a list) range traffic is going to"
+      cidr_ipv6:
+        type: "simple_list"
+        elem_type: "str"
+        description: "the ipv6 cidr (or a list) range traffic is going to"
+      from_port:
+        type: "int"
+        description: >-
+          the start of the range of ports that traffic is going to;
+          a value of -1 indicates all ports
+      ip_prefix:
+        type: "str"
+        description: "the ip prefix that traffic is going to"
+      ports:
+        type: "simple_list"
+        elem_type: "primitive"
+        description: >-
+          accepts a single port value or a list of values including ranges
+          (from_port-to_port) that traffic is going to
+      proto:
+        type: "str"
+        choices: ["tcp", "udp", "icmp", "icmpv6"]
+        description: "the ip protocol name"
+      rule_desc:
+        type: "str"
+        description: "a description for the rule"
+      to_port:
+        type: "int"
+        description: >-
+          the end of the range of ports that traffic is going to;
+          a value of -1 indicates all ports
+  credentials:
+    type: "dict"
+    description: "credentials schema for the vpn task"
+    props:
+      vpn:
+        schema: "aws_credentials"
+        non_empty: true
+        description: "vpn main credentials"
+  aws_credentials:
+    type: "dict"
+    description: "vpn main credentials schema"
+    props:
+      access_key:
+        type: "str"
+        non_empty: true
+        description: "aws access key"
+      secret_key:
+        type: "str"
+        non_empty: true
+        description: "aws secret key"

@@ -26,7 +26,6 @@
     security_groups: "{{ ext_node_item.security_groups | default(omit, true) }}"
     availability_zone: "{{ ext_node_item.availability_zone | default(omit, true) }}"
     cpu_options: "{{ ext_node_item.cpu_options | default(omit, true) }}"
-    purge_tags: "{{ ext_node_item.purge_tags | default(omit, true) }}"
     detailed_monitoring: "{{ ext_node_item.detailed_monitoring | default(omit, true) }}"
     ebs_optimized: "{{ ext_node_item.ebs_optimized | default(omit, true) }}"
     user_data: "{{ ext_node_item.user_data | default(omit, true) }}"
@@ -35,8 +34,37 @@
     termination_protection: "{{ ext_node_item.termination_protection | default(omit, true) }}"
     wait_timeout: "{{ ext_node_item.wait_timeout }}"
     wait: true
+    purge_tags: true
   loop: "{{ ext_node_data_wrapper.data.replicas }}"
   loop_control:
     loop_var: ext_node_item
     label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws node - set hosts"
+  set_fact:
+    ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
+  vars:
+    ext_node_item: "{{ ext_node_item_data.ext_node_item | default({}) }}"
+    ext_node_instance: "{{ ext_node_item_data.data.instances[0] | default({}) }}"
+    ext_node_item_result:
+      name: "{{ ext_node_item.name }}"
+      state: "{{ ext_node_item.state }}"
+      private_ip: "{{ ext_node_instance.private_ip_address | default('') }}"
+      public_ipv4: "{{ ext_node_instance.public_ip_address | default('') }}"
+      public_ipv6: "{{ ext_node_instance.network_interfaces[0].ipv6_addresses.ipv6_address | default('') }}"
+  loop: "{{ ext_node_details.results | default([]) }}"
+  loop_control:
+    loop_var: ext_node_item_data
+    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+# Set Result
+
+- name: "{{ inner_service_title }} - aws node - set result"
+  set_fact:
+    cloud_service_result:
+      hosts: "{{ ext_node_hosts }}"
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]

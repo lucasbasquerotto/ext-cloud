@@ -62,6 +62,9 @@ schemas:
     type: "dict"
     description: "stackpath cdn parameters list schema"
     props:
+      when:
+        type: "bool"
+        description: "when false, ignores the item; defaults to true"
       stack_slug:
         type: "str"
         non_empty: true

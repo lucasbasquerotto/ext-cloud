@@ -49,6 +49,9 @@ schemas:
     type: "dict"
     description: "digital ocean storage parameters list schema"
     props:
+      when:
+        type: "bool"
+        description: "when false, ignores the item; defaults to true"
       name:
         type: "str"
         description: "block storage name"

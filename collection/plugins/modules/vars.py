@@ -31,12 +31,22 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns impo
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
     prepare_data as godaddy_nameserver_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.aws_node import (
+    prepare_data as aws_node_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.digital_ocean_node import (
     prepare_data as digital_ocean_node_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
     prepare_data as s3_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.storage.digital_ocean_storage import (
+    prepare_data as digital_ocean_storage_prepare_data
+)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.vpn.aws_vpn import (
+    prepare_data as aws_vpn_prepare_data
+)
+
 
 from ansible.module_utils._text import to_text
 from ansible.module_utils.basic import AnsibleModule
@@ -63,8 +73,6 @@ def main():
 
   if not identifier:
     error_msgs += [['msg: identifier not defined']]
-  elif identifier == 's3':
-    info = s3_prepare_data(raw_data)
   elif identifier == 'godaddy_nameserver':
     info = godaddy_nameserver_prepare_data(raw_data)
   elif identifier == 'godaddy_dns':
@@ -75,8 +83,16 @@ def main():
     info = fastly_cdn_prepare_data(raw_data)
   elif identifier == 'stackpath_cdn':
     info = stackpath_cdn_prepare_data(raw_data)
+  elif identifier == 'aws_node':
+    info = aws_node_prepare_data(raw_data)
   elif identifier == 'digital_ocean_node':
     info = digital_ocean_node_prepare_data(raw_data)
+  elif identifier == 's3':
+    info = s3_prepare_data(raw_data)
+  elif identifier == 'digital_ocean_storage':
+    info = digital_ocean_storage_prepare_data(raw_data)
+  elif identifier == 'aws_vpn':
+    info = aws_vpn_prepare_data(raw_data)
   else:
     error_msgs += [['msg: invalid identifier']]
 

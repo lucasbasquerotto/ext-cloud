@@ -170,11 +170,13 @@ def generate_list_params(params, keys, list_name):
       else [params]
   )
 
-  list_params = [
+  list_params_aux = [
       generate_item_params(keys, raw_item_params, params)
       for raw_item_params
       in (raw_list_params or [])
   ]
+
+  list_params = [item for item in list_params_aux if item.get('when', True)]
 
   return list_params
 
