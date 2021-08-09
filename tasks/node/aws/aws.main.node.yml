@@ -20,17 +20,18 @@
     image_id: "{{ ext_node_item.image_id }}"
     region: "{{ ext_node_item.region }}"
     instance_type: "{{ ext_node_item.instance_type }}"
+    volumes: "{{ ext_node_item.volumes }}"
     vpc_subnet_id: "{{ ext_node_item.vpc_subnet_id | default(omit, true) }}"
     network: "{{ ext_node_item.network | default(omit, true) }}"
     security_groups: "{{ ext_node_item.security_groups | default(omit, true) }}"
-    volumes:
-      - device_name: /dev/sda1
-        ebs:
-          delete_on_termination: true
+    availability_zone: "{{ ext_node_item.availability_zone | default(omit, true) }}"
     cpu_options: "{{ ext_node_item.cpu_options | default(omit, true) }}"
     purge_tags: "{{ ext_node_item.purge_tags | default(omit, true) }}"
     detailed_monitoring: "{{ ext_node_item.detailed_monitoring | default(omit, true) }}"
+    ebs_optimized: "{{ ext_node_item.ebs_optimized | default(omit, true) }}"
     user_data: "{{ ext_node_item.user_data | default(omit, true) }}"
+    instance_initiated_shutdown_behavior: >-
+      {{ ext_node_item.instance_initiated_shutdown_behavior | default(omit, true) }}
     termination_protection: "{{ ext_node_item.termination_protection | default(omit, true) }}"
     wait_timeout: "{{ ext_node_item.wait_timeout }}"
     wait: true
