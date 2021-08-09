@@ -49,7 +49,6 @@ schemas:
         description: "the aws region to use"
       image_id:
         type: "str"
-        non_empty: true
         description: "node aws image id"
       instance_type:
         type: "str"

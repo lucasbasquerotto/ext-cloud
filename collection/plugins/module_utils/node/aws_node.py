@@ -24,6 +24,7 @@ params_keys = [
     'ebs_optimized',
     'image_id',
     'instance_type',
+    'name',
     'network',
     'purge_tags',
     'region',
@@ -50,10 +51,7 @@ stack_base_url = base_url + '/stack/v1'
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['replicas'],
-      params=['image_id'],
-      params=['region'],
-      params=['instance_type'],
+      params=['region', 'instance_type'],
   )
 
   data_info = dict(
@@ -75,7 +73,7 @@ def finalize_item(item):
   if not item.get('volumes'):
     item['volumes'] = [dict(
         device_name='/dev/sda1',
-        ebs=dict(delete_on_termination=True),
+        ebs=dict(delete_on_termination=False),
     )]
 
   return dict(result=item)
