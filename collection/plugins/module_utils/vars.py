@@ -20,13 +20,11 @@ import traceback
 
 def prepare_default_data(data_info):
   expected_namespace = data_info.get('expected_namespace')
-  list_name = data_info.get('list_name', 'list')
   raw_data = data_info.get('raw_data')
   params_keys = data_info.get('params_keys')
 
   return prepare_general_data(
       expected_namespace=expected_namespace,
-      list_name=list_name,
       raw_data=raw_data,
       item_keys=params_keys,
       fn_prepare_item=lambda p: prepare_default_item(
@@ -88,6 +86,7 @@ def prepare_general_data(raw_data, expected_namespace, item_keys, list_name=None
   try:
     namespace = raw_data.get('namespace')
     params = raw_data.get('params')
+    list_name = list_name or 'list'
 
     if expected_namespace:
       info = validate_namespace(namespace, expected_namespace)
