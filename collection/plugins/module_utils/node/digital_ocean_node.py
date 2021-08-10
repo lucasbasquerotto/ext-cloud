@@ -107,10 +107,12 @@ def prepare_droplet(replica, raw_data):
     credentials = raw_data.get('credentials', {})
     contents = raw_data.get('contents', {})
 
+    node_credentials = credentials.get('node')
+
     result = dict(
         name=replica.get('name'),
         state=('absent' if replica.get('absent') else state),
-        oauth_token=credentials.get('api_token'),
+        oauth_token=node_credentials.get('api_token'),
         region_id=params.get('region_id'),
         size_id=params.get('size_id'),
         image_id=params.get('image_id'),
