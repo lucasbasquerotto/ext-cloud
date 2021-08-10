@@ -82,7 +82,7 @@ def prepare_default_item(data_info, item_params):
   return dict(result=result, error_msgs=error_msgs)
 
 
-def prepare_general_data(raw_data, expected_namespace, item_keys, list_name, fn_prepare_item):
+def prepare_general_data(raw_data, expected_namespace, item_keys, list_name=None, fn_prepare_item=None):
   error_msgs = list()
 
   try:
