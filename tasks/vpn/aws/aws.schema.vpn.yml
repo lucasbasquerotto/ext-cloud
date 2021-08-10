@@ -23,10 +23,6 @@ schemas:
     type: "dict"
     description: "parameters schema for the vpn task"
     props:
-      name:
-        type: "str"
-        non_empty: true
-        description: "base name for the hosts (equal to the first replica name)"
       security_groups:
         type: "list"
         elem_schema: "security_group"
@@ -56,13 +52,11 @@ schemas:
         description: "a dictionary of one or more tags to assign to the security group"
       rules:
         type: "list"
-        elem_type: "security_group_inbound_rule"
-        required: true
+        elem_schema: "security_group_inbound_rule"
         description: "security group with inbound rules"
       rules_egress:
         type: "list"
-        elem_type: "security_group_outbound_rule"
-        required: true
+        elem_schema: "security_group_outbound_rule"
         description: "security group with outbound rules"
   security_group_inbound_rule:
     type: "dict"

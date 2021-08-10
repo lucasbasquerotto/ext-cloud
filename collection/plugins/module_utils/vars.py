@@ -20,7 +20,7 @@ import traceback
 
 def prepare_default_data(data_info):
   expected_namespace = data_info.get('expected_namespace')
-  list_name = data_info.get('list_name')
+  list_name = data_info.get('list_name', 'list')
   raw_data = data_info.get('raw_data')
   params_keys = data_info.get('params_keys')
 
@@ -60,8 +60,8 @@ def prepare_default_item(data_info, item_params):
   error_msgs += (info.get('error_msgs') or [])
 
   if not error_msgs:
-    item_contents = item_data.get('contents')
-    item_credentials = item_data.get('credentials')
+    item_contents = item_data.get('contents', {})
+    item_credentials = item_data.get('credentials', {})
 
     result['state'] = state
 
@@ -82,12 +82,11 @@ def prepare_default_item(data_info, item_params):
   return dict(result=result, error_msgs=error_msgs)
 
 
-def prepare_general_data(raw_data, expected_namespace, item_keys, fn_prepare_item):
+def prepare_general_data(raw_data, expected_namespace, item_keys, list_name, fn_prepare_item):
   error_msgs = list()
 
   try:
     namespace = raw_data.get('namespace')
-    list_name = raw_data.get('list_name', 'list')
     params = raw_data.get('params')
 
     if expected_namespace:

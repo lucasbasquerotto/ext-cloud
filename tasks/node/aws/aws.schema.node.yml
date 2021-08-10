@@ -151,7 +151,7 @@ schemas:
       private_ip_address:
         type: "str"
         description: "an ipv4 address to assign to the interface"
-      private_ip_address:
+      private_ip_addresses:
         type: "list"
         elem_type: "str"
         description: "a list of ipv4 addresses to assign to the network interface"
