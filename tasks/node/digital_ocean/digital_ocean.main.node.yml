@@ -88,6 +88,11 @@
 
 - name: "{{ inner_service_title }} - digital ocean node - set hosts"
   set_fact:
+    ext_node_hosts: []
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - digital ocean node - set hosts"
+  set_fact:
     ext_node_hosts: "{{ ext_node_hosts + [ext_node_item_result] }}"
   vars:
     ext_node_item: "{{ ext_node_item_data.ext_node_item | default({}) }}"
