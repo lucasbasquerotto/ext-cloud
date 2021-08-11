@@ -14,7 +14,7 @@
   get_url:
     url: "{{ task_compose_params.src | default(tmp_default_url) }}"
     dest: "{{ task_compose_params.dest | default('/usr/local/bin/docker-compose') }}"
-    mode: "{{ task_compose_params.mode | default(0755) }}"
+    mode: "{{ task_compose_params.mode | default('755') }}"
   vars:
     tmp_default_url: >-
       https://github.com/docker/compose/releases/download/{{
