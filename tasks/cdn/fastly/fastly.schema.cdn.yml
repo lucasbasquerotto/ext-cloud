@@ -30,7 +30,6 @@ schemas:
           the outer parameters as one single list item
       name:
         type: "str"
-        non_empty: true
         description: "the unique name for the service to create"
       activate_new_version:
         type: "bool"

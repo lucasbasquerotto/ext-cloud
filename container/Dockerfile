@@ -6,5 +6,6 @@ RUN yes | pip3 install \
     boto \
     boto3 \
     botocore \
-    requests \
-    linode_api4
+    httplib \
+    linode_api4 \
+    requests

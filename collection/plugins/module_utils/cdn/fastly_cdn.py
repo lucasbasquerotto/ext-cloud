@@ -18,6 +18,8 @@ __metaclass__ = type  # pylint: disable=invalid-name
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
+    'name',
+    'activate_new_version',
     'domains',
     'healthchecks',
     'backends',
@@ -39,7 +41,7 @@ credentials_keys = ['api_key']
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['domains', 'backends'],
+      params=['name', 'domains', 'backends'],
       credentials=[],
   )
 

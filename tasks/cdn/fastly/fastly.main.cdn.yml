@@ -13,7 +13,7 @@
 
 - name: "{{ inner_service_title }} - fastly cdn - execute"
   lrd.ext_cloud.fastly_cdn:
-    api_token: "{{ ext_cdn_item.api_token }}"
+    fastly_api_key: "{{ ext_cdn_item.api_key }}"
     name: "{{ ext_cdn_item.name }}"
     activate_new_version: "{{ ext_cdn_item.activate_new_version }}"
     domains: "{{ ext_cdn_item.domains }}"
