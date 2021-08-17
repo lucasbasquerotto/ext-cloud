@@ -166,7 +166,7 @@ def manage_cdn(prepared_item):
         raise_for_status(response)
         changed = True
     else:
-      if old_record:
+      if old_record and (not old_record.get('status') == 'DELETE_REQUESTED'):
         response = requests.delete(
             stack_base_url + '/stacks/' + stack_slug,
             headers=stack_headers,
