@@ -115,6 +115,10 @@ schemas:
     type: "dict"
     description: "stackpath cdn main credentials schema"
     props:
+      account_id:
+        type: "str"
+        non_empty: true
+        description: "stackpath account id"
       client_id:
         type: "str"
         non_empty: true
@@ -123,6 +127,3 @@ schemas:
         type: "str"
         non_empty: true
         description: "stackpath client secret"
-      grant_type:
-        type: "str"
-        description: "stackpath grant type"

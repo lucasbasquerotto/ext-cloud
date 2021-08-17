@@ -18,6 +18,7 @@ __metaclass__ = type  # pylint: disable=invalid-name
 import requests
 import traceback
 
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.utils import raise_for_status
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
@@ -31,14 +32,15 @@ params_keys = [
 ]
 
 credentials_keys = [
+    'account_id',
     'client_id',
     'client_secret',
-    'grant_type',
 ]
 
 base_url = 'https://gateway.stackpath.com'
 identity_base_url = base_url + '/identity/v1'
 stack_base_url = base_url + '/stack/v1'
+delivery_base_url = base_url + '/delivery/v1'
 
 
 def prepare_data(raw_data):
@@ -86,16 +88,16 @@ def manage_cdn(prepared_item):
         'Content-Type': 'application/json'
     }
 
-    response = requests.get(
+    response = requests.post(
         identity_base_url + '/oauth2/token',
         headers=identity_headers,
         json=dict(
             client_id=prepared_item.get('client_id'),
             client_secret=prepared_item.get('client_secret'),
-            grant_type=prepared_item.get('grant_type'),
+            grant_type='client_credentials',
         ),
     )
-    response.raise_for_status()
+    raise_for_status(response)
 
     create = (state == 'present')
     changed = False
@@ -103,7 +105,7 @@ def manage_cdn(prepared_item):
     stack_headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + response.get('access_token'),
+        'Authorization': 'Bearer ' + (response.json() or dict()).get('access_token'),
     }
 
     stack_slug = prepared_item.get('stack_slug')
@@ -113,29 +115,30 @@ def manage_cdn(prepared_item):
         stack_base_url + '/stacks/' + stack_slug,
         headers=stack_headers,
     )
-    response.raise_for_status()
+    raise_for_status(response, ignore_status=[404])
 
-    old_record = (response.json() or dict()).get('stack') or dict()
+    old_record = response.json() or dict()
     old_record_id = old_record.get('id')
 
     if create:
       if old_record_id is None:
         response = requests.post(
-            stack_base_url + '/stacks/' + stack_slug,
+            stack_base_url + '/stacks',
             headers=stack_headers,
             json=dict(
+                account_id=prepared_item.get('account_id'),
                 slug=stack_slug,
                 name=stack_name,
             )
         )
-        response.raise_for_status()
+        raise_for_status(response)
         changed = True
 
       response = requests.get(
-          stack_base_url + '/stacks/' + stack_slug + '/sites',
+          delivery_base_url + '/stacks/' + stack_slug + '/sites',
           headers=stack_headers,
       )
-      response.raise_for_status()
+      raise_for_status(response, ignore_status=[404])
 
       results = (response.json() or dict()).get('results') or []
       result_amount = len(results)
@@ -145,22 +148,22 @@ def manage_cdn(prepared_item):
             'stack_slug: ' (stack_slug or ''),
             'stack_name: ' (stack_name or ''),
             'msg: stackpath cdn has more than 1 site',
-            'tip: use the stack slug for a single site, or specify another slug',
+            'tip: use 1 different stack slug per site',
         ]]
       elif result_amount == 0:
         site_data = dict(
             domain=prepared_item.get('domain'),
             origin=prepared_item.get('origin'),
-            features=prepared_item.get('features'),
+            features=prepared_item.get('features') or ["cdn"],
             configuration=prepared_item.get('configuration'),
         )
 
         response = requests.post(
-            stack_base_url + '/stacks/' + stack_slug + '/sites',
+            delivery_base_url + '/stacks/' + stack_slug + '/sites',
             headers=stack_headers,
             json=site_data
         )
-        response.raise_for_status()
+        raise_for_status(response)
         changed = True
     else:
       if old_record:
@@ -168,7 +171,7 @@ def manage_cdn(prepared_item):
             stack_base_url + '/stacks/' + stack_slug,
             headers=stack_headers,
         )
-        response.raise_for_status()
+        raise_for_status(response)
         changed = True
 
     previous_slug = prepared_item.get('previous_slug')
@@ -178,7 +181,7 @@ def manage_cdn(prepared_item):
           stack_base_url + '/stacks/' + previous_slug,
           headers=stack_headers,
       )
-      response.raise_for_status()
+      raise_for_status(response)
 
       old_record = (response.json() or dict()).get('stack') or dict()
       old_record_id = old_record.get('id')
@@ -188,7 +191,7 @@ def manage_cdn(prepared_item):
             stack_base_url + '/stacks/' + previous_slug,
             headers=stack_headers,
         )
-        response.raise_for_status()
+        raise_for_status(response)
         changed = True
 
     result = dict(changed=changed)
