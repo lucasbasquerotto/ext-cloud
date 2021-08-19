@@ -32,7 +32,9 @@ repos:
 
 This is the main section of this repository. It contains tasks to deploy specific services/resources in cloud providers. The types of tasks are defined below, with links to their respective documentation:
 
+- [CDN](tasks/cdn/README.md)
 - [DNS](tasks/dns/README.md)
+- [Nameserver](tasks/nameserver/README.md)
 - [Node](tasks/node/README.md)
 - [S3](tasks/s3/README.md)
 - [VPN](tasks/vpn/README.md)
