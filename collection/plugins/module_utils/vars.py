@@ -168,6 +168,8 @@ def generate_list_params(params, keys, list_name):
       else [params]
   )
 
+  raise Exception(dict(error_msgs=[['test', params, raw_list_params]]))
+
   list_params_aux = [
       generate_item_params(keys, raw_item_params, params)
       for raw_item_params

@@ -31,14 +31,14 @@ schemas:
           the parameters as only one definition; instead, what is defined at the outer parameters
           will be used as a default for each list item parameter; when not defined, will use
           the outer parameters as one single list item
-      name:
-        type: "str"
-        description: "block storage name"
       when:
         type: "bool"
         description: >-
           when false, the block storage is ignored (won't be created or destroyed);
           defaults to true
+      name:
+        type: "str"
+        description: "block storage name"
       region:
         type: "str"
         description: "digital ocean region"
@@ -51,15 +51,12 @@ schemas:
     props:
       when:
         type: "bool"
-        description: "when false, ignores the item; defaults to true"
-      name:
-        type: "str"
-        description: "block storage name"
-      when:
-        type: "bool"
         description: >-
           when false, the block storage is ignored (won't be created or destroyed);
           defaults to true
+      name:
+        type: "str"
+        description: "block storage name"
       region:
         type: "str"
         description: "digital ocean region"

@@ -11,6 +11,9 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
+- debug:
+    var: inner_service_params
+
 - name: "{{ inner_service_title }} - digital ocean storage - execute"
   community.digitalocean.digital_ocean_block_storage:
     command: create
