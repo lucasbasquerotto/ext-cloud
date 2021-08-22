@@ -2,538 +2,881 @@ root: "cdn_schema"
 schemas:
   cdn_schema:
     type: "dict"
-    description: "fastly cdn schema"
+    description: "Fastly CDN schema."
     props:
       namespace:
         type: "str"
         non_empty: true
         choices: ["ext_cdn"]
+        description: "CDN namespace."
       params:
         schema: "params"
         non_empty: true
-        description: "fastly cdn parameters"
+        description: "Fastly CDN parameters."
       credentials:
         schema: "credentials"
         non_empty: true
-        description: "fastly cdn credentials"
+        description: "Fastly CDN credentials."
   params:
     type: "dict"
-    description: "fastly cdn parameters schema"
+    description: "Fastly CDN parameters schema."
     props:
       list:
         type: "list"
         elem_schema: "list_item_params"
         description: >-
-          list of records to be created/destroyed; used when defined, instead of considering
-          the parameters as only one definition; instead, what is defined at the outer parameters
-          will be used as a default for each list item parameter; when not defined, will use
-          the outer parameters as one single list item
+          List of records to be created/destroyed. Used when defined, instead of considering
+          the parameters as only one definition. Instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter. When not defined, will use
+          the outer parameters as one single list item.
       name:
         type: "str"
-        description: "the unique name for the service to create"
+        description: "The unique name for the service to create."
       activate_new_version:
         type: "bool"
         description: >-
-          configures whether newly created versions should be activated automatically;
-          defaults to true
+          Configures whether newly created versions should be activated automatically.
+          Defaults to true.
       domains:
         type: "list"
         elem_schema: "domain"
-        description: "list of domain names to serve as entry points for your service"
+        description: "List of domain names to serve as entry points for your service."
       backends:
         type: "list"
         elem_schema: "backend"
-        description: "list of backends to service requests from your domains"
+        description: "List of backends to service requests from your domains."
       cache_settings:
         type: "list"
         elem_schema: "cache_setting"
-        description: "list of cache settings"
+        description: "List of cache settings."
       conditions:
         type: "list"
         elem_schema: "condition"
-        description: "list of conditions"
+        description: "List of conditions."
       directors:
         type: "list"
         elem_schema: "director"
-        description: "list of directors"
+        description: "List of directors."
       gzips:
         type: "list"
         elem_schema: "gzip"
-        description: "list of gzip configurations"
+        description: "List of gzip configurations."
       headers:
         type: "list"
         elem_schema: "header"
-        description: "list of headers to manipulate for each request"
+        description: "List of headers."
       healthchecks:
         type: "list"
         elem_schema: "healthcheck"
-        description: "list of healthchecks to manipulate for each request"
+        description: "List of healthchecks."
       request_settings:
         type: "list"
         elem_schema: "request_setting"
-        description: "list of request settings"
+        description: "List of request settings."
       response_objects:
         type: "list"
         elem_schema: "response_object"
-        description: "list of response objects"
+        description: "List of response objects."
       vcl_snippets:
         type: "list"
         elem_schema: "vcl_snippet"
-        description: "list of vcl snippets"
+        description: "List of vcl snippets."
       s3s:
         type: "list"
         elem_schema: "s3"
-        description: "list of s3 loggers"
+        description: "List of s3 loggers."
       syslogs:
         type: "list"
         elem_schema: "syslog"
-        description: "list of syslog loggers"
+        description: "List of syslog loggers."
       settings:
         schema: "settings"
-        description: "handles default settings for a service"
+        description: "Settings for the service."
   list_item_params:
     type: "dict"
-    description: "fastly cdn parameters list schema"
+    description: "Fastly CDN parameters list schema"
     props:
       when:
         type: "bool"
-        description: "when false, ignores the item; defaults to true"
+        description: "When false, ignores the item. Defaults to true."
       name:
         type: "str"
-        non_empty: true
-        description: "the unique name for the service to create"
+        description: "The unique name for the service to create."
       activate_new_version:
         type: "bool"
         description: >-
-          configures whether newly created versions should be activated automatically;
-          defaults to true
+          Configures whether newly created versions should be activated automatically.
+          Defaults to true.
       domains:
         type: "list"
         elem_schema: "domain"
-        description: "list of domain names to serve as entry points for your service"
+        description: "List of domain names to serve as entry points for your service."
       backends:
         type: "list"
         elem_schema: "backend"
-        description: "list of backends to service requests from your domains"
+        description: "List of backends to service requests from your domains."
       cache_settings:
         type: "list"
         elem_schema: "cache_setting"
-        description: "list of cache settings"
+        description: "List of cache settings."
       conditions:
         type: "list"
         elem_schema: "condition"
-        description: "list of conditions"
+        description: "List of conditions."
       directors:
         type: "list"
         elem_schema: "director"
-        description: "list of directors"
+        description: "List of directors."
       gzips:
         type: "list"
         elem_schema: "gzip"
-        description: "list of gzip configurations"
+        description: "List of gzip configurations."
       headers:
         type: "list"
         elem_schema: "header"
-        description: "list of headers to manipulate for each request"
+        description: "List of headers."
       healthchecks:
         type: "list"
         elem_schema: "healthcheck"
-        description: "list of healthchecks to manipulate for each request"
+        description: "List of healthchecks."
       request_settings:
         type: "list"
         elem_schema: "request_setting"
-        description: "list of request settings"
+        description: "List of request settings."
       response_objects:
         type: "list"
         elem_schema: "response_object"
-        description: "list of response objects"
+        description: "List of response objects."
       vcl_snippets:
         type: "list"
         elem_schema: "vcl_snippet"
-        description: "list of vcl snippets"
+        description: "List of vcl snippets."
       s3s:
         type: "list"
         elem_schema: "s3"
-        description: "list of s3 loggers"
+        description: "List of s3 loggers."
       syslogs:
         type: "list"
         elem_schema: "syslog"
-        description: "list of syslog loggers"
+        description: "List of syslog loggers."
       settings:
         schema: "settings"
-        description: "handles default settings for a service"
+        description: "Settings for the service."
   domain:
     type: "dict"
-    description: "domain name to serve as entry point for your service"
+    description: "Domain name to serve as entry point for your service."
     props:
       name:
         type: "str"
         non_empty: true
+        description: "The name of the domain or domain associated with this service."
       comment:
         type: "str"
+        description: "A freeform descriptive note."
   backend:
     type: "dict"
-    description: "backend to service requests from your domains"
+    description: >-
+      A backend (also sometimes called an origin server) is a server identified by IP address or hostname,
+      from which Fastly will fetch your content. There can be multiple backends attached to a service,
+      but each backend is specific to one service.
+      By default, the first backend added to a service configuration will be used for all requests
+      (provided it meets any conditions attached to it). If multiple backends are defined for a service,
+      the first one that has no attached conditions, or whose condition is satisfied for the current request,
+      will be used, unless that behavior is modified using the auto_loadbalance field described below.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "The name of the backend."
       port:
         type: "int"
-        description: "defaults to 80"
+        description: >-
+          Port on which the backend server is listening for connections from Fastly.
+          Setting port to 80 or 443 will also set use_ssl automatically (to false and true respectively),
+          unless explicitly overridden by setting use_ssl in the same request.
+          Defaults to 80.
       address:
         type: "str"
+        description: >-
+          A hostname, IPv4, or IPv6 address for the backend.
+          This is the preferred way to specify the location of your backend.
       request_condition:
         type: "str"
+        description: >-
+          Name of a Condition, which if satisfied, will select this backend during a request.
+          If set, will override any auto_loadbalance setting.
+          By default, the first backend added to a service is selected for all requests.
       ssl_hostname:
         type: "str"
+        description: "ssl hostname"
       ssl_ca_cert:
         type: "str"
+        description: "CA certificate attached to origin."
       ssl_cert_hostname:
         type: "str"
+        description: "Overrides ssl_hostname, but only for cert verification. Does not affect SNI at all."
       shield:
         type: "str"
+        description: "Data center POP code of the data center to use as a shield."
       healthcheck:
         type: "str"
+        description: "The name of the healthcheck to use with this backend."
       weight:
         type: "int"
-        description: "defaults to 100"
+        description: >-
+          Weight used to load balance this backend against others. May be any positive integer.
+          If auto_loadbalance is true, the chance of this backend being selected is equal to its
+          own weight over the sum of all weights for backends that have auto_loadbalance set to true.
+          Defaults to 100.
       connect_timeout:
         type: "int"
-        description: "defaults to 1000"
+        description: >-
+          Maximum duration in milliseconds to wait for a connection to this backend to be established.
+          If exceeded, the connection is aborted and a synthethic 503 response will be presented instead.
+          May be set at runtime using bereq.connect_timeout.
+          Defaults to 1000.
       first_byte_timeout:
         type: "int"
-        description: "defaults to 15000"
+        description: >-
+          Maximum duration in milliseconds to wait for the server response to begin after a TCP connection
+          is established and the request has been sent. If exceeded, the connection is aborted and a
+          synthethic 503 response will be presented instead. May be set at runtime using bereq.first_byte_timeout.
+          Defaults to 15000.
       between_bytes_timeout:
         type: "int"
-        description: "defaults to 10000"
-      error_threshold:
-        type: "int"
-        description: "defaults to 0"
+        description: >-
+          Maximum duration in milliseconds that Fastly will wait while receiving no data on a download from a backend.
+          If exceeded, the response received so far will be considered complete and the fetch will end.
+          May be set at runtime using bereq.between_bytes_timeout.
+          Defaults to 10000.
       max_conn:
         type: "int"
-        description: "defaults to 200"
+        description: >-
+          Maximum number of concurrent connections this backend will accept.
+          Defaults to 200.
   cache_setting:
     type: "dict"
-    description: "cache setting"
+    description: >-
+      Configures cache lifetime for objects stored in the Fastly cache,
+      overriding cache freshness information that would otherwise be
+      determined from cache-related headers on the HTTP response.
+      When used in conjunction with conditions, cache settings objects
+      provide detailed control over how long content persists in the cache.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "Name for the cache settings object."
       action:
         type: "str"
-        choices: ["cache", "pass", "restart", null]
+        choices: ["deliver", "pass", "restart", null]
+        description: >-
+          If set, will cause vcl_fetch to terminate after processing this rule
+          with the return state specified. If not set, other configuration logic
+          in vcl_fetch with a lower priority will run after this rule.
       cache_condition:
         type: "str"
+        description: "Name of the cache condition controlling when this configuration applies."
       stale_ttl:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          Maximum time in seconds to continue to use a stale version of the object if
+          future requests to your backend server fail (also known as 'stale if error').
+          Defaults to 0.
   condition:
     type: "dict"
-    description: "condition"
+    description: >-
+      Conditions are used to control whether logic defined in configured VCL objects
+      is applied for a particular client request.
+      A condition contains a VCL conditional expression that evaluates to either true or false
+      and is used to determine whether the condition is met.
+      The type of the condition determines where it is executed and the VCL variables that can
+      be evaluated as part of the conditional logic.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "Name of the condition. Required."
       comment:
         type: "str"
+        description: "A freeform descriptive note."
       priority:
         type: "int"
-        description: "defaults to 0"
+        description: "Priority determines execution order. Lower numbers execute first. Defaults to 0."
       statement:
         type: "str"
         non_empty: true
+        description: "	A conditional expression in VCL used to determine if the condition is met."
       type:
         type: "str"
         non_empty: true
-        choices: ["REQUEST", "PREFETCH", "CACHE", "RESPONSE"]
+        choices: ["REQUEST", "CACHE", "RESPONSE", "PREFETCH"]
+        description: >-
+          Type of the condition.
+
+          - REQUEST
+            Make the condition available everywhere.
+            This type of condition may only reference VCL variables that are accessible throughout the VCL flow.
+
+          - CACHE
+            Make the condition available in the vcl_fetch subroutine at the fetch phase of the VCL flow.
+            This type of condition may access VCL variables in the beresp namespace.
+
+          - RESPONSE
+            Make the condition available in the vcl_deliver subroutine at the delivery phase of the VCL flow.
+            This type of condition may access VCL variables in the resp namespace.
+
+          - PREFETCH
+            Make the condition available in the vcl_miss and vcl_pass subroutines at the prefetch phase of the VCL flow.
+            This type of condition may access VCL variables in the bereq namespace.
   director:
     type: "dict"
-    description: "director"
+    description: >-
+      A Director is responsible for balancing requests among a group of Backends.
+      In addition to simply balancing, Directors can be configured to attempt retrying failed requests.
+      Additionally, Directors have a quorum setting which can be used to determine when the Director
+      as a whole is considered "up", in order to prevent "server whack-a-mole" following an outage
+      as servers come back up. Only directors created via the API can be modified via the API.
+
+      Directors known as "autodirectors" that are created automatically when load balancing groups
+      of servers together cannot be modified or retrieved via the API.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "TODO"
       backends:
         type: "list"
+        description: "List of backends associated to a director."
       capacity:
         type: "int"
-        description: "defaults to 100"
+        description: "Unused."
       comment:
         type: "str"
+        description: "A freeform descriptive note."
       quorum:
         type: "int"
-        description: "defaults to 75"
+        description: >-
+          The percentage of capacity that needs to be up for a director to be considered up.
+          0 to 100.
+          Defaults to 75
       shield:
         type: "str"
+        description: >-
+          Selected POP to serve as a shield for the backends.
+          Defaults to null meaning no origin shielding if not set.
+          Refer to the POPs API endpoint to get a list of available POPs used for shielding.
       type:
         type: "int"
-        description: "defaults to 1"
+        description: >-
+          What type of load balance group to use. Defaults to 1. Options:
+
+          - 1 (default) - Random.
+          - 3 - Hash.
+          - 4 - Client.
       retries:
         type: "int"
-        description: "defaults to 5"
+        description: "How many backends to search if it fails. Defaults to 5."
   gzip:
     type: "dict"
-    description: "gzip configuration"
+    description: "Gzip configuration allows you to choose resources to automatically compress."
     props:
       name:
         type: "str"
         non_empty: true
+        description: "Name of the gzip configuration."
       cache_condition:
         type: "str"
+        description: "Name of the cache condition controlling when this configuration applies."
       content_types:
         type: "str"
+        description: >-
+          Space-separated list of content types to compress.
+          If you omit this field a default list will be used.
       extensions:
         type: "str"
+        description: >-
+          Space-separated list of file extensions to compress.
+          If you omit this field a default list will be used.
   header:
     type: "dict"
-    description: "header to manipulate for each request"
+    description: >-
+      Header objects are used to add, modify, or delete headers from requests and responses.
+      The header content can be simple strings or be derived from variables inside Varnish.
+      Regular expressions can be used to customize the headers even further.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "A handle to refer to this Header object."
       action:
         type: "str"
         choices: ["set", "append", "delete", "regex", "regex_repeat"]
-        description: "defaults to set"
+        description: >-
+          Accepts a string value. Options:
+
+          - set
+            Sets (or resets) a header.
+
+          - append
+            Appends to an existing header.
+
+          - delete
+            Delete a header.
+
+          - regex
+            Perform a single regex replacement on a header.
+
+          - regex_repeat
+            Perform a global regex replacement on a header.
       dst:
         type: "str"
         non_empty: true
+        description: "Header to set."
       ignore_if_set:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          Don't add the header if it is added already. Only applies to 'set' action.
+          Defaults to 0.
       priority:
         type: "int"
-        description: "defaults to 100"
+        description: >-
+          Priority determines execution order. Lower numbers execute first.
+          Defaults to 100.
       regex:
         type: "str"
+        description: "Regular expression to use. Only applies to regex and regex_repeat actions."
       request_condition:
         type: "str"
+        description: "Condition which, if met, will select this configuration during a request. Optional."
       response_condition:
         type: "str"
+        description: "Optional name of a response condition to apply."
       cache_condition:
         type: "str"
+        description: "Name of the cache condition controlling when this configuration applies."
       src:
         type: "str"
         non_empty: true
+        description: "Variable to be used as a source for the header content. Does not apply to delete action."
       substitution:
         type: "str"
+        description: >-
+          Value to substitute in place of regular expression.
+          Only applies to regex and regex_repeat actions.
       type:
         type: "str"
         non_empty: true
         choices: ["request", "fetch", "cache", "response"]
+        description: >-
+          Accepts a string value. Options:
+
+          - request
+            Performs on the request before lookup occurs.
+
+          - fetch
+            Performs on the request to the origin server.
+
+          - cache
+            Performs on the response before it's stored in the cache.
+
+          - response
+            Performs on the response before delivering to the client.
   healthcheck:
     type: "dict"
-    description: "healthcheck to manipulate for each request"
+    description: >-
+      Healthchecks are used to customize the way Fastly checks on your Backends.
+
+      If an origin server is marked unhealthy due to health checks,
+      Fastly will stop attempting to send requests to it.
+
+      If all origin servers are marked unhealthy, Fastly will attempt to serve stale.
+      If no stale object is available, a 503 will be returned to the client.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "The name of the healthcheck."
       check_interval:
         type: "int"
+        description: "How often to run the healthcheck in milliseconds."
       comment:
         type: "str"
+        description: "A freeform descriptive note."
       expected_response:
         type: "int"
-        description: "defaults to 200"
+        description: "The status code expected from the host. Defaults to 200."
       host:
         type: "str"
         non_empty: true
+        description: "Which host to check."
       http_version:
         type: "str"
-        description: "defaults to 1.1"
+        description: "Whether to use version 1.0 or 1.1 HTTP. Defaults to 1.1."
       initial:
         type: "int"
+        description: "When loading a config, the initial number of probes to be seen as OK."
       method:
         type: "str"
-        description: "defaults to HEAD"
+        description: "Which HTTP method to use. Defaults to HEAD."
       path:
         type: "str"
+        description: "The path to check."
       threshold:
         type: "int"
+        description: "How many healthchecks must succeed to be considered healthy."
       timeout:
         type: "int"
+        description: "Timeout in milliseconds."
       window:
         type: "int"
+        description: "The number of most recent healthcheck queries to keep for this healthcheck."
   request_setting:
     type: "dict"
-    description: "equest setting"
+    description: >-
+      Settings used to customize Fastly's request handling.
+      When used with Conditions the Request Settings object allows you to fine tune how
+      specific types of requests are handled.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "Name for the request settings."
       request_condition:
         type: "str"
+        description: "Condition which, if met, will select this configuration during a request. Optional."
       force_miss:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          Allows you to force a cache miss for the request.
+          Replaces the item in the cache if the content is cacheable.
+          Defaults to 0.
       force_ssl:
         type: "int"
-        description: "defaults to 0"
+        description: "Forces the request use SSL (redirects a non-SSL to SSL). Defaults to 0."
       action:
         type: "str"
         choices: [null, "lookup", "pass"]
+        description: >-
+          Allows you to terminate request handling and immediately perform an action. Options:
+
+          - lookup
+            Perform a cache lookup.
+
+          - pass
+            Ignore the cache completely.
       bypass_busy_wait:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          Disable collapsed forwarding, so you don't wait for other objects to origin.
+          Defaults to 0.
       max_stale_age:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          How old an object is allowed to be to serve stale-if-error or stale-while-revalidate.
+          Defaults to 0.
       hash_keys:
         type: "str"
+        description: "Comma separated list of varnish request object fields that should be in the hash key."
       xff:
         type: "str"
         choices: [null, "clear", "leave", "append", "append_all", "overwrite"]
+        description: "Short for X-Forwarded-For."
       timer_support:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          Injects the X-Timer info into the request for viewing origin fetch durations. Defaults to 0.
       geo_headers:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          Injects Fastly-Geo-Country, Fastly-Geo-City, and Fastly-Geo-Region into the request headers.
+          Defaults to 0.
       default_host:
         type: "str"
+        description: "Sets the host header."
   response_object:
     type: "dict"
-    description: "response object"
+    description: >-
+      Allows you to create synthetic responses that exist entirely on the varnish machine.
+      Useful for creating error or maintenance pages that exists outside the scope of your datacenter.
+      Best when used with Condition objects.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "Name for the request settings."
       request_condition:
         type: "str"
+        description: "Condition which, if met, will select this configuration during a request. Optional."
       response:
         type: "str"
-        description: "defaults to 'Ok'"
+        description: "The HTTP response. Defaults to 'Ok'."
       status:
         type: "int"
-        description: "defaults to 200"
+        description: "The HTTP status code. Defaults to 200."
       content:
         type: "str"
+        description: "The content to deliver for the response object, can be empty."
       content_type:
         type: "str"
+        description: "The MIME type of the content, can be empty."
   vcl_snippet:
     type: "dict"
-    description: "vcl snippet"
+    description: >-
+      VCL Snippets are blocks of VCL logic inserted into your service's configuration
+      that don't require custom VCL.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "The name for the snippet."
       dynamic:
         type: "int"
-        description: "defaults to 0"
+        description: "Sets the snippet version. Defaults to 0."
       type:
         type: "str"
-        description: "defaults to 'init'"
+        choices:
+          - "init",
+          - "recv",
+          - "hash",
+          - "hit",
+          - "miss",
+          - "pass",
+          - "fetch",
+          - "error",
+          - "deliver",
+          - "log",
+          - "none"
+        description: >-
+          The location in generated VCL where the snippet should be placed. Defaults to 'init'. Options:
+
+          - init
+            Place the snippet above all subroutines.
+
+          - recv
+            Place the snippet within the vcl_recv subroutine but below the boilerplate VCL and above any objects.
+
+          - hash
+            Place the snippet within the vcl_hash subroutine.
+
+          - hit
+            Place the snippet within the vcl_hit subroutine.
+
+          - miss
+            Place the snippet within the vcl_miss subroutine.
+
+          - pass
+            Place the snippet within the vcl_pass subroutine.
+
+          - fetch
+            Place the snippet within the vcl_fetch subroutine.
+
+          - error
+            Place the snippet within the vcl_error subroutine.
+
+          - deliver
+            Place the snippet within the vcl_deliver subroutine.
+
+          - log
+            Place the snippet within the vcl_log subroutine.
+
+          - none
+            Don't render the snippet in VCL so it can be manually included in custom VCL.
       content:
         type: "str"
+        description: "The VCL code that specifies exactly what the snippet does."
       priority:
         type: "int"
-        description: "defaults to 100"
+        description: >-
+          Numeric string value. Priority determines execution order. Lower numbers execute first.
+          Defaults to 100.
   s3:
     type: "dict"
-    description: "s3 logger"
+    description: >-
+      Fastly will upload log messages to the S3 bucket in the format specified in the S3 object.
     props:
       name:
         type: "str"
         non_empty: true
+        description: "The name for the real-time logging configuration."
       access_key:
         type: "str"
+        description: "The access key for your S3 account. Not required if iam_role is provided."
       bucket_name:
         type: "str"
+        description: "The bucket name for S3 account."
       domain:
         type: "str"
+        description: "The domain of the Amazon S3 endpoint."
       format:
         type: "str"
-        description: 'defaults to ''%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'''
+        description: 'A Fastly log format string. Defaults to ''%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b''.'
       format_version:
         type: "int"
-        description: "defaults to 2"
+        description: >-
+          The version of the custom logging format used for the configured endpoint.
+          The logging call gets placed by default in vcl_log if format_version is set to 2 and in
+          vcl_deliver if format_version is set to 1.
+          Defaults to 2.
       gzip_level:
         type: "int"
-        description: "defaults to 0"
+        description: >-
+          What level of gzip encoding to have when sending logs (default 0, no compression).
+          If an explicit non-zero value is set, then compression_codec will default to "gzip."
+          Specifying both compression_codec and gzip_level in the same API request will result in an error.
+          Defaults to 0.
       message_type:
         type: "str"
         choices: [null, "classic", "loggly", "logplex", "blank"]
-        description: "defaults to 'classic'"
+        description: >-
+          How the message should be formatted. Defaults to 'classic'.
+
+          - classic
+            (default)	RFC 3164 syslog prefix.
+
+          - loggly
+            RFC 5424 structured syslog.
+
+          - logplex
+            Heroku-style length prefixed syslog.
+
+          - blank
+            No prefix. Useful for writing JSON and CSV.
       path:
         type: "str"
-        description: "defaults to '/'"
+        description: "The path to upload logs to. Defaults to '/'."
       period:
         type: "int"
-        description: "defaults to 3600"
+        description: >-
+          How frequently log files are finalized so they can be available for reading (in seconds).
+          Defaults to 3600.
       placement:
         type: "str"
+        description: >-
+          Where in the generated VCL the logging call should be placed.
+          If not set, endpoints with format_version of 2 are placed in vcl_log and those
+          with format_version of 1 are placed in vcl_deliver.
+
+          - none
+            Do not render a log statement into VCL. Use this option if you intend to write a log statement manually.
+
+          - waf_debug
+            Put the log statement in the waf_debug_log subroutine, which allows for logging of WAF-specific variables.
       redundancy:
         type: "str"
+        description: "The S3 redundancy level."
       response_condition:
         type: "str"
+        description: "The name of an existing condition in the configured endpoint, or leave blank to always execute."
       secret_key:
         type: "str"
-      server_side_encryption_kms_key_id:
-        type: "str"
+        description: "	The secret key for your S3 account. Not required if iam_role is provided."
       server_side_encryption:
         type: "str"
+        description: "Set this to AES256 or aws:kms to enable S3 Server Side Encryption."
+      server_side_encryption_kms_key_id:
+        type: "str"
+        description: "Optional server-side KMS Key Id. Must be set if server_side_encryption is set to aws:kms or AES256."
       timestamp_format:
         type: "str"
-        description: "defaults to '%Y-%m-%dT%H'"
+        description: "Date and time in ISO 8601 format. Defaults to '%Y-%m-%dT%H'."
   syslog:
     type: "dict"
-    description: "syslog logger"
+    description: "Fastly will stream log messages to the location in the format specified in the Syslog object."
     props:
       name:
         type: "str"
         non_empty: true
+        description: "The name for the real-time logging configuration."
       hostname:
         type: "str"
+        description: "The hostname used for the syslog endpoint."
       port:
         type: "int"
+        description: "The port number. Defaults to 514."
       address:
         type: "str"
+        description: "A hostname or IPv4 address."
       format_version:
         type: "str"
-        description: "defaults to 2"
+        description: >-
+          The version of the custom logging format used for the configured endpoint.
+          The logging call gets placed by default in vcl_log if format_version is set to 2
+          and in vcl_deliver if format_version is set to 1.
+          Defaults to 2.
       format:
         type: "str"
-        description: 'defaults to ''%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b'''
+        description: 'A Fastly log format string. Defaults to ''%{%Y-%m-%dT%H:%M:%S}t %h "%r" %>s %b''.'
       ipv4:
         type: "str"
+        description: "The IPv4 address used for the syslog endpoint."
       message_type:
         type: "str"
         choices: [null, "classic", "loggly", "logplex", "blank"]
-        description: "defaults to 'classic'"
+        description: >-
+          How the message should be formatted. Defaults to 'classic'. Options:
+
+          - classic
+            (default)	RFC 3164 syslog prefix.
+
+          - loggly
+            RFC 5424 structured syslog.
+
+          - logplex
+            Heroku-style length prefixed syslog.
+
+          - blank
+            No prefix. Useful for writing JSON and CSV.
       placement:
         type: "str"
+        description: >-
+          Where in the generated VCL the logging call should be placed.
+          If not set, endpoints with format_version of 2 are placed in vcl_log and those
+          with format_version of 1 are placed in vcl_deliver.
+
+          - none
+            Do not render a log statement into VCL. Use this option if you intend to write a log statement manually.
+
+          - waf_debug
+            Put the log statement in the waf_debug_log subroutine, which allows for logging of WAF-specific variables.
       response_condition:
         type: "str"
+        description: "The name of an existing condition in the configured endpoint, or leave blank to always execute."
       tls_ca_cert:
         type: "str"
+        description: "A secure certificate to authenticate a server with. Must be in PEM format."
       tls_hostname:
         type: "str"
+        description: >-
+          The hostname to verify the server's certificate.
+          This should be one of the Subject Alternative Name (SAN) fields for the certificate.
+          Common Names (CN) are not supported.
       token:
         type: "str"
+        description: "Whether to prepend each message with a specific token."
       use_tls:
         type: "int"
-        description: "defaults to 0"
+        description: "Whether to use TLS. Defaults to 0."
   settings:
     type: "dict"
-    description: "handles default settings for a service"
+    description: "Handles default settings for a service."
     props:
       "general.default_ttl":
         type: "int"
-        description: "defaults to 3600"
+        description: "The default time-to-live (TTL) for the version. Defaults to 3600."
   credentials:
     type: "dict"
-    description: "fastly cdn credentials schema"
+    description: "Fastly cdn credentials schema."
     props:
       cdn:
         schema: "fastly_credentials"
         non_empty: true
-        description: "fastly cdn main credentials"
+        description: "Fastly CDN main credentials."
   fastly_credentials:
     type: "dict"
-    description: "fastly cdn main credentials schema"
+    description: "Fastly CDN main credentials schema."
     props:
       api_key:
         type: "str"
         non_empty: true
-        description: "fastly api key"
+        description: "Fastly API key."
