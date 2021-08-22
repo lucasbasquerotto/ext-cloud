@@ -42,7 +42,12 @@ def prepare_data(raw_data):
       credentials_keys=credentials_keys,
       default_credential_name='storage',
       required_keys_info=required_keys_info,
-      fn_finalize_item=None,
+      fn_finalize_item=lambda item: finalize_item(item),
   )
 
   return prepare_default_data(data_info)
+
+
+def finalize_item(item):
+  item['name'] = item.get('name').replace('_', '-')
+  return dict(result=item)
