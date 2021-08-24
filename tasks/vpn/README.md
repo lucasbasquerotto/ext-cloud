@@ -16,16 +16,17 @@ _Example:_
 
 ```yaml
 services:
-  digital_ocean_vpn:
+  vpn_service:
     base_dir: "ext-cloud"
     namespace: "ext_vpn"
-    task: "tasks/vpn/digital_ocean.main.vpn.yml"
-    schema: "tasks/vpn/digital_ocean.schema.vpn.yml"
-    validator: "tasks/vpn/digital_ocean.validator.vpn.yml"
+    task: "tasks/vpn/digital_ocean/digital_ocean.main.vpn.yml"
+    schema: "tasks/vpn/digital_ocean/digital_ocean.schema.vpn.yml"
+    validator: "tasks/vpn/digital_ocean/digital_ocean.validator.vpn.yml"
     credentials:
       vpn: "digital_ocean"
     params:
       tags:
+        - "main"
         - "auto"
         - "dmz"
       firewalls:
@@ -72,8 +73,9 @@ credentials:
     api_token: "<digital_ocean_api_token>"
 ```
 
-The above example will create the tags:
+The above example will create the foolowing tags (if needed):
 
+- `main`
 - `auto`
 - `dmz`
 

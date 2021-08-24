@@ -14,12 +14,12 @@ _Example:_
 
 ```yaml
 services:
-  service_nameserver:
+  nameserver_service:
     base_dir: "ext-cloud"
     namespace: "ext_nameserver"
-    task: "tasks/nameserver/godaddy.main.nameserver.yml"
-    schema: "tasks/nameserver/godaddy.schema.nameserver.yml"
-    validator: "tasks/nameserver/godaddy.validator.nameserver.yml"
+    task: "tasks/nameserver/godaddy/godaddy.main.nameserver.yml"
+    schema: "tasks/nameserver/godaddy/godaddy.schema.nameserver.yml"
+    validator: "tasks/nameserver/godaddy/godaddy.validator.nameserver.yml"
     credentials:
       nameserver: "godaddy"
     params:
@@ -33,4 +33,4 @@ credentials:
     api_secret: "<godaddy_api_secret>"
 ```
 
-The service `service_nameserver` above will define the nameservers (the 2 `NS` records with the values `8.8.8.8` and `9.9.9.9`) for the zone `mydomain.com`.
+The service `nameserver_service` above will define the nameservers (the 2 `NS` records with the values `8.8.8.8` and `9.9.9.9`) for the zone `mydomain.com`.

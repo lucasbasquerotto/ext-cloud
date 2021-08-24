@@ -14,39 +14,39 @@ _Example:_
 
 ```yaml
 services:
-  service_dns:
+  dns_service:
     list: true
     services:
-      - name: "service_dns_item_sub1_ipv4"
-        key: "service_dns_item"
+      - name: "dns_service_item_sub1_ipv4"
+        key: "dns_service_item"
         params:
           dns_type: "A"
           record: "sub1"
           value: "1.2.3.4"
-      - name: "service_dns_item_sub1_ipv6"
-        key: "service_dns_item"
+      - name: "dns_service_item_sub1_ipv6"
+        key: "dns_service_item"
         params:
           dns_type: "AAAA"
           record: "sub1"
           value: "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-      - name: "service_dns_item_sub2_ipv4"
-        key: "service_dns_item"
+      - name: "dns_service_item_sub2_ipv4"
+        key: "dns_service_item"
         params:
           dns_type: "A"
           record: "sub2"
           value: "5.6.7.8"
-      - name: "service_dns_item_sub2_ipv6"
-        key: "service_dns_item"
+      - name: "dns_service_item_sub2_ipv6"
+        key: "dns_service_item"
         params:
           dns_type: "AAAA"
           record: "sub2"
           value: "2804:214:861b:1137:f9b2:4339:71ca:bd72"
-  service_dns_item:
+  dns_service_item:
     base_dir: "ext-cloud"
     namespace: "ext_dns"
-    task: "tasks/dns/cloudflare.main.dns.yml"
-    schema: "tasks/dns/cloudflare.schema.dns.yml"
-    validator: "tasks/dns/cloudflare.validator.dns.yml"
+    task: "tasks/dns/cloudflare/cloudflare.main.dns.yml"
+    schema: "tasks/dns/cloudflare/cloudflare.schema.dns.yml"
+    validator: "tasks/dns/cloudflare/cloudflare.validator.dns.yml"
     credentials:
       dns: "cloudflare"
     params:
@@ -57,7 +57,7 @@ credentials:
     token: "<cloudflare_token>"
 ```
 
-The service `service_dns` above will call `service_dns_item` 4 times to create the following records in the zone `mydomain.com`:
+The service `dns_service` above will call `dns_service_item` 4 times to create the following records in the zone `mydomain.com`:
 
 - An `A` record for the subdomain `sub1` with the value `1.2.3.4`.
 - An `AAAA` record for the subdomain `sub1` with the value `2001:0db8:85a3:0000:0000:8a2e:0370:7334`.
@@ -76,19 +76,19 @@ _Example:_
 
 ```yaml
 services:
-  service_dns:
+  dns_service:
     base_dir: "ext-cloud"
     namespace: "ext_dns"
-    task: "tasks/dns/godaddy.main.dns.yml"
-    schema: "tasks/dns/godaddy.schema.dns.yml"
-    validator: "tasks/dns/godaddy.validator.dns.yml"
+    task: "tasks/dns/godaddy/godaddy.main.dns.yml"
+    schema: "tasks/dns/godaddy/godaddy.schema.dns.yml"
+    validator: "tasks/dns/godaddy/godaddy.validator.dns.yml"
     credentials:
       dns: "godaddy"
     params:
       zone: "mydomain.com"
       dns_type: "NS"
       record: "dev"
-      value: ["8.8.8.8", "9.9.9.9"]
+      value: ["1.1.1.1", "2.2.2.2"]
 credentials:
   godaddy:
     api_server: "https://api.godaddy.com"
@@ -97,4 +97,4 @@ credentials:
     api_secret: "<godaddy_api_secret>"
 ```
 
-The service `service_dns` above will create 2 `NS` records for the subdomain `dev` with the values `8.8.8.8` and `9.9.9.9`.
+The service `dns_service` above will create 2 `NS` records for the subdomain `dev` with the values `1.1.1.1` and `2.2.2.2`.

@@ -12,7 +12,7 @@ _Example #1:_
 
 ```yaml
 services:
-  service_s3:
+  s3_service:
     base_dir: "ext-cloud"
     namespace: "ext_s3"
     task: "tasks/s3/aws.main.s3.yml"
@@ -21,8 +21,11 @@ services:
     credentials:
       s3: "s3"
     params:
-      bucket: "my-bucket"
-      permission: "public-read"
+      list:
+        - bucket: "private-bucket-name"
+          permission: "private"
+        - bucket: "public-bucket-name"
+          permission: "public-read"
 credentials:
   s3:
     endpoint: "https://ams3.digitaloceanspaces.com"
@@ -30,13 +33,13 @@ credentials:
     secret_key: "<digital_ocean_spaces_secret_key>"
 ```
 
-The above service (`service_s3`) will create a public bucket (read permission allowed) named `my-bucket` at Digital Ocean Spaces.
+The above service (`s3_service`) will create a private bucket named `private-bucket-name` and a public bucket (read permission allowed) named `public-bucket-name` at Digital Ocean Spaces.
 
 _Example #2:_
 
 ```yaml
 services:
-  s3_buckets:
+  s3_service_02:
     list: true
     services:
       - name: "s3_backup"
@@ -59,9 +62,8 @@ services:
       s3: "s3"
 credentials:
   s3:
-    endpoint: "https://ams3.digitaloceanspaces.com"
-    access_key: "<s3_access_key>"
-    secret_key: "<s3_secret_key>"
+    access_key: "<aws_s3_access_key>"
+    secret_key: "<aws_s3_secret_key>"
 ```
 
-The above service (`s3_buckets`) will create a private bucket named `my-backup-bucket` and a public bucket (read permission allowed) named `my-uploads-bucket` at Digital Ocean Spaces.
+The above service (`s3_service_02`) will create a private bucket named `my-backup-bucket` and a public bucket (read permission allowed) named `my-uploads-bucket` at AWS.

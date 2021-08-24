@@ -14,12 +14,12 @@ _Example:_
 
 ```yaml
 services:
-  service_cdn:
+  cdn_service:
     base_dir: "ext-cloud"
     namespace: "ext_cdn"
-    task: "tasks/cdn/fastly.main.cdn.yml"
-    schema: "tasks/cdn/fastly.schema.cdn.yml"
-    validator: "tasks/cdn/fastly.validator.cdn.yml"
+    task: "tasks/cdn/fastly/fastly.main.cdn.yml"
+    schema: "tasks/cdn/fastly/fastly.schema.cdn.yml"
+    validator: "tasks/cdn/fastly/fastly.validator.cdn.yml"
     credentials:
       cdn: "fastly"
     params:
@@ -53,7 +53,7 @@ credentials:
     api_key: "<fastly_api_key>"
 ```
 
-The service `service_cdn` above will make requests to :
+The service `cdn_service` above will make requests to :
 
 - `mydomain1.<fastly_domain>` return status `200` with the content `Test Ok`.
 - `mydomain2.<fastly_domain>` go to `http://1.2.3.4:80`.
