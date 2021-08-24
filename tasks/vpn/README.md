@@ -35,17 +35,17 @@ services:
           inbound_rules:
             - ports: "9080"
               sources:
-                addresses: "1.2.3.4"
+                addresses: ["1.2.3.4"]
             - ports: "9443"
               sources:
-                addresses: "1.2.3.4"
+                addresses: ["1.2.3.4"]
         - name: "auto"
           tags: ["auto"]
           inbound_rules:
             - ports: "22"
               sources:
                 tags: ["main"]
-                addresses: "8.8.8.8"
+                addresses: ["8.8.8.8"]
           outbound_rules:
             - protocol: "tcp"
               ports: "1-65535"
