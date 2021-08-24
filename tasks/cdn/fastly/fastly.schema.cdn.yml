@@ -636,16 +636,16 @@ schemas:
       type:
         type: "str"
         choices:
-          - "init",
-          - "recv",
-          - "hash",
-          - "hit",
-          - "miss",
-          - "pass",
-          - "fetch",
-          - "error",
-          - "deliver",
-          - "log",
+          - "init"
+          - "recv"
+          - "hash"
+          - "hit"
+          - "miss"
+          - "pass"
+          - "fetch"
+          - "error"
+          - "deliver"
+          - "log"
           - "none"
         description: >-
           The location in generated VCL where the snippet should be placed. Defaults to 'init'. Options:
