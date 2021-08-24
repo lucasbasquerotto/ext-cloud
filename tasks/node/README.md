@@ -40,7 +40,8 @@ nodes:
   digital_ocean_node:
     service: "digital_ocean_node_service"
     base_dir: "/var/cloud"
-    credential: "host"
+    credentials:
+      host: "host"
     root: true
     params:
       node_setup:
@@ -135,7 +136,8 @@ nodes:
   linode_node:
     service: "node_service"
     base_dir: "/var/cloud"
-    credential: "host"
+    credentials:
+      host: "host"
     root: true
     params:
       node_setup:
