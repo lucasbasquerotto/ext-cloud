@@ -1404,7 +1404,7 @@ class FastlyServiceModule(object):
               required=False, type='bool', default=True),
             healthchecks=dict(default=None, required=False, type='list'),
             domains=dict(default=None, required=True, type='list'),
-            backends=dict(default=None, required=True, type='list'),
+            backends=dict(default=None, required=False, type='list'),
             cache_settings=dict(default=None, required=False, type='list'),
             conditions=dict(default=None, required=False, type='list'),
             directors=dict(default=None, required=False, type='list'),

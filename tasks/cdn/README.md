@@ -26,7 +26,7 @@ services:
       list:
         - name: test-service1
           domains:
-            - name: mydomain1
+            - name: mydomain1.test
               comment: static response
           response_objects:
             - name: Set 200 status code
@@ -34,7 +34,7 @@ services:
               response: Test Ok
         - name: test-service2
           domains:
-            - name: mydomain2
+            - name: mydomain2.test
               comment: go to host defined by ip
           backends:
             - name: test2
@@ -42,7 +42,7 @@ services:
               address: 1.2.3.4
         - name: test-service3
           domains:
-            - name: mydomain3
+            - name: mydomain3.test
               comment: go to host defined by hostname
           backends:
             - name: test3

@@ -41,7 +41,7 @@ credentials_keys = ['api_key']
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['name', 'domains', 'backends'],
+      params=['name', 'domains'],
       credentials=[],
   )
 
