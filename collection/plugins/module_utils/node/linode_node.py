@@ -70,6 +70,8 @@ def manage_stackscript(data):
       resource_id = None
 
       if state != 'present':
+        changed = same_label_list
+
         if same_label_list:
           resource_ids = [i.get('id') for i in same_label_list]
 
