@@ -17,7 +17,7 @@
   community.digitalocean.digital_ocean_block_storage:
     command: create
     state: "{{ ext_node_item.state }}"
-    oauth_token: "{{ ext_node_item.oauth_token }}"
+    oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
     volume_name: "{{ ext_node_item.name }}"
     region: "{{ ext_node_item.region }}"
     block_size: "{{ ext_node_item.block_size }}"
@@ -32,7 +32,7 @@
     unique_name: true
     name: "{{ ext_node_item.name }}"
     state: "{{ ext_node_item.state }}"
-    oauth_token: "{{ ext_node_item.oauth_token }}"
+    oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
     region_id: "{{ ext_node_item.region_id }}"
     size_id: "{{ ext_node_item.size_id }}"
     image_id: "{{ ext_node_item.image_id }}"
@@ -51,7 +51,7 @@
 
 - name: "{{ inner_service_title }} - digital ocean node - tag the droplets"
   community.digitalocean.digital_ocean_tag:
-    api_token: "{{ ext_node_main_credentials.api_token }}"
+    api_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
     resource_id: "{{ ext_node_droplet.id }}"
     name: "{{ ext_node_tag }}"
     state: "present"
@@ -62,7 +62,7 @@
   loop: >-
     {{
       (ext_node_details.results | default([]))
-      | product(ext_node_params.tags | default([]))
+      | product(ext_node_data_wrapper.data.tags | default([]))
       | list
     }}
   loop_control:
@@ -76,7 +76,7 @@
   community.digitalocean.digital_ocean_block_storage:
     command: create
     state: "{{ ext_node_item.state }}"
-    oauth_token: "{{ ext_node_item.oauth_token }}"
+    oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
     volume_name: "{{ ext_node_item.name }}"
     region: "{{ ext_node_item.region }}"
     block_size: "{{ ext_node_item.block_size }}"

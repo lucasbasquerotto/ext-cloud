@@ -25,10 +25,14 @@ def prepare_data(raw_data):
 
   try:
     params = raw_data.get('params', {})
+    credentials = raw_data.get('credentials', {})
 
     replicas = params.get('replicas', [])
     replica_volumes = params.get('replica_volumes', [])
     volumes_to_attach = params.get('volumes_to_attach', [])
+    tags = params.get('tags', [])
+
+    node_credentials = credentials.get('node')
 
     droplets = []
 
@@ -82,8 +86,10 @@ def prepare_data(raw_data):
         droplets += [droplet]
 
     result = dict(
+        oauth_token=node_credentials.get('api_token'),
         volumes_to_create=volumes_to_create,
         droplets=droplets,
+        tags=tags,
         volumes_to_destroy=volumes_to_destroy,
     )
 
@@ -104,15 +110,11 @@ def prepare_droplet(replica, raw_data):
   try:
     state = raw_data.get('state')
     params = raw_data.get('params', {})
-    credentials = raw_data.get('credentials', {})
     contents = raw_data.get('contents', {})
-
-    node_credentials = credentials.get('node')
 
     result = dict(
         name=replica.get('name'),
         state=('absent' if replica.get('absent') else state),
-        oauth_token=node_credentials.get('api_token'),
         region_id=params.get('region_id'),
         size_id=params.get('size_id'),
         image_id=params.get('image_id'),
@@ -140,9 +142,6 @@ def prepare_volume(volume, replica, raw_data):
   try:
     state = raw_data.get('state')
     params = raw_data.get('params', {})
-    credentials = raw_data.get('credentials', {})
-
-    node_credentials = credentials.get('node')
 
     volume_name = (
         volume.get('prefix', '') +
@@ -161,7 +160,6 @@ def prepare_volume(volume, replica, raw_data):
         name=volume_name,
         state=(state if volume.get('can_destroy') else 'present'),
         skip=skip,
-        oauth_token=node_credentials.get('api_token'),
         region=params.get('region_id'),
         block_size=volume.get('block_size'),
     )
