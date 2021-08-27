@@ -24,7 +24,7 @@ services:
       nameserver: "godaddy"
     params:
       zone: "mydomain.com"
-      nameservers: ["8.8.8.8", "9.9.9.9"]
+      nameservers: ["ns29.domaincontrol.com", "ns30.domaincontrol.com"]
 credentials:
   godaddy:
     api_server: "https://api.godaddy.com"
@@ -33,4 +33,4 @@ credentials:
     api_secret: "<godaddy_api_secret>"
 ```
 
-The service `nameserver_service` above will define the nameservers (the 2 `NS` records with the values `8.8.8.8` and `9.9.9.9`) for the zone `mydomain.com`.
+The service `nameserver_service` above will define the nameservers (the 2 `NS` records with the values `ns29.domaincontrol.com` and  `ns30.domaincontrol.com`) for the zone `mydomain.com`.
