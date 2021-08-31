@@ -30,6 +30,7 @@ def prepare_data(raw_data):
     replicas = params.get('replicas', [])
     replica_volumes = params.get('replica_volumes', [])
     volumes_to_attach = params.get('volumes_to_attach', [])
+    volumes_to_dettach = params.get('volumes_to_dettach', [])
     tags = params.get('tags', [])
 
     node_credentials = credentials.get('node')
@@ -46,7 +47,16 @@ def prepare_data(raw_data):
       )
       droplet = info.get('result')
       error_msgs_aux = info.get('error_msgs')
-      volumes_names = volumes_to_attach
+
+      droplet_volumes = []
+      droplet_volumes += [
+          dict(attach=True, name=name)
+          for name in volumes_to_attach
+      ]
+      droplet_volumes += [
+          dict(attach=False, name=name)
+          for name in volumes_to_dettach
+      ]
 
       for value in (error_msgs_aux or []):
         new_value = [
@@ -79,9 +89,14 @@ def prepare_data(raw_data):
               else:
                 volumes_to_create += [droplet_volume]
 
-            volumes_names += [droplet_volume.get('name')]
+            volume_to_add = dict(
+                name=droplet_volume.get('name'),
+                attach=not to_bool(volume.get('dettach'), False),
+            )
 
-        droplet['volumes'] = volumes_names
+            droplet_volumes += [volume_to_add]
+
+        droplet['volumes'] = droplet_volumes
 
         droplets += [droplet]
 

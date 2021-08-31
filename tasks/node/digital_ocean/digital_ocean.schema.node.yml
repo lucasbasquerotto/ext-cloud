@@ -40,6 +40,10 @@ schemas:
         type: "list"
         elem_type: "str"
         description: "volume names (previously created) to be attached to the droplet"
+      volumes_to_dettach:
+        type: "list"
+        elem_type: "str"
+        description: "volume names (previously created) to be dettached from the droplet"
       region_id:
         type: "str"
         non_empty: true
@@ -105,6 +109,11 @@ schemas:
         type: "bool"
         description: >-
           when true, the block storage is destroyed when the replica is destroyed;
+          defaults to false
+      dettach:
+        type: "bool"
+        description: >-
+          when true, the block storage is detached from the droplet instead;
           defaults to false
       block_size:
         type: "int"

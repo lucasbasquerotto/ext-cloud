@@ -24,7 +24,7 @@
   loop: "{{ ext_node_data_wrapper.data.volumes_to_create }}"
   loop_control:
     loop_var: ext_node_item
-    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+    label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
 
 - name: "{{ inner_service_title }} - digital ocean node - droplets"
@@ -45,7 +45,7 @@
   loop: "{{ ext_node_data_wrapper.data.droplets }}"
   loop_control:
     loop_var: ext_node_item
-    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+    label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   register: ext_node_details
   no_log: "{{ env_no_log }}"
 
@@ -72,6 +72,32 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]
 
+- name: "{{ inner_service_title }} - digital ocean node - attach/dettach volumes"
+  community.digitalocean.digital_ocean_block_storage:
+    command: attach
+    state: "{{ tmp_volume_state }}"
+    oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
+    volume_name: "{{ tmp_volume_name }}"
+    region: "{{ ext_node_item.region_id }}"
+    droplet_id: "{{ ext_node_droplet.id }}"
+  vars:
+    ext_node_item: "{{ ext_node_item_data.0.ext_node_item }}"
+    ext_node_droplet: "{{ ext_node_item_data.0.data.droplet }}"
+    tmp_volume: "{{ ext_node_item_data.1 }}"
+    tmp_volume_state: >-
+      {{ tmp_volume.attach | default(false) | bool | ternary('present', 'absent') }}
+    tmp_volume_name: "{{ tmp_volume.name }}"
+  when: ext_node_item.state == 'present'
+  loop: >-
+    {{
+      (ext_node_details.results | default([]))
+      | subelements(['ext_node_item', 'volumes'], skip_missing=True)
+    }}
+  loop_control:
+    loop_var: ext_node_item_data
+    label: "[{{ tmp_volume_state }}] {{ tmp_volume_name }}"
+  no_log: "{{ env_no_log }}"
+
 - name: "{{ inner_service_title }} - digital ocean node - volumes (destroy)"
   community.digitalocean.digital_ocean_block_storage:
     command: create
@@ -83,7 +109,7 @@
   loop: "{{ ext_node_data_wrapper.data.volumes_to_destroy }}"
   loop_control:
     loop_var: ext_node_item
-    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+    label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
 
 - name: "{{ inner_service_title }} - digital ocean node - set hosts"
@@ -130,7 +156,7 @@
   loop: "{{ ext_node_details.results | default([]) }}"
   loop_control:
     loop_var: ext_node_item_data
-    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+    label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 

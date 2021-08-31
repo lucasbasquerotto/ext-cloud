@@ -56,7 +56,7 @@
   loop: "{{ ext_node_details.results | default([]) }}"
   loop_control:
     loop_var: ext_node_item_data
-    label: "[{{ ext_node_item.state }}]  {{ ext_node_item.name }}"
+    label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
