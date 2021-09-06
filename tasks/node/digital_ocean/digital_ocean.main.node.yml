@@ -14,7 +14,7 @@
 # Main
 
 - name: "{{ inner_service_title }} - digital ocean node - volumes (create)"
-  community.digitalocean.digital_ocean_block_storage:
+  lrd.ext_cloud.digital_ocean_block_storage:
     command: create
     state: "{{ ext_node_item.state }}"
     oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
@@ -72,8 +72,8 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]
 
-- name: "{{ inner_service_title }} - digital ocean node - attach/dettach volumes"
-  community.digitalocean.digital_ocean_block_storage:
+- name: "{{ inner_service_title }} - digital ocean node - attach/detach volumes"
+  lrd.ext_cloud.digital_ocean_block_storage:
     command: attach
     state: "{{ tmp_volume_state }}"
     oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"
@@ -95,11 +95,11 @@
     }}
   loop_control:
     loop_var: ext_node_item_data
-    label: "[{{ tmp_volume_state }}] {{ tmp_volume_name }}"
+    label: "[{{ tmp_volume_state }}] {{ tmp_volume_name }} (droplet: {{ ext_node_item.name }})"
   no_log: "{{ env_no_log }}"
 
 - name: "{{ inner_service_title }} - digital ocean node - volumes (destroy)"
-  community.digitalocean.digital_ocean_block_storage:
+  lrd.ext_cloud.digital_ocean_block_storage:
     command: create
     state: "{{ ext_node_item.state }}"
     oauth_token: "{{ ext_node_data_wrapper.data.oauth_token }}"

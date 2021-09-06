@@ -1,0 +1,486 @@
+root: "cdn_schema"
+schemas:
+  cdn_schema:
+    type: "dict"
+    description: "AWS Cloudfront CDN schema."
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_cdn"]
+        description: "CDN namespace."
+      params:
+        schema: "params"
+        non_empty: true
+        description: "AWS Cloudfront CDN parameters."
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "AWS Cloudfront CDN credentials."
+  params:
+    type: "dict"
+    description: "AWS Cloudfront CDN parameters schema."
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          List of records to be created/destroyed. Used when defined, instead of considering
+          the parameters as only one definition. Instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter. When not defined, will use
+          the outer parameters as one single list item.
+      name:
+        type: "str"
+        description: >-
+          The unique name for the Cloudfront distribution (caller_reference).
+          Each caller reference must be unique across all distributions;
+          e.g. a caller reference used in a web distribution cannot be reused in a streaming distribution.
+      aliases:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list of domain name aliases (CNAMEs) as strings to be used for the distribution.
+          Each alias must be unique across all distribution for the AWS account.
+      cache_behaviors:
+        type: "list"
+        elem_schema: "cache_behavior"
+        description: >-
+          A list of dictionaries describing the cache behaviors for the distribution.
+          The order of the list is preserved across runs unless purge_cache_behaviors is enabled.
+      comment:
+        type: "str"
+        description: >-
+          A comment that describes the CloudFront distribution.
+          If not specified, it defaults to a generic message and a datetime stamp.
+      custom_error_responses:
+        type: "list"
+        elem_schema: "custom_error_response"
+        description: >-
+          A config element that is a list[] of complex custom error responses to be specified
+          for the distribution.
+          This attribute configures custom http error messages returned to the user.
+      default_cache_behavior:
+        schema: "default_cache_behavior"
+        description: >-
+          A dict specifying the default cache behavior of the distribution.
+          If not specified, the target_origin_id is defined as the target_origin_id of the first
+          valid cache_behavior in cache_behaviors with defaults.
+      default_origin_path:
+        type: "str"
+        description: >-
+          The default origin path to specify for an origin if no origins have been specified.
+          Defaults to empty if not specified.
+      default_root_object:
+        type: "str"
+        description: >-
+          A config element that specifies the path to request when the user requests the origin;
+          e.g. if specified as 'index.html', this maps to www.example.com/index.html when www.example.com is called by the user.
+          This prevents the entire distribution origin from being exposed at the root.
+      e_tag:
+        type: "str"
+        description: >-
+          A unique identifier of a modified or existing distribution.
+          Is determined automatically if not specified.
+      enabled:
+        type: "bool"
+        description: >-
+          A boolean value that specifies whether the distribution is enabled or disabled.
+          Defaults to false.
+      http_version:
+        type: "str"
+        description: >-
+          The version of the http protocol to use for the distribution.
+          AWS defaults this to http2.
+        choices: ["http1.1", "http2"]
+      ipv6_enabled:
+        type: "bool"
+        description: >-
+          Determines whether IPv6 support is enabled or not.
+          Defaults to false.
+      logging:
+        schema: "logging"
+        description: >-
+          A config element that is a complex object that defines logging for the distribution.
+      origins:
+        type: "list"
+        elem_schema: "origin"
+        description: >-
+          A config element that is a list of complex origin objects to be specified for the
+          distribution. Used for creating and updating distributions.
+      price_class:
+        type: "str"
+        description: >-
+          A string that specifies the pricing class of the distribution.
+          As per https://aws.amazon.com/cloudfront/pricing/
+          price_class=PriceClass_100 consists of the areas United States, Canada and Europe.
+          price_class=PriceClass_200 consists of the areas United States, Canada, Europe,
+          Japan, India, Hong Kong, Philippines, S. Korea, Singapore & Taiwan.
+          price_class=PriceClass_All consists of the areas United States, Canada, Europe,
+          Japan, India, South America, Australia, Hong Kong, Philippines, S. Korea, Singapore & Taiwan.
+          AWS defaults this to PriceClass_All.
+        choices: ["PriceClass_100", "PriceClass_200", "PriceClass_All"]
+      purge_aliases:
+        type: "bool"
+        description: >-
+          Specifies whether existing aliases will be removed before adding new aliases.
+          When purge_aliases=true, existing aliases are removed and aliases are added.
+      purge_cache_behaviors:
+        type: "bool"
+        description: >-
+          Whether to remove any cache behaviors that aren't listed in cache_behaviors.
+          This switch also allows the reordering of cache_behaviors.
+      purge_custom_error_responses:
+        type: "bool"
+        description: >-
+          Whether to remove any custom error responses that aren't listed in custom_error_responses.
+      purge_origins:
+        type: "bool"
+        description: "Whether to remove any origins that aren't listed in origins."
+      purge_tags:
+        type: "bool"
+        description: >-
+          Specifies whether existing tags will be removed before adding new tags.
+          When purge_tags=yes, existing tags are removed and tags are added, if specified.
+          If no tags are specified, it removes all existing tags for the distribution.
+          When purge_tags=no, existing tags are kept and tags are added, if specified.
+      region:
+        type: "str"
+        description: >-
+          The AWS region to use.
+          See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
+      restrictions:
+        schema: "restrictions"
+        description: >-
+          A config element that is a complex object that describes how a distribution should
+          restrict it's content.
+      tags:
+        type: "map"
+        description: >-
+          Should be input as a dict of key-value pairs.
+          Note that numeric keys or values must be wrapped in quotes. e.g. Priority: '1'
+      validate_certs:
+        type: "bool"
+        description: "When set to "no", SSL certificates will not be validated."
+      wait:
+        type: "bool"
+        description: >-
+          Specifies whether the module waits until the distribution has completed processing
+          the creation or update.
+          Defaults to false.
+      wait_timeout:
+        type: "int"
+        description: "Specifies the duration in seconds to wait for a timeout of a cloudfront create or update."
+  list_item_params:
+    type: "dict"
+    description: "AWS Cloudfront CDN parameters list schema"
+    props:
+      when:
+        type: "bool"
+        description: "When false, ignores the item. Defaults to true."
+      name:
+        type: "str"
+        description: >-
+          The unique name for the Cloudfront distribution (caller_reference).
+          Each caller reference must be unique across all distributions;
+          e.g. a caller reference used in a web distribution cannot be reused in a streaming distribution.
+  cache_behavior:
+    type: "dict"
+    description: >-
+      A list of dictionaries describing the cache behaviors for the distribution.
+      The order of the list is preserved across runs unless purge_cache_behaviors is enabled.
+    props:
+      forwarded_values:
+        schema: "cache_behavior_forwarded_values"
+        description: "A dict that specifies how CloudFront handles query strings and cookies."
+      path_pattern:
+        type: "str"
+        description: "The pattern that specifies which requests to apply the behavior to."
+      target_origin_id:
+        type: "str"
+        description: "The ID of the origin that you want CloudFront to route requests to by default."
+  cache_behavior_forwarded_values:
+    type: "dict"
+    description: "A dict that specifies how CloudFront handles query strings and cookies."
+    props:
+      allowed_methods:
+        schema: "cache_behavior_forwarded_values_allowed_methods"
+        description: "A dict that controls which HTTP methods CloudFront processes and forwards."
+      compress:
+        type: "bool"
+        description: "Whether you want CloudFront to automatically compress files."
+      cookies:
+        schema: "cache_behavior_forwarded_values_cookies"
+        description: >-
+          A dict that specifies whether you want CloudFront to forward cookies
+          to the origin and, if so, which ones.
+      default_ttl:
+        type: "int"
+        description: "The default amount of time that you want objects to stay in CloudFront caches."
+      field_level_encryption_id:
+        type: "str"
+        description: >-
+          The field-level encryption configuration that you want CloudFront to use for encrypting
+          specific fields of data.
+      headers:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list of headers to forward to the origin for this cache behavior.
+          To forward all headers use a list containing a single element '*' (['*'])
+      lambda_function_associations:
+        type: "list"
+        elem_schema: "cache_behavior_forwarded_values_lambda_function_associations"
+        description: "A list of Lambda function associations to use for this cache behavior."
+      max_ttl:
+        type: "int"
+        description: "The maximum amount of time that you want objects to stay in CloudFront caches."
+      min_ttl:
+        type: "int"
+        description: "The minimum amount of time that you want objects to stay in CloudFront caches."
+      query_string:
+        type: "bool"
+        description: >-
+          Indicates whether you want CloudFront to forward query strings to the origin that is
+          associated with this cache behavior.
+      query_string_cache_keys:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list that contains the query string parameters you want CloudFront to use as a basis for
+          caching for a cache behavior.
+      smooth_streaming:
+        type: "bool"
+        description: "Whether you want to distribute media files in the Microsoft Smooth Streaming format."
+      trusted_signers:
+        schema: "cache_behavior_forwarded_values_trusted_signers"
+        description: >-
+          A dict that specifies the AWS accounts that you want to allow to create signed URLs for
+          private content.
+      viewer_protocol_policy:
+        type: "str"
+        description: >-
+          The protocol that viewers can use to access the files in the origin specified by
+          target_origin_id when a request matches path_pattern.
+        choices: ["allow-all", "redirect-to-https", "https-only"]
+  cache_behavior_forwarded_values_allowed_methods:
+    type: "dict"
+    description: "A dict that controls which HTTP methods CloudFront processes and forwards."
+    props:
+      cached_methods:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list of HTTP methods that you want CloudFront to apply caching to.
+          This can either be [GET,HEAD], or [GET,HEAD,OPTIONS].
+        choices: ["GET", "HEAD", "OPTIONS"]
+      items:
+        type: "list"
+        elem_type: "str"
+        description: "A list of HTTP methods that you want CloudFront to process and forward."
+  cache_behavior_forwarded_values_cookies:
+    type: "dict"
+    description: >-
+      A dict that specifies whether you want CloudFront to forward cookies
+      to the origin and, if so, which ones.
+    props:
+      forward:
+        type: "str"
+        description: "Specifies which cookies to forward to the origin for this cache behavior."
+        choices: ["all", "none", "whitelist"]
+      whitelisted_names:
+        type: "list"
+        elem_type: "str"
+        description: "A list of cookies to forward to the origin for this cache behavior."
+  cache_behavior_forwarded_values_lambda_function_associations:
+    type: "dict"
+    description: "A list of Lambda function associations to use for this cache behavior."
+    props:
+      event_type:
+        type: "str"
+        description: "Specifies the event type that triggers a Lambda function invocation."
+        choices: ["viewer-request", "origin-request", "origin-response", "viewer-response"]
+      lambda_function_arn:
+        type: "str"
+        description: "The ARN of the Lambda function."
+  cache_behavior_forwarded_values_trusted_signers:
+    type: "dict"
+    description: >-
+      A dict that specifies the AWS accounts that you want to allow to create signed URLs for
+      private content.
+    props:
+      enabled:
+        type: "bool"
+        description: >-
+          Whether you want to require viewers to use signed URLs to access the files specified
+          by path_pattern and target_origin_id.
+      items:
+        type: "list"
+        elem_type: "str"
+        description: "A list of trusted signers for this cache behavior."
+  custom_error_response:
+    type: "dict"
+    description: >-
+      A config element that is a list[] of complex custom error responses to be specified
+      for the distribution.
+      This attribute configures custom http error messages returned to the user.
+    props:
+      error_caching_min_ttl:
+        type: "int"
+        description: "The length of time (in seconds) that CloudFront will cache status codes for."
+      error_code:
+        type: "int"
+        description: "The error code the custom error page is for."
+      response_code:
+        type: "int"
+        description: >-
+          The HTTP status code that CloudFront should return to a user when the origin returns the
+          HTTP status code specified by error_code.
+      response_page_path:
+        type: "str"
+        description: >-
+          The path to the custom error page that you want CloudFront to return to a viewer when
+          your origin returns the HTTP status code specified by error_code.
+  default_cache_behavior:
+    type: "dict"
+    description: >-
+      A dict specifying the default cache behavior of the distribution.
+      If not specified, the target_origin_id is defined as the target_origin_id of the first
+      valid cache_behavior in cache_behaviors with defaults.
+    props:
+      forwarded_values:
+        schema: "cache_behavior_forwarded_values"
+        description: "A dict that specifies how CloudFront handles query strings and cookies."
+      target_origin_id:
+        type: "str"
+        description: "The ID of the origin that you want CloudFront to route requests to by default."
+  logging:
+    type: "dict"
+    description: "A config element that is a complex object that defines logging for the distribution."
+    props:
+      bucket:
+        type: "str"
+        description: "The S3 bucket to store the log in."
+      enabled:
+        type: "bool"
+        description: "When enabled=true CloudFront will log access to an S3 bucket."
+      include_cookies:
+        type: "bool"
+        description: "When include_cookies=true CloudFront will include cookies in the logs."
+      prefix:
+        type: "str"
+        description: "A prefix to include in the S3 object names."
+  origin:
+    type: "dict"
+    description: >-
+      An origin object to be specified for the distribution. Used for creating and updating distributions.
+    props:
+      custom_headers:
+        type: "list"
+        elem_schema: "origin_custom_header"
+        description: >-
+          Custom headers you wish to add to the request before passing it to the origin.
+          For more information see the CloudFront documentation at:
+          https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/forward-custom-headers.html.
+      custom_origin_config:
+        schema: "origin_custom_origin_config"
+        description: "Connection information about the origin."
+      domain_name:
+        type: "str"
+        description: >-
+          The domain name which CloudFront will query as the origin.
+          For more information see the CloudFront documentation at:
+          https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesDomainName
+      id:
+        type: "str"
+        description: "A unique identifier for the origin or origin group. id must be unique within the distribution."
+      origin_path:
+        type: "str"
+        description: >
+          Tells CloudFront to request your content from a directory in your Amazon S3 bucket or your
+          custom origin.
+      s3_origin_access_identity_enabled:
+        type: "bool"
+        description: >-
+          Use an origin access identity to configure the origin so that viewers can only access objects
+          in an Amazon S3 bucket through CloudFront.
+          Will automatically create an Identity for you.
+          See also https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html.
+  origin_custom_header:
+    type: "dict"
+    description: >-
+      Custom header you wish to add to the request before passing it to the origin.
+      For more information see the CloudFront documentation at:
+      https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/forward-custom-headers.html.
+    props:
+      header_name:
+        type: "str"
+        description: "The name of a header that you want CloudFront to forward to your origin."
+      header_value:
+        type: "str"
+        description: "The value for the header that you specified in the header_name field."
+  origin_custom_origin_config:
+    type: "dict"
+    description: "Connection information about the origin."
+    props:
+      http_port:
+        type: "int"
+        description: "The HTTP port the custom origin listens on."
+      https_port:
+        type: "int"
+        description: "The HTTPS port the custom origin listens on."
+      origin_keepalive_timeout:
+        type: "int"
+        description: "A keep-alive timeout (in seconds)."
+      origin_protocol_policy:
+        type: "str"
+        description: "The origin protocol policy to apply to your origin."
+      origin_read_timeout:
+        type: "int"
+        description: "A timeout (in seconds) when reading from your origin."
+      origin_ssl_protocols:
+        type: "list"
+        elem_type: "str"
+        description: "A list of SSL/TLS protocols that you want CloudFront to use when communicating to the origin over HTTPS."
+  restrictions:
+    type: "dict"
+    description: >-
+      A config element that is a complex object that describes how a distribution should
+      restrict it's content.
+    props:
+      geo_restriction:
+        schema: "restrictions_geo_restriction"
+        description: "Apply a restriction based on the location of the requester."
+  restrictions_geo_restriction:
+    type: "dict"
+    description: "Apply a restriction based on the location of the requester."
+    props:
+      items:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list of ISO 3166-1 two letter (Alpha 2) country codes that the restriction should apply to.
+          See the ISO website for a full list of codes https://www.iso.org/obp/ui/#search/code/.
+      restriction_type:
+        type: "str"
+        description: "The method that you want to use to restrict distribution of your content by country."
+        choices: ["none", "whitelist", "blacklist"]
+  credentials:
+    type: "dict"
+    description: "AWS Cloudfront CDN credentials schema."
+    props:
+      cdn:
+        schema: "aws_credentials"
+        non_empty: true
+        description: "AWS Cloudfront CDN main credentials."
+  aws_credentials:
+    type: "dict"
+    description: "node main credentials schema"
+    props:
+      access_key:
+        type: "str"
+        non_empty: true
+        description: "aws access key"
+      secret_key:
+        type: "str"
+        non_empty: true
+        description: "aws secret key"

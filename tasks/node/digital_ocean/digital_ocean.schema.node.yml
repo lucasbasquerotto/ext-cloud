@@ -39,11 +39,13 @@ schemas:
       volumes_to_attach:
         type: "list"
         elem_type: "str"
-        description: "volume names (previously created) to be attached to the droplet"
-      volumes_to_dettach:
+        description: >-
+          volume names (previously created) to be attached to the droplet; this option should be used
+          only if only 1 droplet is (or will be) created (digital ocean only supports 1 droplet per volume)
+      volumes_to_detach:
         type: "list"
         elem_type: "str"
-        description: "volume names (previously created) to be dettached from the droplet"
+        description: "volume names (previously created) to be detached from the droplet"
       region_id:
         type: "str"
         non_empty: true
@@ -110,7 +112,7 @@ schemas:
         description: >-
           when true, the block storage is destroyed when the replica is destroyed;
           defaults to false
-      dettach:
+      detach:
         type: "bool"
         description: >-
           when true, the block storage is detached from the droplet instead;

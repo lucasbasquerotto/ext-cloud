@@ -12,7 +12,7 @@
   tags: ["no_print"]
 
 - name: "{{ inner_service_title }} - digital ocean storage - execute"
-  community.digitalocean.digital_ocean_block_storage:
+  lrd.ext_cloud.digital_ocean_block_storage:
     command: create
     state: "{{ ext_storage_item.state }}"
     oauth_token: "{{ ext_storage_item.api_token }}"
