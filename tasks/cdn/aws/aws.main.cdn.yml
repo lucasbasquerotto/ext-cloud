@@ -43,7 +43,7 @@
     wait: "{{ ext_cdn_item.wait | default(omit) }}"
     wait_timeout: "{{ ext_cdn_item.wait_timeout | default(omit) }}"
     web_acl_id: "{{ ext_cdn_item.web_acl_id | default(omit) }}"
-  loop: "{{ ext_cdn_data_wrapper.data.security_groups }}"
+  loop: "{{ ext_cdn_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_cdn_item
     label: "[{{ ext_cdn_item.state }}] {{ ext_cdn_item.name }}"

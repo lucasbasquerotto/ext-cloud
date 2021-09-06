@@ -31,6 +31,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns impo
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
     prepare_data as godaddy_nameserver_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.aws_cdn import (
+    prepare_data as aws_cdn_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.aws_node import (
     prepare_data as aws_node_prepare_data
 )
@@ -73,26 +76,28 @@ def main():
 
   if not identifier:
     error_msgs += [['msg: identifier not defined']]
-  elif identifier == 'godaddy_nameserver':
-    info = godaddy_nameserver_prepare_data(raw_data)
-  elif identifier == 'godaddy_dns':
-    info = godaddy_dns_prepare_data(raw_data)
-  elif identifier == 'cloudflare_dns':
-    info = cloudflare_dns_prepare_data(raw_data)
-  elif identifier == 'fastly_cdn':
-    info = fastly_cdn_prepare_data(raw_data)
-  elif identifier == 'stackpath_cdn':
-    info = stackpath_cdn_prepare_data(raw_data)
+  elif identifier == 'aws_cdn':
+    info = aws_cdn_prepare_data(raw_data)
   elif identifier == 'aws_node':
     info = aws_node_prepare_data(raw_data)
-  elif identifier == 'digital_ocean_node':
-    info = digital_ocean_node_prepare_data(raw_data)
-  elif identifier == 's3':
-    info = s3_prepare_data(raw_data)
-  elif identifier == 'digital_ocean_storage':
-    info = digital_ocean_storage_prepare_data(raw_data)
   elif identifier == 'aws_vpn':
     info = aws_vpn_prepare_data(raw_data)
+  elif identifier == 'cloudflare_dns':
+    info = cloudflare_dns_prepare_data(raw_data)
+  elif identifier == 'digital_ocean_node':
+    info = digital_ocean_node_prepare_data(raw_data)
+  elif identifier == 'digital_ocean_storage':
+    info = digital_ocean_storage_prepare_data(raw_data)
+  elif identifier == 'fastly_cdn':
+    info = fastly_cdn_prepare_data(raw_data)
+  elif identifier == 'godaddy_dns':
+    info = godaddy_dns_prepare_data(raw_data)
+  elif identifier == 'godaddy_nameserver':
+    info = godaddy_nameserver_prepare_data(raw_data)
+  elif identifier == 's3':
+    info = s3_prepare_data(raw_data)
+  elif identifier == 'stackpath_cdn':
+    info = stackpath_cdn_prepare_data(raw_data)
   else:
     error_msgs += [['msg: invalid identifier']]
 

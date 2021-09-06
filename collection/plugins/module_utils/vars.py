@@ -72,6 +72,10 @@ def prepare_default_item(data_info, item_params):
     for key in params_keys:
       result[key] = item_params.get(key)
 
+    if result.get('absent'):
+      result['state'] = 'absent'
+      result.pop('absent', None)
+
     if fn_finalize_item:
       info = fn_finalize_item(result)
       result = info.get('result')

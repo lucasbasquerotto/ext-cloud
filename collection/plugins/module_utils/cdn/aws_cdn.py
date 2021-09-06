@@ -66,7 +66,17 @@ def prepare_data(raw_data):
       credentials_keys=credentials_keys,
       default_credential_name='cdn',
       required_keys_info=required_keys_info,
-      fn_finalize_item=None,
+      fn_finalize_item=lambda item: finalize_item(item),
   )
 
   return prepare_default_data(data_info)
+
+
+def finalize_item(item):
+  item_keys = list(item.keys())
+
+  for key in item_keys:
+    if item.get(key) is None:
+      item.pop(key, None)
+
+  return dict(result=item)
