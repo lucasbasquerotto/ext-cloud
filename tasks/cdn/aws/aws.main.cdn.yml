@@ -1,4 +1,4 @@
-- name: "{{ inner_service_title }} - aws cdn - vars"
+- name: "{{ inner_service_title }} - aws cdn (cloudfront) - vars"
   lrd.ext_cloud.vars:
     identifier: "aws_cdn"
     raw_data:
