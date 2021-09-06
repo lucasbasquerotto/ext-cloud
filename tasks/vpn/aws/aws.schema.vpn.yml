@@ -75,6 +75,22 @@ schemas:
         description: >-
           the start of the range of ports that traffic is coming from;
           a value of -1 indicates all ports
+      group_desc:
+        type: "str"
+        description: >-
+          If the group_name is set and the Security Group doesn't exist a new
+          Security Group will be created with group_desc as the description.
+      group_id:
+        type: "str"
+        description: >-
+          The ID of the Security Group that traffic is coming from.
+          You can specify only one of cidr_ip, cidr_ipv6, ip_prefix, group_id and group_name.
+      group_name:
+        type: "str"
+        description: >-
+          Name of the Security Group that traffic is coming from.
+          If the Security Group doesn't exist a new Security Group will be created with group_desc as the description.
+          You can specify only one of cidr_ip, cidr_ipv6, ip_prefix, group_id and group_name.
       ip_prefix:
         type: "str"
         description: "the ip prefix that traffic is coming from"
@@ -86,7 +102,7 @@ schemas:
           (from_port-to_port) that traffic is coming from
       proto:
         type: "str"
-        choices: ["tcp", "udp", "icmp", "icmpv6"]
+        choices: ["all", "tcp", "udp", "icmp", "icmpv6"]
         description: "the ip protocol name"
       rule_desc:
         type: "str"
@@ -113,6 +129,22 @@ schemas:
         description: >-
           the start of the range of ports that traffic is going to;
           a value of -1 indicates all ports
+      group_desc:
+        type: "str"
+        description: >-
+          If the group_name is set and the Security Group doesn't exist a new
+          Security Group will be created with group_desc as the description.
+      group_id:
+        type: "str"
+        description: >-
+          The ID of the Security Group that traffic is going to.
+          You can specify only one of cidr_ip, cidr_ipv6, ip_prefix, group_id and group_name.
+      group_name:
+        type: "str"
+        description: >-
+          Name of the Security Group that traffic is going to.
+          If the Security Group doesn't exist a new Security Group will be created with group_desc as the description.
+          You can specify only one of cidr_ip, cidr_ipv6, ip_prefix, group_id and group_name.
       ip_prefix:
         type: "str"
         description: "the ip prefix that traffic is going to"
@@ -124,7 +156,7 @@ schemas:
           (from_port-to_port) that traffic is going to
       proto:
         type: "str"
-        choices: ["tcp", "udp", "icmp", "icmpv6"]
+        choices: ["all", "tcp", "udp", "icmp", "icmpv6"]
         description: "the ip protocol name"
       rule_desc:
         type: "str"
