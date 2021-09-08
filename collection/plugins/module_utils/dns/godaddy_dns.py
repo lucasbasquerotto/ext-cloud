@@ -38,7 +38,6 @@ def prepare_data(raw_data):
           'ttl',
           'priority',
           'service',
-          'protocol',
           'port',
           'weight',
           'credential',
@@ -121,7 +120,6 @@ def prepare_dns_records(item_params, value_dict):
       ttl=value_dict.get('ttl') or item_params.get('ttl') or 600,
       priority=value_dict.get('priority') or item_params.get('priority'),
       service=value_dict.get('service') or item_params.get('service'),
-      proto=value_dict.get('proto') or item_params.get('proto'),
       port=value_dict.get('port') or item_params.get('port'),
       weight=value_dict.get('weight') or item_params.get('weight'),
   )

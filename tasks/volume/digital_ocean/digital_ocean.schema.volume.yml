@@ -1,27 +1,27 @@
-root: "storage_schema"
+root: "volume_schema"
 schemas:
-  storage_schema:
+  volume_schema:
     type: "dict"
-    description: "schema for the digital ocean storage task"
+    description: "schema for the digital ocean volume task"
     props:
       namespace:
         type: "str"
         non_empty: true
-        choices: ["ext_storage"]
+        choices: ["ext_volume"]
       params:
         schema: "params"
         non_empty: true
-        description: "parameters for the digital ocean storage task"
+        description: "parameters for the digital ocean volume task"
       credentials:
         schema: "credentials"
         non_empty: true
-        description: "credentials for the digital ocean storage task"
+        description: "credentials for the digital ocean volume task"
       contents:
         schema: "contents"
-        description: "contents for the digital ocean storage task"
+        description: "contents for the digital ocean volume task"
   params:
     type: "dict"
-    description: "parameters schema for the storage task"
+    description: "parameters schema for the volume task"
     props:
       list:
         type: "list"
@@ -34,7 +34,7 @@ schemas:
       when:
         type: "bool"
         description: >-
-          when false, the block storage is ignored (won't be created or destroyed);
+          when false, the block volume is ignored (won't be created or destroyed);
           defaults to true
       name:
         type: "str"
@@ -47,7 +47,7 @@ schemas:
         description: "block storage size (in gb)"
   list_item_params:
     type: "dict"
-    description: "digital ocean storage parameters list schema"
+    description: "digital ocean volume parameters list schema"
     props:
       when:
         type: "bool"
@@ -65,15 +65,15 @@ schemas:
         description: "block storage size (in gb)"
   credentials:
     type: "dict"
-    description: "credentials schema for the storage task"
+    description: "credentials schema for the volume task"
     props:
-      storage:
+      volume:
         schema: "digital_ocean_credentials"
         non_empty: true
-        description: "storage main credentials"
+        description: "volume main credentials"
   digital_ocean_credentials:
     type: "dict"
-    description: "storage main credentials schema"
+    description: "volume main credentials schema"
     props:
       api_token:
         type: "str"

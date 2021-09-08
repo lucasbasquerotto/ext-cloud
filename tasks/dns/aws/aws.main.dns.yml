@@ -1,0 +1,35 @@
+- name: "{{ inner_service_title }} - aws dns (route53) - vars"
+  lrd.ext_cloud.vars:
+    identifier: "aws_dns"
+    raw_data:
+      namespace: "ext_dns"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_dns_data_wrapper
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - aws dns (route53) - main"
+  community.aws.route53:
+    zone: "{{ ext_dns_item.zone }}"
+    type: "{{ ext_dns_item.dns_type }}"
+    record: "{{ ext_dns_item.record | default(omit, true) }}"
+    value: "{{ ext_dns_item.value | default(omit, true) }}"
+    ttl: "{{ ext_dns_item.ttl | default(omit, true) }}"
+    weight: "{{ ext_dns_item.weight | default(omit, true) }}"
+    overwrite: true
+    access_key: "{{ ext_dns_item.access_key }}"
+    secret_key: "{{ ext_dns_item.secret_key }}"
+    state: "{{ ext_dns_item.state }}"
+    wait: true
+    wait_timeout: 300
+  loop: "{{ ext_dns_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_dns_item
+    label: >-
+      [{{ ext_dns_item.state }}]
+      {{ ext_dns_item.dns_type }}
+      ({{ ext_dns_item.record }})
+  no_log: "{{ env_no_log }}"

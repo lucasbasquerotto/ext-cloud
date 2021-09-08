@@ -18,36 +18,40 @@ __metaclass__ = type  # pylint: disable=invalid-name
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
-    'name',
-    'when',
-    'region',
-    'block_size',
+    'zone',
+    'dns_type',
+    'record',
+    'proxied',
+    'ttl',
+    'weight',
+    'credential',
+    'value',
 ]
 
 credentials_keys = [
-    'api_token',
+    'access_key',
+    'secret_key',
 ]
 
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['name', 'region', 'block_size'],
-      credentials=['api_token'],
+      params=[
+          'zone',
+          'dns_type',
+          'record',
+      ],
+      credentials=[],
   )
 
   data_info = dict(
-      expected_namespace='ext_storage',
+      expected_namespace='ext_dns',
       raw_data=raw_data,
       params_keys=params_keys,
       credentials_keys=credentials_keys,
-      default_credential_name='storage',
+      default_credential_name='dns',
       required_keys_info=required_keys_info,
-      fn_finalize_item=lambda item: finalize_item(item),
+      fn_finalize_item=None,
   )
 
   return prepare_default_data(data_info)
-
-
-def finalize_item(item):
-  item['name'] = item.get('name').replace('_', '-')
-  return dict(result=item)
