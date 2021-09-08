@@ -2,6 +2,52 @@
 
 The tasks defined here manage DNS records, creating and destroying the records in the specified zones. Take a look at the schema files to know which parameters these tasks expect, as well as what each parameter represents. The `namespace` of the following service tasks is `ext_dns`.
 
+## AWS (Route53)
+
+- **Task:** [aws.main.dns.yml](aws/aws.main.dns.yml)
+
+- **Schema:** [aws.schema.dns.yml](aws/aws.schema.dns.yml)
+
+- **Validator:** [aws.validator.dns.yml](aws/aws.validator.dns.yml)
+
+_Example:_
+
+```yaml
+services:
+  dns_service:
+    base_dir: "ext-cloud"
+    namespace: "ext_dns"
+    task: "tasks/dns/aws/aws.main.dns.yml"
+    schema: "tasks/dns/aws/aws.schema.dns.yml"
+    validator: "tasks/dns/aws/aws.validator.dns.yml"
+    credentials:
+      dns: "aws"
+    params:
+      list:
+        - zone: "example.com"
+          dns_type: "A"
+          record: "dev1"
+          value: ["1.1.1.1"]
+        - zone: "example.com"
+          dns_type: "A"
+          record: "dev2"
+          value: ["2.2.2.2"]
+        - zone: "example.com"
+          dns_type: "AAAA"
+          record: "dev3"
+          value: ["2001:db8::ff00:42:8329"]
+credentials:
+  aws:
+    access_key: "<aws_access_key>"
+    secret_key: "<aws_secret_key>"
+```
+
+The service `dns_service` above will create the following records in the zone `example.com`:
+
+- An `A` record for the subdomain `dev1` with the value `1.1.1.1`.
+- An `A` record for the subdomain `dev2` with the value `2.2.2.2`.
+- An `AAAA` record for the subdomain `dev3` with the value `2001:db8::ff00:42:8329`.
+
 ## CloudFlare
 
 - **Task:** [cloudflare.main.dns.yml](cloudflare/cloudflare.main.dns.yml)

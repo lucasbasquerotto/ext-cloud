@@ -2,6 +2,137 @@
 
 The tasks defined here manage VPNs or provide a VPN-like functionality. Take a look at the schema files to know which parameters these tasks expect, as well as what each parameter represents. The `namespace` of the following service tasks is `ext_vpn`.
 
+## AWS
+
+- **Task:** [aws.main.vpn.yml](aws/aws.main.vpn.yml)
+
+- **Schema:** [aws.schema.vpn.yml](aws/aws.schema.vpn.yml)
+
+- **Validator:** [aws.validator.vpn.yml](aws/aws.validator.vpn.yml)
+
+This task creates Security Groups at AWS so as to provide a VPN-like behaviour. It's possible to restrict access to and from ports and IPs in the resources that use the created security groups.
+
+_Example:_
+
+```yaml
+services:
+  vpn_service:
+    base_dir: "ext-cloud"
+    namespace: "ext_vpn"
+    task: "tasks/vpn/aws/aws.main.vpn.yml"
+    schema: "tasks/vpn/aws/aws.schema.vpn.yml"
+    validator: "tasks/vpn/aws/aws.validator.vpn.yml"
+    credentials:
+      vpn: "aws"
+    params:
+      security_groups:
+        - name: "group1"
+          description: sg with rule descriptions
+          vpc_id: vpc-xxxxxxxx
+          region: us-east-1
+          rules:
+            - proto: tcp
+              ports:
+                - 80
+              cidr_ip: 0.0.0.0/0
+              rule_desc: allow all on port 80
+        - name: "group2"
+          description: an example EC2 group
+          vpc_id: "12345"
+          region: eu-west-1
+          rules:
+            - proto: tcp
+              from_port: 80
+              to_port: 80
+              cidr_ip: 0.0.0.0/0
+            - proto: tcp
+              from_port: 22
+              to_port: 22
+              cidr_ip: 10.0.0.0/8
+            - proto: tcp
+              from_port: 443
+              to_port: 443
+              # this should only be needed for EC2 Classic security group rules
+              # because in a VPC an ELB will use a user-account security group
+              group_id: amazon-elb/sg-87654321/amazon-elb-sg
+            - proto: tcp
+              from_port: 3306
+              to_port: 3306
+              group_id: 123412341234/sg-87654321/exact-name-of-sg
+            - proto: udp
+              from_port: 10050
+              to_port: 10050
+              cidr_ip: 10.0.0.0/8
+            - proto: udp
+              from_port: 10051
+              to_port: 10051
+              group_id: sg-12345678
+            - proto: icmp
+              from_port: 8 # icmp type, -1 = any type
+              to_port: -1 # icmp subtype, -1 = any subtype
+              cidr_ip: 10.0.0.0/8
+            - proto: all
+              # the containing group name may be specified here
+              group_name: example
+            - proto: all
+              # in the 'proto' attribute, if you specify -1, all, or a protocol number other than tcp, udp, icmp, or 58 (ICMPv6),
+              # traffic on all ports is allowed, regardless of any ports you specify
+              from_port: 10050 # this value is ignored
+              to_port: 10050 # this value is ignored
+              cidr_ip: 10.0.0.0/8
+          rules_egress:
+            - proto: tcp
+              from_port: 80
+              to_port: 80
+              cidr_ip: 0.0.0.0/0
+              cidr_ipv6: 64:ff9b::/96
+              group_name: example-other
+              # description to use if example-other needs to be created
+              group_desc: other example EC2 group
+        - name: "group3"
+          description: an example2 EC2 group
+          vpc_id: 12345
+          region: eu-west-1
+          rules:
+            # 'ports' rule keyword accepts a single port value or a list of values including ranges (from_port-to_port).
+            - proto: tcp
+              ports: 22
+              group_name: example-vpn
+            - proto: tcp
+              ports:
+                - 80
+                - 443
+                - 8080-8099
+              cidr_ip: 0.0.0.0/0
+            # Rule sources allows to define multiple sources per source type as well as multiple source types per rule.
+            - proto: tcp
+              ports:
+                - 6379
+                - 26379
+              group_name:
+                - example-vpn
+                - example-redis
+            - proto: tcp
+              ports: 5665
+              group_name: example-vpn
+              cidr_ip:
+                - 172.16.1.0/24
+                - 172.16.17.0/24
+              cidr_ipv6:
+                - 2607:F8B0::/32
+                - 64:ff9b::/96
+              group_id:
+                - sg-edcd9784
+credentials:
+  aws:
+    access_key: "<aws_access_key>"
+    secret_key: "<aws_secret_key>"
+```
+
+The above example will create the security groups `group1`, `group2` and `group3` with the specified inbound rules (`rules`) and outbound rules (`rules_egress`).
+
+The security groups can be associated with resources like `ec2` to restric access to (`rules`) and from (`rules_egress`) them.
+
 ## Digital Ocean
 
 - **Task:** [digital_ocean.main.vpn.yml](digital_ocean/digital_ocean.main.vpn.yml)
