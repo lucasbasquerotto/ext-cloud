@@ -2,7 +2,7 @@ root: "volume_schema"
 schemas:
   volume_schema:
     type: "dict"
-    description: "Schema for the digital ocean volume task."
+    description: "Schema for the aws volume task."
     props:
       namespace:
         type: "str"
@@ -11,14 +11,14 @@ schemas:
       params:
         schema: "params"
         non_empty: true
-        description: "Parameters for the digital ocean volume task."
+        description: "Parameters for the aws volume task."
       credentials:
         schema: "credentials"
         non_empty: true
-        description: "Credentials for the digital ocean volume task."
+        description: "Credentials for the aws volume task."
       contents:
         schema: "contents"
-        description: "Contents for the digital ocean volume task."
+        description: "Contents for the aws volume task."
   params:
     type: "dict"
     description: "Parameters schema for the volume task."
@@ -103,7 +103,7 @@ schemas:
           "Standard" is the old EBS default and continues to remain the default for backwards compatibility.
   list_item_params:
     type: "dict"
-    description: "digital ocean volume parameters list schema"
+    description: "aws volume parameters list schema"
     props:
       when:
         type: "bool"
@@ -177,21 +177,21 @@ schemas:
           "Standard" is the old EBS default and continues to remain the default for backwards compatibility.
   credentials:
     type: "dict"
-    description: "aws volume credentials schema"
+    description: "AWS volume credentials schema."
     props:
       volume:
         schema: "aws_credentials"
         non_empty: true
-        description: "aws volume main credentials"
+        description: "AWS volume main credentials."
   aws_credentials:
     type: "dict"
-    description: "aws volume main credentials schema"
+    description: "AWS volume main credentials schema."
     props:
       access_key:
         type: "str"
         non_empty: true
-        description: "aws access key"
+        description: "AWS access key."
       secret_key:
         type: "str"
         non_empty: true
-        description: "aws secret key"
+        description: "AWS secret key."

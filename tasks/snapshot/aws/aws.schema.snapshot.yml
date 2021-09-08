@@ -1,0 +1,147 @@
+root: "snapshot_schema"
+schemas:
+  snapshot_schema:
+    type: "dict"
+    description: "Schema for the aws snapshot task."
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_snapshot"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "Parameters for the aws snapshot task."
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "Credentials for the aws snapshot task."
+      contents:
+        schema: "contents"
+        description: "Contents for the aws snapshot task."
+  params:
+    type: "dict"
+    description: "Parameters schema for the snapshot task."
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          List of records to be created/destroyed; used when defined, instead of considering
+          the parameters as only one definition. Instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter. When not defined, will use
+          the outer parameters as one single list item.
+      when:
+        type: "bool"
+        description: >-
+          When false, the block snapshot is ignored (won't be created or destroyed).
+          Defaults to true.
+      absent:
+        type: "bool"
+        description: >-
+          When true, destroys the snapshot, regardless of the state (acts as if the state is 'absent',
+          even if it isn't). Defaults to false.
+      description:
+        type: "str"
+        description: "Description to be applied to the snapshot."
+      device_name:
+        type: "str"
+        description: "Device name of a mounted volume to be snapshotted."
+      instance_id:
+        type: "str"
+        description: "Instance that has the required volume to snapshot mounted."
+      last_snapshot_min_age:
+        type: "int"
+        description: >-
+          If the volume's most recent snapshot has started less than
+          'last_snapshot_min_age' minutes ago, a new snapshot will not be created.
+          Defaults to 0.
+      region:
+        type: "str"
+        description: >-
+          The AWS region to use.
+          See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
+      snapshot_id:
+        type: "str"
+        description: "Snapshot id to remove."
+      snapshot_tags:
+        type: "map"
+        elem_type: "str"
+        description: "A dictionary of tags to add to the snapshot."
+      volume_id:
+        type: "str"
+        description: "Volume from which to take the snapshot."
+      wait_timeout:
+        type: "int"
+        description: >-
+          How long before wait gives up, in seconds.
+          Specify 0 to wait forever.
+  list_item_params:
+    type: "dict"
+    description: "aws snapshot parameters list schema"
+    props:
+      when:
+        type: "bool"
+        description: >-
+          when false, the block storage is ignored (won't be created or destroyed);
+          defaults to true
+      absent:
+        type: "bool"
+        description: >-
+          When true, destroys the snapshot, regardless of the state (acts as if the state is 'absent',
+          even if it isn't). Defaults to false.
+      description:
+        type: "str"
+        description: "Description to be applied to the snapshot."
+      device_name:
+        type: "str"
+        description: "Device name of a mounted volume to be snapshotted."
+      instance_id:
+        type: "str"
+        description: "Instance that has the required volume to snapshot mounted."
+      last_snapshot_min_age:
+        type: "int"
+        description: >-
+          If the volume's most recent snapshot has started less than
+          'last_snapshot_min_age' minutes ago, a new snapshot will not be created.
+          Defaults to 0.
+      region:
+        type: "str"
+        description: >-
+          The AWS region to use.
+          See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
+      snapshot_id:
+        type: "str"
+        description: "Snapshot id to remove."
+      snapshot_tags:
+        type: "map"
+        elem_type: "str"
+        description: "A dictionary of tags to add to the snapshot."
+      volume_id:
+        type: "str"
+        description: "Volume from which to take the snapshot."
+      wait_timeout:
+        type: "int"
+        description: >-
+          How long before wait gives up, in seconds.
+          Specify 0 to wait forever.
+  credentials:
+    type: "dict"
+    description: "AWS snapshot credentials schema."
+    props:
+      snapshot:
+        schema: "aws_credentials"
+        non_empty: true
+        description: "AWS snapshot main credentials."
+  aws_credentials:
+    type: "dict"
+    description: "AWS snapshot main credentials schema."
+    props:
+      access_key:
+        type: "str"
+        non_empty: true
+        description: "AWS access key."
+      secret_key:
+        type: "str"
+        non_empty: true
+        description: "AWS secret key."

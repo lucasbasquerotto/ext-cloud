@@ -1,0 +1,45 @@
+- name: "{{ inner_service_title }} - aws snapshot - vars"
+  lrd.ext_cloud.vars:
+    identifier: "aws_snapshot"
+    raw_data:
+      namespace: "ext_snapshot"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_snapshot_data_wrapper
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+# Gather information about any volume with a tag key Name and value Example
+# - amazon.aws.ec2_vol_info:
+#     filters:
+#       "tag:Name": Example
+
+- name: "{{ inner_service_title }} - aws snapshot - execute"
+  amazon.aws.ec2_snapshot:
+    state: "{{ ext_snapshot_item.state }}"
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    description: "{{ ext_snapshot_item.description | default(omit, true) }}"
+    device_name: "{{ ext_snapshot_item.device_name | default(omit, true) }}"
+    instance_id: "{{ ext_snapshot_item.instance_id | default(omit, true) }}"
+    last_snapshot_min_age: "{{ ext_snapshot_item.last_snapshot_min_age | default(omit, true) }}"
+    region: "{{ ext_snapshot_item.region | default(omit, true) }}"
+    snapshot_id: "{{ ext_snapshot_item.snapshot_id | default(omit, true) }}"
+    snapshot_tags: "{{ ext_snapshot_item.snapshot_tags | default(omit, true) }}"
+    volume_id: "{{ ext_snapshot_item.volume_id | default(omit, true) }}"
+    wait_timeout: "{{ ext_snapshot_item.wait_timeout | default(omit, true) }}"
+    wait: true
+  loop: "{{ ext_snapshot_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_snapshot_item
+    label: >-
+      [{{ ext_snapshot_item.state }}]
+      {{
+        ext_snapshot_item.volume_id
+        | d(ext_snapshot_item.instance_id
+          | d(ext_snapshot_item.snapshot_id
+            | d(''), true), true)
+      }}
+  no_log: "{{ env_no_log }}"

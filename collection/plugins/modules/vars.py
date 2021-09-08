@@ -47,6 +47,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.digital_ocean_n
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
     prepare_data as s3_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.snapshot.aws_snapshot import (
+    prepare_data as aws_snapshot_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.volume.aws_volume import (
     prepare_data as aws_volume_prepare_data
 )
@@ -89,6 +92,8 @@ def main():
     info = aws_dns_prepare_data(raw_data)
   elif identifier == 'aws_node':
     info = aws_node_prepare_data(raw_data)
+  elif identifier == 'aws_snapshot':
+    info = aws_snapshot_prepare_data(raw_data)
   elif identifier == 'aws_volume':
     info = aws_volume_prepare_data(raw_data)
   elif identifier == 'aws_vpn':
