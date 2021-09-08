@@ -1,6 +1,6 @@
-- name: "{{ validator_title }} - cloudflare dns - validate"
+- name: "{{ validator_title }} - aws dns (route53) - validate"
   lrd.ext_cloud.vars:
-    identifier: "cloudflare_dns"
+    identifier: "aws_dns"
     raw_data:
       state: "present"
       namespace: "{{ validator_item.data.namespace | default('') }}"

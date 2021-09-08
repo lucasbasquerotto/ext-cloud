@@ -16,11 +16,18 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import error_text
+
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.aws_cdn import (
+    prepare_data as aws_cdn_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.fastly_cdn import (
     prepare_data as fastly_cdn_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.stackpath_cdn import (
     prepare_data as stackpath_cdn_prepare_data
+)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.aws_dns import (
+    prepare_data as aws_dns_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns import (
     prepare_data as cloudflare_dns_prepare_data
@@ -31,12 +38,6 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns impo
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
     prepare_data as godaddy_nameserver_prepare_data
 )
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.aws_cdn import (
-    prepare_data as aws_cdn_prepare_data
-)
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.aws_dns import (
-    prepare_data as aws_dns_prepare_data
-)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.aws_node import (
     prepare_data as aws_node_prepare_data
 )
@@ -45,6 +46,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.node.digital_ocean_n
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.s3 import (
     prepare_data as s3_prepare_data
+)
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.volume.aws_volume import (
+    prepare_data as aws_volume_prepare_data
 )
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.volume.digital_ocean_volume import (
     prepare_data as digital_ocean_volume_prepare_data
@@ -85,6 +89,8 @@ def main():
     info = aws_dns_prepare_data(raw_data)
   elif identifier == 'aws_node':
     info = aws_node_prepare_data(raw_data)
+  elif identifier == 'aws_volume':
+    info = aws_volume_prepare_data(raw_data)
   elif identifier == 'aws_vpn':
     info = aws_vpn_prepare_data(raw_data)
   elif identifier == 'cloudflare_dns':

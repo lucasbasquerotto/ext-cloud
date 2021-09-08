@@ -13,6 +13,9 @@
 
 - name: "{{ inner_service_title }} - aws dns (route53) - main"
   community.aws.route53:
+    state: "{{ ext_dns_item.state }}"
+    access_key: "{{ ext_dns_item.access_key }}"
+    secret_key: "{{ ext_dns_item.secret_key }}"
     zone: "{{ ext_dns_item.zone }}"
     type: "{{ ext_dns_item.dns_type }}"
     record: "{{ ext_dns_item.record | default(omit, true) }}"
@@ -20,9 +23,6 @@
     ttl: "{{ ext_dns_item.ttl | default(omit, true) }}"
     weight: "{{ ext_dns_item.weight | default(omit, true) }}"
     overwrite: true
-    access_key: "{{ ext_dns_item.access_key }}"
-    secret_key: "{{ ext_dns_item.secret_key }}"
-    state: "{{ ext_dns_item.state }}"
     wait: true
     wait_timeout: 300
   loop: "{{ ext_dns_data_wrapper.data.list }}"

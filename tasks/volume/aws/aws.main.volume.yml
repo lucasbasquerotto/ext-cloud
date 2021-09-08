@@ -1,0 +1,37 @@
+- name: "{{ inner_service_title }} - aws volume - vars"
+  lrd.ext_cloud.vars:
+    identifier: "aws_volume"
+    raw_data:
+      namespace: "ext_volume"
+      state: "{{ inner_service_state }}"
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  register: ext_volume_data_wrapper
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+- name: "{{ inner_service_title }} - aws volume - execute"
+  amazon.aws.ec2_vol:
+    name: "{{ ext_volume_item.device_name | default(omit, true) }}"
+    state: "{{ ext_volume_item.state }}"
+    access_key: "{{ ext_volume_item.access_key }}"
+    secret_key: "{{ ext_volume_item.secret_key }}"
+    device_name: "{{ ext_volume_item.device_name | default(omit, true) }}"
+    encrypted: "{{ ext_volume_item.encrypted | default(omit, true) }}"
+    iops: "{{ ext_volume_item.iops | default(omit, true) }}"
+    kms_key_id: "{{ ext_volume_item.kms_key_id | default(omit, true) }}"
+    modify_volume: "{{ ext_volume_item.modify_volume | default(omit, true) }}"
+    purge_tags: "{{ ext_volume_item.purge_tags | default(omit, true) }}"
+    region: "{{ ext_volume_item.region | default(omit, true) }}"
+    snapshot: "{{ ext_volume_item.snapshot | default(omit, true) }}"
+    tags: "{{ ext_volume_item.tags | default(omit, true) }}"
+    throughput: "{{ ext_volume_item.throughput | default(omit, true) }}"
+    volume_size: "{{ ext_volume_item.volume_size | default(omit, true) }}"
+    volume_type: "{{ ext_volume_item.volume_type | default(omit, true) }}"
+    zone: "{{ ext_volume_item.zone | default(omit, true) }}"
+  loop: "{{ ext_volume_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_volume_item
+    label: "[{{ ext_volume_item.state }}] {{ ext_volume_item.name }}"
+  no_log: "{{ env_no_log }}"

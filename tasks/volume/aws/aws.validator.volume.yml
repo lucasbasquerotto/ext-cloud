@@ -1,6 +1,6 @@
-- name: "{{ validator_title }} - digital ocean volume - validate"
+- name: "{{ validator_title }} - aws volume - validate"
   lrd.ext_cloud.vars:
-    identifier: "digital_ocean_volume"
+    identifier: "aws_volume"
     raw_data:
       state: "present"
       namespace: "ext_volume"

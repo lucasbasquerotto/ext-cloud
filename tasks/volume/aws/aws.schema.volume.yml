@@ -1,0 +1,197 @@
+root: "volume_schema"
+schemas:
+  volume_schema:
+    type: "dict"
+    description: "Schema for the digital ocean volume task."
+    props:
+      namespace:
+        type: "str"
+        non_empty: true
+        choices: ["ext_volume"]
+      params:
+        schema: "params"
+        non_empty: true
+        description: "Parameters for the digital ocean volume task."
+      credentials:
+        schema: "credentials"
+        non_empty: true
+        description: "Credentials for the digital ocean volume task."
+      contents:
+        schema: "contents"
+        description: "Contents for the digital ocean volume task."
+  params:
+    type: "dict"
+    description: "Parameters schema for the volume task."
+    props:
+      list:
+        type: "list"
+        elem_schema: "list_item_params"
+        description: >-
+          List of records to be created/destroyed; used when defined, instead of considering
+          the parameters as only one definition. Instead, what is defined at the outer parameters
+          will be used as a default for each list item parameter. When not defined, will use
+          the outer parameters as one single list item.
+      when:
+        type: "bool"
+        description: >-
+          When false, the block volume is ignored (won't be created or destroyed).
+          Defaults to true.
+      absent:
+        type: "bool"
+        description: >-
+          When true, destroys the volume, regardless of the state (acts as if the state is 'absent',
+          even if it isn't). Defaults to false.
+      name:
+        type: "str"
+        description: "Volume name (also used for idempotency)."
+      device_name:
+        type: "str"
+        description: >-
+          Device id to override device mapping.
+          Assumes /dev/sdf for Linux/UNIX and /dev/xvdf for Windows.
+      encrypted:
+        type: "bool"
+        description: "Enable encryption at rest for this volume."
+      iops:
+        type: "int"
+        description: >-
+          The provisioned IOPs you want to associate with this volume (integer).
+          By default AWS will set this to 100.
+      kms_key_id:
+        type: "str"
+        description: "Specify the id of the KMS key to use."
+      modify_volume:
+        type: "bool"
+        description: "The volume won't be modified unless this key is true."
+      purge_tags:
+        type: "bool"
+        description: "Whether to remove existing tags that aren't passed in the tags parameter."
+      region:
+        type: "str"
+        description: >-
+          The AWS region to use.
+          See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
+      snapshot:
+        type: "str"
+        description: "Snapshot ID on which to base the volume."
+      tags:
+        type: "map"
+        elem_type: "str"
+        description: "tag:value pairs to add to the volume after creation."
+      throughput:
+        type: "int"
+        description: >-
+          Volume throughput in MB/s.
+          This parameter is only valid for gp3 volumes.
+          Valid range is from 125 to 1000.
+      volume_size:
+        type: "int"
+        description: "Size of volume (in GiB) to create."
+      volume_type:
+        type: "str"
+        choices:
+          - "standard"
+          - "gp2"
+          - "io1"
+          - "st1"
+          - "sc1"
+          - "gp3"
+          - "io2"
+        description: >-
+          Type of EBS volume; standard (magnetic), gp2 (SSD), gp3 (SSD), io1 (Provisioned IOPS),
+          io2 (Provisioned IOPS), st1 (Throughput Optimized HDD), sc1 (Cold HDD).
+          "Standard" is the old EBS default and continues to remain the default for backwards compatibility.
+  list_item_params:
+    type: "dict"
+    description: "digital ocean volume parameters list schema"
+    props:
+      when:
+        type: "bool"
+        description: >-
+          when false, the block storage is ignored (won't be created or destroyed);
+          defaults to true
+      absent:
+        type: "bool"
+        description: >-
+          When true, destroys the volume, regardless of the state (acts as if the state is 'absent',
+          even if it isn't). Defaults to false.
+      name:
+        type: "str"
+        description: "Volume name (also used for idempotency)."
+      device_name:
+        type: "str"
+        description: >-
+          Device id to override device mapping.
+          Assumes /dev/sdf for Linux/UNIX and /dev/xvdf for Windows.
+      encrypted:
+        type: "bool"
+        description: "Enable encryption at rest for this volume."
+      iops:
+        type: "int"
+        description: >-
+          The provisioned IOPs you want to associate with this volume (integer).
+          By default AWS will set this to 100.
+      kms_key_id:
+        type: "str"
+        description: "Specify the id of the KMS key to use."
+      modify_volume:
+        type: "bool"
+        description: "The volume won't be modified unless this key is true."
+      purge_tags:
+        type: "bool"
+        description: "Whether to remove existing tags that aren't passed in the tags parameter."
+      region:
+        type: "str"
+        description: >-
+          The AWS region to use.
+          See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
+      snapshot:
+        type: "str"
+        description: "Snapshot ID on which to base the volume."
+      tags:
+        type: "map"
+        elem_type: "str"
+        description: "tag:value pairs to add to the volume after creation."
+      throughput:
+        type: "int"
+        description: >-
+          Volume throughput in MB/s.
+          This parameter is only valid for gp3 volumes.
+          Valid range is from 125 to 1000.
+      volume_size:
+        type: "int"
+        description: "Size of volume (in GiB) to create."
+      volume_type:
+        type: "str"
+        choices:
+          - "standard"
+          - "gp2"
+          - "io1"
+          - "st1"
+          - "sc1"
+          - "gp3"
+          - "io2"
+        description: >-
+          Type of EBS volume; standard (magnetic), gp2 (SSD), gp3 (SSD), io1 (Provisioned IOPS),
+          io2 (Provisioned IOPS), st1 (Throughput Optimized HDD), sc1 (Cold HDD).
+          "Standard" is the old EBS default and continues to remain the default for backwards compatibility.
+  credentials:
+    type: "dict"
+    description: "aws volume credentials schema"
+    props:
+      volume:
+        schema: "aws_credentials"
+        non_empty: true
+        description: "aws volume main credentials"
+  aws_credentials:
+    type: "dict"
+    description: "aws volume main credentials schema"
+    props:
+      access_key:
+        type: "str"
+        non_empty: true
+        description: "aws access key"
+      secret_key:
+        type: "str"
+        non_empty: true
+        description: "aws secret key"
