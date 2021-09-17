@@ -96,6 +96,9 @@ def prepare_item(raw_data, item_params):
     if not dns_values:
       state = 'absent'
 
+    if item_params.get('absent'):
+      state = 'absent'
+
     result['api_server_url'] = api_server_url
     result['authorization'] = authorization
     result['state'] = state

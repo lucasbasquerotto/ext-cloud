@@ -25,6 +25,7 @@ def prepare_data(raw_data):
       expected_namespace='ext_dns',
       raw_data=raw_data,
       item_keys=[
+          'absent',
           'zone',
           'dns_type',
           'record',
@@ -75,6 +76,9 @@ def prepare_item(raw_data, item_params):
     dns_values = generate_values(raw_values)
 
     if not dns_values:
+      state = 'absent'
+
+    if item_params.get('absent'):
       state = 'absent'
 
     result['email'] = item_credentials.get('email')

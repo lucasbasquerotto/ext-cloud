@@ -28,6 +28,9 @@ schemas:
           the parameters as only one definition; instead, what is defined at the outer parameters
           will be used as a default for each list item parameter; when not defined, will use
           the outer parameters as one single list item
+      absent:
+        type: "bool"
+        description: "when true, removes the record instead of adding it"
       zone:
         type: "str"
         description: >-
@@ -83,6 +86,9 @@ schemas:
       when:
         type: "bool"
         description: "when false, ignores the item; defaults to true"
+      absent:
+        type: "bool"
+        description: "when true, removes the record instead of adding it"
       zone:
         type: "str"
         description: >-
