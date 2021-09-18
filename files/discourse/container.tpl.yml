@@ -131,7 +131,7 @@ env:
   DISCOURSE_SMTP_ADDRESS: "{{ credentials.discourse_smtp.address }}"
   DISCOURSE_SMTP_PORT: "{{ credentials.discourse_smtp.port }}"
   DISCOURSE_SMTP_ENABLE_START_TLS: "{{ credentials.discourse_smtp.enable_start_tls | default('') | lower }}"
-  DISCOURSE_SMTP_USER_NAME: "{{ credentials.discourse_smtp.user_name }}"
+  DISCOURSE_SMTP_USER_NAME: "{{ credentials.discourse_smtp.username }}"
   DISCOURSE_SMTP_PASSWORD: "{{ credentials.discourse_smtp.password }}"
 
   {% endif %}
