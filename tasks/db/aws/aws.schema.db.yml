@@ -81,7 +81,7 @@ schemas:
           When initially creating a DB instance the RDS API defaults this to false if unspecified.
       creation_source:
         type: "str"
-        choices: ["snapshot", "s3", "instance"],
+        choices: ["snapshot", "s3", "instance"]
         description: >-
           Which source to use if restoring from a template (an existing instance, S3 bucket, or snapshot).
       db_cluster_identifier:
@@ -90,9 +90,6 @@ schemas:
           The DB cluster (lowercase) identifier to add the aurora DB instance to.
           The identifier must contain from 1 to 63 letters, numbers, or hyphens and the first character
           must be a letter and may not end in a hyphen or contain consecutive hyphens.
-      db_instance_class:
-        type: "str"
-        description: "The compute and memory capacity of the DB instance, for example db.t2.micro."
       db_name:
         type: "str"
         description: >-
@@ -189,6 +186,9 @@ schemas:
           Set to True to update your cluster password with master_user_password.
           Since comparing passwords to determine if it needs to be updated is not possible,
           this is set to false by default to allow idempotence.
+      instance_type:
+        type: "str"
+        description: "The compute and memory capacity of the DB instance, for example db.t2.micro."
       iops:
         type: "int"
         description: >-
@@ -469,7 +469,7 @@ schemas:
           When initially creating a DB instance the RDS API defaults this to false if unspecified.
       creation_source:
         type: "str"
-        choices: ["snapshot", "s3", "instance"],
+        choices: ["snapshot", "s3", "instance"]
         description: >-
           Which source to use if restoring from a template (an existing instance, S3 bucket, or snapshot).
       db_cluster_identifier:
@@ -478,9 +478,6 @@ schemas:
           The DB cluster (lowercase) identifier to add the aurora DB instance to.
           The identifier must contain from 1 to 63 letters, numbers, or hyphens and the first character
           must be a letter and may not end in a hyphen or contain consecutive hyphens.
-      db_instance_class:
-        type: "str"
-        description: "The compute and memory capacity of the DB instance, for example db.t2.micro."
       db_name:
         type: "str"
         description: >-
@@ -577,6 +574,9 @@ schemas:
           Set to True to update your cluster password with master_user_password.
           Since comparing passwords to determine if it needs to be updated is not possible,
           this is set to false by default to allow idempotence.
+      instance_type:
+        type: "str"
+        description: "The compute and memory capacity of the DB instance, for example db.t2.micro."
       iops:
         type: "int"
         description: >-
