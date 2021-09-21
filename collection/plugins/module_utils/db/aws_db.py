@@ -45,6 +45,7 @@ params_keys = [
     'engine_version',
     'final_db_snapshot_identifier',
     'force_failover',
+    'force_state',
     'force_update_password',
     'iops',
     'kms_key_id',
@@ -80,7 +81,6 @@ params_keys = [
     'source_engine',
     'source_engine_version',
     'source_region',
-    'state',
     'storage_encrypted',
     'storage_type',
     'tags',
@@ -113,7 +113,23 @@ def prepare_data(raw_data):
       credentials_keys=credentials_keys,
       default_credential_name='db',
       required_keys_info=required_keys_info,
-      fn_finalize_item=None,
+      fn_finalize_item=lambda item: finalize_item(item),
   )
 
   return prepare_default_data(data_info)
+
+
+def finalize_item(item):
+  force_state = item.get('force_state')
+
+  if force_state and (item.get('state') == 'present'):
+    item.pop('force_state')
+    item['state'] = force_state
+
+  item_keys = list(item.keys())
+
+  for key in item_keys:
+    if item.get(key) is None:
+      item.pop(key, None)
+
+  return dict(result=item)

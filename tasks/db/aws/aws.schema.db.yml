@@ -164,6 +164,25 @@ schemas:
       force_failover:
         type: "bool"
         description: "Set to true to conduct the reboot through a MultiAZ failover."
+      force_state:
+        type: "str"
+        choices:
+          - "present"
+          - "absent"
+          - "terminated"
+          - "running"
+          - "started"
+          - "stopped"
+          - "rebooted"
+          - "restarted"
+        description: >-
+          Whether the snapshot should exist or not.
+          rebooted is not idempotent and will leave the DB instance in a running state and start it
+          prior to rebooting if it was stopped.
+          present will leave the DB instance in the current running/stopped state,
+          (running if creating the DB instance).
+          state=running and state=started are synonyms, as are state=rebooted and state=restarted.
+          Thes state defined here overrides the default present state.
       force_update_password:
         type: "bool"
         description: >-
@@ -342,25 +361,6 @@ schemas:
       source_region:
         type: "str"
         description: "The region of the DB instance from which the replica is created."
-      state:
-        type: "str"
-        choices:
-          - "present"
-          - "absent"
-          - "terminated"
-          - "running"
-          - "started"
-          - "stopped"
-          - "rebooted"
-          - "restarted"
-        description: >-
-          Whether the snapshot should exist or not.
-          rebooted is not idempotent and will leave the DB instance in a running state and start it
-          prior to rebooting if it was stopped.
-          present will leave the DB instance in the current running/stopped state,
-          (running if creating the DB instance).
-          state=running and state=started are synonyms, as are state=rebooted and state=restarted.
-          Thes state defined here overrides the default present state.
       storage_encrypted:
         type: "bool"
         description: "Whether the DB instance is encrypted."
@@ -552,6 +552,25 @@ schemas:
       force_failover:
         type: "bool"
         description: "Set to true to conduct the reboot through a MultiAZ failover."
+      force_state:
+        type: "str"
+        choices:
+          - "present"
+          - "absent"
+          - "terminated"
+          - "running"
+          - "started"
+          - "stopped"
+          - "rebooted"
+          - "restarted"
+        description: >-
+          Whether the snapshot should exist or not.
+          rebooted is not idempotent and will leave the DB instance in a running state and start it
+          prior to rebooting if it was stopped.
+          present will leave the DB instance in the current running/stopped state,
+          (running if creating the DB instance).
+          state=running and state=started are synonyms, as are state=rebooted and state=restarted.
+          Thes state defined here overrides the default present state.
       force_update_password:
         type: "bool"
         description: >-
@@ -730,25 +749,6 @@ schemas:
       source_region:
         type: "str"
         description: "The region of the DB instance from which the replica is created."
-      state:
-        type: "str"
-        choices:
-          - "present"
-          - "absent"
-          - "terminated"
-          - "running"
-          - "started"
-          - "stopped"
-          - "rebooted"
-          - "restarted"
-        description: >-
-          Whether the snapshot should exist or not.
-          rebooted is not idempotent and will leave the DB instance in a running state and start it
-          prior to rebooting if it was stopped.
-          present will leave the DB instance in the current running/stopped state,
-          (running if creating the DB instance).
-          state=running and state=started are synonyms, as are state=rebooted and state=restarted.
-          Thes state defined here overrides the default present state.
       storage_encrypted:
         type: "bool"
         description: "Whether the DB instance is encrypted."

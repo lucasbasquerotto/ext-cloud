@@ -26,6 +26,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.fastly_cdn impor
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.cdn.stackpath_cdn import (
     prepare_data as stackpath_cdn_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.db.aws_db import (
+    prepare_data as aws_db_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.aws_dns import (
     prepare_data as aws_dns_prepare_data
 )
@@ -88,6 +91,8 @@ def main():
     error_msgs += [['msg: identifier not defined']]
   elif identifier == 'aws_cdn':
     info = aws_cdn_prepare_data(raw_data)
+  elif identifier == 'aws_db':
+    info = aws_db_prepare_data(raw_data)
   elif identifier == 'aws_dns':
     info = aws_dns_prepare_data(raw_data)
   elif identifier == 'aws_node':
