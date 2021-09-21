@@ -18,7 +18,7 @@ schemas:
         description: "aws dns (route53) credentials"
   params:
     type: "dict"
-    description: "godaddy dns parameters schema"
+    description: "aws dns (route53) parameters schema"
     props:
       list:
         type: "list"
@@ -69,7 +69,7 @@ schemas:
         description: "list with strings or a comma-spaced string with the dns record values)"
   list_item_params:
     type: "dict"
-    description: "godaddy dns parameters list schema"
+    description: "aws dns (route53) parameters list schema"
     props:
       when:
         type: "bool"
