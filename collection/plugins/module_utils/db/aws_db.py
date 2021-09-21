@@ -102,7 +102,7 @@ credentials_keys = [
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['name'],
+      params=['name', 'region'],
       credentials=[],
   )
 
