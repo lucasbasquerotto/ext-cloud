@@ -4,7 +4,7 @@ General tasks to run at the [run_stages](http://github.com/lucasbasquerotto/clou
 
 ## Discourse Setup
 
-Runs the main instructions (except for the creation of the `app.yml` file, that should be defined in the environment repository and moved to the host) that are needed in the Discourse setup script, in a non-interactive way. It:
+This run stage task runs the main instructions that are needed in the Discourse setup script (except for the creation of the `app.yml` file, that should be defined in the environment repository and moved to the host), in a non-interactive way. It:
 
 - Checks if the script is being run by the root user (otherwise an error is thrown).
 
@@ -18,7 +18,7 @@ Runs the main instructions (except for the creation of the `app.yml` file, that 
 
 ## Docker
 
-Installs `docker-compose` (if specified) and ensure docker is running.
+This run stage task installs `docker-compose` (if specified) and ensure docker is running.
 
 Docker itself is expected to already be installed (see [user data](../files/user-data/README.md) for more information).
 

@@ -38,3 +38,11 @@ This is the main section of this repository. It contains tasks to deploy specifi
 - [Node](tasks/node/README.md)
 - [S3](tasks/s3/README.md)
 - [VPN](tasks/vpn/README.md)
+
+## Files and Templates
+
+Here are some useful files and templates that can be used in deployments:
+
+- [Cron](files/cron/README.md)
+- [Discourse](files/discourse/README.md)
+- [User Data](files/user-data/README.md)
