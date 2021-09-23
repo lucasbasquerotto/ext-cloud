@@ -49,4 +49,5 @@ Here are some useful files and templates that can be used in deployments:
 
 - [Cron](files/cron/README.md)
 - [Discourse](files/discourse/README.md)
+- [S3](files/s3/README.md)
 - [User Data](files/user-data/README.md)
