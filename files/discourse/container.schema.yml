@@ -1,0 +1,265 @@
+root: "template_schema"
+schemas:
+  template_schema:
+    type: "dict"
+    props:
+      params:
+        schema: "params"
+        required: true
+      credentials:
+        schema: "credentials"
+        required: true
+      input:
+        type: "dict"
+  params:
+    type: "dict"
+    props:
+      type:
+        type: "str"
+        non_empty: true
+        choices: ["app", "web", "db", "redis"]
+        description: "Discourse container type. Use 'app' when standalone."
+      discourse_hostname:
+        type: "str"
+        non_empty: true
+        description: >-
+          The domain name the Discourse instance will respond to.
+          Required. Discourse will not work with a bare IP number.
+          Example: 'discourse.example.com'.
+      internal_redis:
+        type: "bool"
+        description: >-
+          Set to true when the container is of type 'web', but redis should
+          be included inside the container too.
+      db_same_host:
+        type: "bool"
+        description: >-
+          When type is 'web' and the database container is in the same host,
+          set this parameter to true to connect with the db using links.
+      redis_same_host:
+        type: "bool"
+        description: >-
+          When type is 'web' and the redis container is in the same host,
+          set this parameter to true to connect with the db using links.
+          This parameter is not used when internal_redis is true.
+      templates:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          List of Discourse templates to be used when generating the container.
+      env:
+        type: "map"
+        elem_type: "str"
+        description: >-
+          Dictionary with additional environment variables to be included.
+          Can be either upper or lowercase (will be converted to uppercase).
+      plugins:
+        type: "list"
+        elem_type: "str"
+        description: "List of Discourse plugins to be installed."
+      commands:
+        type: "list"
+        elem_type: "dict"
+        description: >-
+          List of custom commands to execute. They should be a dictionary
+          with at least the 'exec' property (the command itself).
+      db_default_text_search_config:
+        type: "str"
+        description: >-
+          Default language for text search in the database.
+          Defaults to 'pg_catalog.english'.
+      db_shared_buffers:
+        type: "str"
+        description: >-
+          Set db_shared_buffers to a max of 25% of the total memory.
+          Example: '128MB'.
+      db_work_mem:
+        type: "str"
+        description: >-
+          Can improve sorting performance, but adds memory usage per-connection.
+          Example: '40MB'.
+      version:
+        type: "str"
+        description: "Discourse repository version. Defaults to 'tests-passed'."
+      lang:
+        type: "str"
+        description: "Discourse language. Defaults to 'en_US.UTF-8'."
+      discourse_default_locale:
+        type: "str"
+        description: "Discourse default locale. Defaults to 'en'."
+      unicorn_workers:
+        type: "int"
+        description: >-
+          How many concurrent web requests are supported.
+          Depends on memory and CPU cores. Defaults to '2'.
+      discourse_developer_emails:
+        type: "str"
+        description: >-
+          List of comma delimited emails that will be made admin and developer
+          on initial signup. Example: 'user1@example.com,user2@example.com'.
+      discourse_cdn_url:
+        type: "str"
+        description: >-
+           CDN that points to you Discourse hostname and caches requests.
+           It will be used mainly for pullable assets: CSS and other theme assets.
+           It's advised to be different than discourse_s3_cdn_url.
+      discourse_maxmind_license_key:
+        type: "str"
+        description: >-
+          The maxmind geolocation IP address key for IP address lookup.
+          See https://meta.discourse.org/t/-/137387/23 for details.
+      ssl_email:
+        type: "str"
+        description: >-
+          If you added the Lets Encrypt template, use this email to
+          get a free SSL certificate.
+      maximum_backups:
+        type: "int"
+        description: >-
+          Maximum amount of backups kept. When the limit is reached,
+          the older backups are deleted.Defaults to '14'.
+      backup_frequency:
+        type: "int"
+        description: "Number of days between backups. Defaults to '1'."
+      use_s3_backup:
+        type: "bool"
+        description: "When true, Discourse backups are stored in S3."
+      discourse_s3_backup_bucket:
+        type: "str"
+        description: >-
+          Bucket name in which Discourse will store backups.
+          Used when use_s3_backup=true (required in this case).
+      use_s3_uploads:
+        type: "bool"
+        description: >-
+          When true, Discourse assets and file uploads are stored in S3.
+          See https://meta.discourse.org/t/-/148916 for some caveats.
+      discourse_s3_bucket:
+        type: "str"
+        description: >-
+          Bucket name in which Discourse will store backups.
+          Used when use_s3_uploads=true (required in this case).
+      discourse_s3_cdn_url:
+        type: "str"
+        description: >-
+          CDN that points to your object storage bucket and caches requests.
+          It will be mainly used for pushable assets: JS, images and user uploads.
+      discourse_s3_http_continue_timeout:
+        type: "int"
+        description: >-
+          Set to 0 when using with Linode Object Storage or Vultr Object Storage.
+      discourse_s3_install_cors_rule:
+        type: "bool"
+        description: >-
+          Ignore CORS rules. Set to true when using Backblaze B2 Cloud Storage or
+          MinIO Storage Server.
+      discourse_s3_configure_tombstone_policy:
+        type: "bool"
+        description: >-
+          Thomstone policy to delete old backups is created by default.
+          Set to false to configure manually. This setting needs to be
+          false when using Backblaze B2 Cloud Storage.
+      discourse_smtp_domain:
+        type: "str"
+        description: >-
+          Discourse SMTP domain. Required by some providers.
+          Example: discourse.example.com
+      discourse_notification_email:
+        type: "str"
+        description: >-
+          Email address to send notifications from.
+          Example: noreply@discourse.example.com
+  params_item:
+    type: "dict"
+    props:
+      when:
+        type: "bool"
+        description: "when false, the profile is ignored; defaults to true"
+      alias:
+        type: "str"
+        non_empty: true
+        description: "s3 alias (profile identifier)"
+      access_key:
+        type: "str"
+        description: "s3 access key"
+      secret_key:
+        type: "str"
+        description: "s3 secret key"
+      endpoint:
+        type: "str"
+        description: "s3 endpoint"
+      region:
+        type: "str"
+        description: "s3 region"
+  credentials:
+    type: "dict"
+    props:
+      db:
+        schema: "db"
+        required: true
+      discourse_smtp:
+        schema: "discourse_smtp"
+        required: true
+      discourse_s3:
+        schema: "discourse_s3"
+  db:
+    type: "dict"
+    props:
+      db_name:
+        type: "str"
+        non_empty: true
+      db_pass:
+        type: "str"
+        required: true
+  discourse_smtp:
+    type: "dict"
+    props:
+      address:
+        type: "str"
+        non_empty: true
+        description: >-
+          The SMTP mail server hostname used to validate new accounts and
+          send notifications.
+          # SMTP ADDRESS, username, and password are required
+          # WARNING the char '#' in SMTP password can cause problems!
+      port:
+        type: "str"
+        non_empty: true
+        description: >-
+          The SMTP mail server port used to validate new accounts and
+          send notifications.
+      enable_start_tls:
+        type: "str"
+        non_empty: true
+        description: >-
+          When true, try to start a secure (TLS) connection with the
+          SMTP mail server.
+      username:
+        type: "str"
+        non_empty: true
+        type: "str"
+        non_empty: true
+        description: >-
+          The SMTP mail server username used to validate new accounts and
+          send notifications.
+      password:
+        type: "str"
+        non_empty: true
+        type: "str"
+        non_empty: true
+        description: >-
+          The SMTP mail server password used to validate new accounts and
+          send notifications.
+          Warning: the char '#' in SMTP password can cause problems!
+  discourse_s3:
+    type: "dict"
+    props:
+      db_name:
+        type: "str"
+        non_empty: true
+      db_pass:
+        type: "str"
+        required: true
+
+input.dependencies.db.host | urlsplit('hostname')
+input.dependencies.redis.host | urlsplit('hostname')

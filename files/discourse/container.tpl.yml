@@ -6,11 +6,14 @@
 {% set var_is_internal_redis = params.internal_redis | default(false) | bool %}
 {% set var_db_same_host = params.db_same_host | default(false) | bool %}
 {% set var_redis_same_host = params.redis_same_host | default(false) | bool %}
-{% set var_use_ssl = params.use_ssl | default(false) | bool %}
 
 {% set var_db = var_is_app or var_is_db %}
 {% set var_redis = var_is_app or var_is_redis or (var_is_web and var_is_internal_redis) %}
 {% set var_web = var_is_app or var_is_web %}
+
+{% set var_use_ssl = var_web and (params.use_ssl | default(false) | bool) %}
+{% set var_use_s3_backup = var_web and (params.use_s3_backup | default(false) | bool) %}
+{% set var_use_s3_uploads = var_web and (params.use_s3_uploads | default(false) | bool) %}
 
 templates:
 
@@ -40,7 +43,7 @@ templates:
   {####################################}
 
   {####################################}
-  {% if var_web and var_use_ssl %}
+  {% if var_use_ssl %}
 
   - "templates/web.ssl.template.yml"
   - "templates/web.letsencrypt.ssl.template.yml"
@@ -113,7 +116,8 @@ links:
 
 params:
   db_default_text_search_config: "{{ params.db_default_text_search_config | default('pg_catalog.english') }}"
-  db_shared_buffers: "{{ params.db_shared_buffers | default('128MB') }}"
+  db_shared_buffers: "{{ params.db_shared_buffers | default('') }}"
+  db_work_mem: "40MB"
   version: "{{ params.version | default('tests-passed') }}"
 env:
   LANG: "{{ params.lang | default('en_US.UTF-8') }}"
@@ -126,6 +130,8 @@ env:
   UNICORN_WORKERS: "{{ params.unicorn_workers | default('2') }}"
   DISCOURSE_HOSTNAME: "{{ params.discourse_hostname | default('') }}"
   DISCOURSE_DEVELOPER_EMAILS: "{{ params.discourse_developer_emails | default('') }}"
+  DISCOURSE_CDN_URL: "{{ params.discourse_cdn_url | default('') }}"
+  DISCOURSE_MAXMIND_LICENSE_KEY: "{{ params.discourse_maxmind_license_key | default('') }}"
 
   ### SMTP ###
   DISCOURSE_SMTP_ADDRESS: "{{ credentials.discourse_smtp.address }}"
@@ -133,19 +139,30 @@ env:
   DISCOURSE_SMTP_ENABLE_START_TLS: "{{ credentials.discourse_smtp.enable_start_tls | default('') | lower }}"
   DISCOURSE_SMTP_USER_NAME: "{{ credentials.discourse_smtp.username }}"
   DISCOURSE_SMTP_PASSWORD: "{{ credentials.discourse_smtp.password }}"
+  DISCOURSE_SMTP_DOMAIN: "{{ params.discourse_smtp_domain | default('') }}"
+  DISCOURSE_NOTIFICATION_EMAIL: "{{ params.discourse_notification_email | default('') }}"
+
+  ### Backups ###
+  DISCOURSE_ENABLE_BACKUPS: "true"
+  DISCOURSE_MAXIMUM_BACKUPS: {{ params.maximum_backups | default('14') }}
+  DISCOURSE_BACKUP_FREQUENCY: {{ params.backup_frequency | default('1') }}
 
   {% endif %}
   {####################################}
 
   {####################################}
-  {% if var_web and (params.use_s3 | default(false) | bool) %}
+  {% if var_use_ssl %}
 
-  ### S3 ###
-  DISCOURSE_ENABLE_BACKUPS: "true"
-  DISCOURSE_BACKUP_LOCATION: "s3"
-  DISCOURSE_MAXIMUM_BACKUPS: {{ params.maximum_backups | default('14') }}
-  DISCOURSE_BACKUP_FREQUENCY: {{ params.backup_frequency | default('1') }}
-  DISCOURSE_S3_BACKUP_BUCKET: "{{ params.backup_bucket_name }}"
+  # SSL/TLS
+  LETSENCRYPT_ACCOUNT_EMAIL: "{{ params.ssl_email }}"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
+  {% if var_use_s3_backup or var_use_s3_uploads %}
+
+  # S3 General Settings
   DISCOURSE_S3_ACCESS_KEY_ID: "{{ credentials.discourse_s3.access_key }}"
   DISCOURSE_S3_SECRET_ACCESS_KEY: "{{ credentials.discourse_s3.secret_key }}"
   DISCOURSE_S3_REGION: "{{ credentials.discourse_s3.region | default('') }}"
@@ -155,9 +172,25 @@ env:
   {####################################}
 
   {####################################}
-  {% if var_web and var_use_ssl %}
+  {% if var_use_s3_backup %}
 
-  LETSENCRYPT_ACCOUNT_EMAIL: "{{ params.ssl_email }}"
+  ### S3 Backup ###
+  DISCOURSE_BACKUP_LOCATION: "s3"
+  DISCOURSE_S3_BACKUP_BUCKET: "{{ params.discourse_s3_backup_bucket }}"
+
+  {% endif %}
+  {####################################}
+
+  {####################################}
+  {% if var_use_s3_uploads %}
+
+  ### S3 Uploads ###
+  DISCOURSE_USE_S3: true
+  DISCOURSE_S3_BUCKET: "{{ params.discourse_s3_bucket }}"
+  DISCOURSE_S3_CDN_URL: "{{ params.discourse_s3_cdn_url | default('') }}"
+  DISCOURSE_S3_HTTP_CONTINUE_TIMEOUT:  "{{ params.discourse_s3_http_continue_timeout | default('') }}"
+  DISCOURSE_S3_INSTALL_CORS_RULE: "{{ params.discourse_s3_install_cors_rule | default('') | lower }}"
+  DISCOURSE_S3_CONFIGURE_TOMBSTONE_POLICY: "{{ params.discourse_s3_configure_tombstone_policy | default('') | lower }}"
 
   {% endif %}
   {####################################}
@@ -227,9 +260,21 @@ volumes:
       guest: /var/log
 
 {####################################}
-{% if var_is_db or ((params.plugins | default([]) | length) > 0) %}
+{% if var_use_s3_uploads or ((params.plugins | default([]) | length) > 0) or var_is_db %}
 
 hooks:
+
+  {####################################}
+  {% if var_use_s3_uploads %}
+
+  after_assets_precompile:
+    - exec:
+        cd: $home
+        cmd:
+          - sudo -E -u discourse bundle exec rake s3:upload_assets
+
+  {% endif %}
+  {####################################}
 
   {####################################}
   {% if (params.plugins | default([]) | length) > 0 %}
