@@ -25,8 +25,8 @@ repos:
 ## Table of Contents
 
 - [Tasks](#tasks)
-- [Run Stage Tasks](run-tasks/README.md)
-- [User Data](files/user-data/README.md)
+- [Run Stage Tasks](#run-stage-tasks)
+- [Files and Templates](#files-and-templates)
 
 ## Tasks
 
@@ -38,6 +38,10 @@ This is the main section of this repository. It contains tasks to deploy specifi
 - [Node](tasks/node/README.md)
 - [S3](tasks/s3/README.md)
 - [VPN](tasks/vpn/README.md)
+
+## Run Stage Tasks
+
+- [Docker](run-tasks/docker/README.md)
 
 ## Files and Templates
 
