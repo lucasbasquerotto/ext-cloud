@@ -32,13 +32,14 @@ The configuration file receives a `list` parameter which is a list of dictionari
 
 The value of the `s3_cli_config_file` parameter above can be one of the following:
 
-- [config.awscli.j2](config.awscli.j2): will use awscli.
-- [config.mc.j2](config.mc.j2): will use the minio client.
-- [config.rclone.j2](config.rclone.j2): will use rclone.
+- [config.awscli.j2](config.awscli.j2): will generate a configuration for awscli.
+- [config.mc.j2](config.mc.j2): will generate a configuration for the minio client.
+- [config.rclone.j2](config.rclone.j2): will generate a configuration for rclone.
 
 ## S3 lifecycle file
 
 _File:_ [s3_lifecycle.json.j2](s3_lifecycle.json.j2)
+
 _Schema:_ [s3_lifecycle.schema.yml](s3_lifecycle.schema.yml)
 
 Creates a S3 lifecycle file based on the template.
@@ -63,3 +64,5 @@ pods:
                 expiration_days: 30
                 older_versions_expiration_days: 180
 ```
+
+The lifecycle file created above will define that objects created with the `logs/` prefix will expire after 30 days (in versioned buckets, versions of objects with the `logs/` prefix that were deleted for more than 180 days will be deleted permanently).
