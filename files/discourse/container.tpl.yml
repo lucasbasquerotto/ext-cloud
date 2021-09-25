@@ -273,18 +273,6 @@ volumes:
 hooks:
 
   {####################################}
-  {% if var_use_s3_uploads %}
-
-  after_assets_precompile:
-    - exec:
-        cd: $home
-        cmd:
-          - sudo -E -u discourse bundle exec rake s3:upload_assets
-
-  {% endif %}
-  {####################################}
-
-  {####################################}
   {% if (params.plugins | default([]) | length) > 0 %}
 
   after_code:
