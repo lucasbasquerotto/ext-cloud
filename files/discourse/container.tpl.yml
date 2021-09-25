@@ -173,7 +173,7 @@ env:
   # S3 General Settings
   DISCOURSE_S3_ACCESS_KEY_ID: "{{ credentials.discourse_s3.access_key }}"
   DISCOURSE_S3_SECRET_ACCESS_KEY: "{{ credentials.discourse_s3.secret_key }}"
-  DISCOURSE_S3_REGION: "{{ credentials.discourse_s3.region | default('') }}"
+  DISCOURSE_S3_REGION: "{{ credentials.discourse_s3.region | default('us-east-1') }}"
   DISCOURSE_S3_ENDPOINT: "{{ credentials.discourse_s3.endpoint }}"
 
   {% endif %}
