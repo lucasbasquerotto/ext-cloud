@@ -26,6 +26,10 @@ schemas:
           The domain name the Discourse instance will respond to.
           Required. Discourse will not work with a bare IP number.
           Example: 'discourse.example.com'.
+      use_ssl:
+        type: "bool"
+        description: >-
+          Set to true to specify that the connection to Discourse is secure (HTTPS).
       internal_redis:
         type: "bool"
         description: >-
@@ -100,9 +104,9 @@ schemas:
       discourse_cdn_url:
         type: "str"
         description: >-
-           CDN that points to you Discourse hostname and caches requests.
-           It will be used mainly for pullable assets: CSS and other theme assets.
-           It's advised to be different than discourse_s3_cdn_url.
+          CDN that points to you Discourse hostname and caches requests.
+          It will be used mainly for pullable assets: CSS and other theme assets.
+          It's advised to be different than discourse_s3_cdn_url.
       discourse_maxmind_license_key:
         type: "str"
         description: >-
@@ -169,28 +173,6 @@ schemas:
         description: >-
           Email address to send notifications from.
           Example: noreply@discourse.example.com
-  params_item:
-    type: "dict"
-    props:
-      when:
-        type: "bool"
-        description: "when false, the profile is ignored; defaults to true"
-      alias:
-        type: "str"
-        non_empty: true
-        description: "s3 alias (profile identifier)"
-      access_key:
-        type: "str"
-        description: "s3 access key"
-      secret_key:
-        type: "str"
-        description: "s3 secret key"
-      endpoint:
-        type: "str"
-        description: "s3 endpoint"
-      region:
-        type: "str"
-        description: "s3 region"
   credentials:
     type: "dict"
     props:
@@ -207,10 +189,11 @@ schemas:
     props:
       db_name:
         type: "str"
-        non_empty: true
+        description: "Discourse database (postgres) name. Defaults to 'discourse'."
       db_pass:
         type: "str"
-        required: true
+        non_empty: true
+        description: "Discourse database (postgres) password."
   discourse_smtp:
     type: "dict"
     props:
@@ -237,14 +220,10 @@ schemas:
       username:
         type: "str"
         non_empty: true
-        type: "str"
-        non_empty: true
         description: >-
           The SMTP mail server username used to validate new accounts and
           send notifications.
       password:
-        type: "str"
-        non_empty: true
         type: "str"
         non_empty: true
         description: >-
@@ -254,12 +233,20 @@ schemas:
   discourse_s3:
     type: "dict"
     props:
-      db_name:
+      access_key:
         type: "str"
         non_empty: true
-      db_pass:
+        description: "Discourse S3 Access Key."
+      secret_key:
         type: "str"
-        required: true
+        non_empty: true
+        description: "Discourse S3 Secret Key."
+      region:
+        type: "str"
+        description: "Discourse S3 Region."
+      endpoint:
+        type: "str"
+        description: "Discourse S3 Endpoint (when not in AWS)."
   input:
     type: "dict"
     lax: true
@@ -281,6 +268,7 @@ schemas:
       host:
         type: "str"
         non_empty: true
+        description: "Postgres external host."
   redis_dependency:
     type: "dict"
     lax: true
@@ -288,3 +276,4 @@ schemas:
       host:
         type: "str"
         non_empty: true
+        description: "Redis external host."
