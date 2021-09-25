@@ -10,7 +10,7 @@ schemas:
         schema: "credentials"
         required: true
       input:
-        type: "dict"
+        schema: "input"
   params:
     type: "dict"
     props:
@@ -260,6 +260,31 @@ schemas:
       db_pass:
         type: "str"
         required: true
-
-input.dependencies.db.host | urlsplit('hostname')
-input.dependencies.redis.host | urlsplit('hostname')
+  input:
+    type: "dict"
+    lax: true
+    props:
+      dependencies:
+        schema: "dependencies"
+  dependencies:
+    type: "dict"
+    lax: true
+    props:
+      db:
+        schema: "db_dependency"
+      redis:
+        schema: "redis_dependency"
+  db_dependency:
+    type: "dict"
+    lax: true
+    props:
+      host:
+        type: "str"
+        non_empty: true
+  redis_dependency:
+    type: "dict"
+    lax: true
+    props:
+      host:
+        type: "str"
+        non_empty: true
