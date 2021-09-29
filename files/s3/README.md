@@ -6,7 +6,7 @@ Here you can find some S3 templates to be used in projects.
 
 _Schema:_ [s3-cli.schema.yml](s3-cli.schema.yml)
 
-The below example will create a s3 configuration file at `s3/config` in the pod repository directory of `my_pod` based on the template.
+The below example will create an S3 configuration file at `s3/config` in the pod repository directory of `my_pod` based on the template.
 
 ```yaml
 pods:
@@ -42,7 +42,7 @@ _File:_ [s3_lifecycle.json.j2](s3_lifecycle.json.j2)
 
 _Schema:_ [s3_lifecycle.schema.yml](s3_lifecycle.schema.yml)
 
-Creates a S3 lifecycle file based on the template.
+Creates an S3 lifecycle file based on the template.
 
 _Example:_
 

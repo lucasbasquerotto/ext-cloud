@@ -22,7 +22,7 @@ schemas:
         description: "s3 lifecycle rules"
   rule:
     type: "dict"
-    description: "schema for a s3 lifecycle rule"
+    description: "schema for an s3 lifecycle rule"
     props:
       name:
         type: "str"
