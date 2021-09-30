@@ -217,7 +217,7 @@ env:
 
   ### DB (Different Host) ###
   DISCOURSE_DB_HOST: "{{ input.dependencies.db.host | urlsplit('hostname') }}"
-  DISCOURSE_DB_PORT: "{{ input.dependencies.db.host | urlsplit('port') | default(5432, true) }}"
+  DISCOURSE_DB_PORT: {{ input.dependencies.db.host | urlsplit('port') | default(5432, true) }}
 
   {% endif %}
   {####################################}
@@ -246,7 +246,7 @@ env:
 
   ### Redis (Different Host) ###
   DISCOURSE_REDIS_HOST: "{{ input.dependencies.redis.host | urlsplit('hostname') }}"
-  DISCOURSE_REDIS_PORT: "{{ input.dependencies.redis.host | urlsplit('port') | default(6379, true) }}"
+  DISCOURSE_REDIS_PORT: {{ input.dependencies.redis.host | urlsplit('port') | default(6379, true) }}
 
   {% endif %}
   {####################################}
