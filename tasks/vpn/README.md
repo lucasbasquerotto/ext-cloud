@@ -133,7 +133,7 @@ The above example will create the security groups `group1`, `group2` and `group3
 
 The security groups can be associated with resources like `ec2` to restric access to (`rules`) and from (`rules_egress`) them.
 
-## Digital Ocean
+## DigitalOcean
 
 - **Task:** [digital_ocean.main.vpn.yml](digital_ocean/digital_ocean.main.vpn.yml)
 
@@ -141,7 +141,7 @@ The security groups can be associated with resources like `ec2` to restric acces
 
 - **Validator:** [digital_ocean.validator.vpn.yml](digital_ocean/digital_ocean.validator.vpn.yml)
 
-This task creates tags and firewalls at Digital Ocean so as to provide a VPN-like behaviour. It's possible to create firewalls that restrict ports and IPs, and associate them to tags so that resources (like droplets) with those tags will be restricted by the created firewalls.
+This task creates tags and firewalls at DigitalOcean so as to provide a VPN-like behaviour. It's possible to create firewalls that restrict ports and IPs, and associate them to tags so that resources (like droplets) with those tags will be restricted by the created firewalls.
 
 _Example:_
 
@@ -216,4 +216,4 @@ It will also create the firewalls:
 - `auto`: applied to resources with the tag `auto`; open access to the port `22` (SSH) to the ip `8.8.8.8` and to resources that have the tag `main`; this firewall allow the resources to access (outbound rules) any external resources (any ipv4, `0.0.0.0/0`, and any ipv6, `::/0`) from any port (range `1-65535`) using any protocol (`tcp`, `udp` and `icmp`).
 - `dmz`: applied to resources with the tag `dmz`; open access to ports `80` and `443` to any ips (which means that these ports are public).
 
-The credential `digital_ocean_api_token` can be obtained creating an api token in the Digital Ocean website.
+The credential `digital_ocean_api_token` can be obtained creating an api token in the DigitalOcean website.

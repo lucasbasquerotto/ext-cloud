@@ -47,7 +47,7 @@ The above example will create the EBS volumes:
 - `aws-vol-01`: standard block storage in the zone `us-east-1a` with `15GiB`.
 - `aws-vol-02`: SSD (`gp2`) block storage in the zone `us-east-1b` with `20GiB`.
 
-## Digital Ocean
+## DigitalOcean
 
 - **Task:** [digital_ocean.main.volume.yml](digital_ocean/digital_ocean.main.volume.yml)
 

@@ -8,7 +8,7 @@ Each host/replica name is in the form `<node_name>-host-<replica_index>`, with `
 
 `Node` as defined in the environment file refers to the node type, from which the replicas will be created (if the node amount is `1`, it may be used almost as a synonym of `Host`). In this context, `Host` and `Replica` are the same (an instance of a node type).
 
-## Digital Ocean
+## DigitalOcean
 
 - **Task:** [digital_ocean.main.node.yml](digital_ocean/digital_ocean.main.node.yml)
 
@@ -16,7 +16,7 @@ Each host/replica name is in the form `<node_name>-host-<replica_index>`, with `
 
 - **Validator:** [digital_ocean.validator.node.yml](digital_ocean/digital_ocean.validator.node.yml)
 
-This task creates droplets at Digital Ocean. It's possible to assign tags to the droplets so as to provide a VPN-like behaviour (if there are firewalls associated with those tags).
+This task creates droplets at DigitalOcean. It's possible to assign tags to the droplets so as to provide a VPN-like behaviour (if there are firewalls associated with those tags).
 
 _Example:_
 
@@ -95,13 +95,13 @@ credentials:
     api_token: "<digital_ocean_api_token>"
 ```
 
-The above example will create the following Digital Ocean Droplets (Hosts):
+The above example will create the following DigitalOcean Droplets (Hosts):
 
 - 1 host named `app-host`
 - 2 hosts named `app2-host` and `app2-host-2`, and destroy the host `app2-host-3` (if there is one host with this name).
 - 3 hosts named `myapp`, `myapp-2` and `myapp-3`, and destroy the hosts `myapp-4` and `myapp-5` (if there are hosts with these names).
 
-Each droplet (host) will be created in the Digital Ocean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with size `s-1vcpu-1gb` (1 cpu and memory of 1 GB) and will have the following tags: `auto` and `dmz`.
+Each droplet (host) will be created in the DigitalOcean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with size `s-1vcpu-1gb` (1 cpu and memory of 1 GB) and will have the following tags: `auto` and `dmz`.
 
 After creating the droplet, the instructions defined at the template [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being filled with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `host_users` parameters defined for the node).
 
@@ -197,6 +197,6 @@ The above example will create the following Linodes (Hosts):
 - 2 hosts named `app2-host` and `app2-host-2`, and destroy the host `app2-host-3` (if there is one host with this name).
 - 3 hosts named `myapp`, `myapp-2` and `myapp-3`, and destroy the hosts `myapp-4` and `myapp-5` (if there are hosts with these names).
 
-Each droplet (host) will be created in the Digital Ocean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with the type `g6-standard-1` (1 cpu and memory of 1 GB).
+Each droplet (host) will be created in the DigitalOcean region `ams3`, based on the droplet image `ubuntu-18-04-x64` (Ubuntu 18.04), with the type `g6-standard-1` (1 cpu and memory of 1 GB).
 
 After creating the linode, the instructions defined at the template [user data file](../../files/user-data/ubuntu-18.04.tpl.sh) (after being filled with the credentials and parameters defined above) will be executed, and if the execution finishes successfully it will print `Setup Finished - Success` in the file `/var/log/setup.log` so that the the host will be considered ready (see the `host_users` parameters defined for the node).
