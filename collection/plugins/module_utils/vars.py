@@ -22,11 +22,13 @@ def prepare_default_data(data_info):
   expected_namespace = data_info.get('expected_namespace')
   raw_data = data_info.get('raw_data')
   params_keys = data_info.get('params_keys')
+  list_name = data_info.get('list_name')
 
   return prepare_general_data(
       expected_namespace=expected_namespace,
       raw_data=raw_data,
       item_keys=params_keys,
+      list_name=list_name,
       fn_prepare_item=lambda p: prepare_default_item(
           data_info=data_info,
           item_params=p,
@@ -84,7 +86,12 @@ def prepare_default_item(data_info, item_params):
   return dict(result=result, error_msgs=error_msgs)
 
 
-def prepare_general_data(raw_data, expected_namespace, item_keys, list_name=None, fn_prepare_item=None):
+def prepare_general_data(
+        raw_data,
+        expected_namespace,
+        item_keys,
+        list_name=None,
+        fn_prepare_item=None):
   error_msgs = list()
 
   try:
@@ -181,7 +188,7 @@ def generate_list_params(params, keys, list_name):
   list_params = [
       item
       for item in list_params_aux
-      if (item.get('when') if (item.get('when') != None) else True)
+      if (item.get('when') if (item.get('when') is not None) else True)
   ]
 
   return list_params

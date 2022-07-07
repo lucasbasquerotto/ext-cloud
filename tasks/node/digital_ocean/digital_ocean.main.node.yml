@@ -112,7 +112,7 @@
     label: "[{{ ext_node_item.state }}] {{ ext_node_item.name }}"
   no_log: "{{ env_no_log }}"
 
-- name: "{{ inner_service_title }} - digital ocean node - set hosts"
+- name: "{{ inner_service_title }} - digital ocean node - set hosts (empty)"
   set_fact:
     ext_node_hosts: []
   tags: ["no_print"]

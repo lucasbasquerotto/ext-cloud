@@ -12,7 +12,7 @@
   tags: ["no_print"]
 
 - name: "{{ inner_service_title }} - aws vpn - execute"
-  community.aws.ec2_group:
+  amazon.aws.ec2_group:
     name: "{{ ext_vpn_item.name }}"
     state: "{{ ext_vpn_item.state }}"
     access_key: "{{ ext_vpn_item.access_key }}"
@@ -24,7 +24,7 @@
     rules: "{{ ext_vpn_item.rules }}"
     purge_rules: true
     purge_tags: true
-  loop: "{{ ext_vpn_data_wrapper.data.security_groups }}"
+  loop: "{{ ext_vpn_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_vpn_item
     label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.name }}"
