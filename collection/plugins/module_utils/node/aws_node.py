@@ -58,7 +58,7 @@ def prepare_data(raw_data):
       contents_keys=contents_keys,
       default_credential_name='node',
       required_keys_info=required_keys_info,
-      fn_finalize_item=lambda item: finalize_item(item),
+      fn_finalize_item=finalize_item,
   )
 
   return prepare_default_data(data_info)

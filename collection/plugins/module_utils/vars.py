@@ -60,7 +60,7 @@ def prepare_default_item(data_info, item_params):
   error_msgs += (info.get('error_msgs') or [])
 
   if not error_msgs:
-    item_contents = item_data.get('contents', {})
+    item_contents = raw_data.get('contents', {})
     item_credentials = item_data.get('credentials', {})
 
     result['state'] = state
@@ -81,7 +81,7 @@ def prepare_default_item(data_info, item_params):
     if fn_finalize_item:
       info = fn_finalize_item(result)
       result = info.get('result')
-      error_msgs = info.get('error_msgs') or []
+      error_msgs += info.get('error_msgs') or []
 
   return dict(result=result, error_msgs=error_msgs)
 

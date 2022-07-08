@@ -32,7 +32,7 @@ credentials_keys = [
     'secret_key',
 ]
 
-contents_keys = ['user_data']
+contents_keys = []
 
 
 def prepare_data(raw_data):
