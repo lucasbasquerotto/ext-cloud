@@ -11,7 +11,38 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - aws vpn - execute"
+- name: "{{ inner_service_title }} - aws vpn - vpc - execute"
+  vars:
+    ext_vpn_item: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+  amazon.aws.ec2_vpc_net:
+    name: "{{ ext_vpn_item.name }}"
+    state: "{{ ext_vpn_item.state }}"
+    access_key: "{{ ext_vpn_item.access_key }}"
+    secret_key: "{{ ext_vpn_item.secret_key }}"
+    region: "{{ ext_vpn_item.region }}"
+    cidr_block: "{{ ext_vpn_item.region }}"
+    tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
+    tenancy: "{{ ext_vpn_item.tenancy | default(omit, true) }}"
+  when: (ext_vpn_item.name | default('')) != ''
+  register: ext_vpn_vpc_data
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws vpn - subnets - execute"
+  amazon.aws.ec2_vpc_subnet:
+    state: "{{ ext_vpn_item.state }}"
+    access_key: "{{ ext_vpn_item.access_key }}"
+    secret_key: "{{ ext_vpn_item.secret_key }}"
+    vpc_id: "{{ ext_vpn_vpc_data.vpc.id }}"
+    cidr: "{{ ext_vpn_item.cidr }}"
+    tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
+  loop: "{{ ext_vpn_data_wrapper.data.subnets }}"
+  loop_control:
+    loop_var: ext_vpn_item
+    label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.cidr }}"
+  when: (ext_vpn_vpc_data.vpc.id | default('')) != ''
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws vpn - security groups - execute"
   amazon.aws.ec2_group:
     name: "{{ ext_vpn_item.name }}"
     state: "{{ ext_vpn_item.state }}"
@@ -19,12 +50,12 @@
     secret_key: "{{ ext_vpn_item.secret_key }}"
     region: "{{ ext_vpn_item.region }}"
     description: "{{ ext_vpn_item.description | default(omit, true) }}"
-    vpc_id: "{{ ext_vpn_item.vpc_id | default(omit, true) }}"
+    vpc_id: "{{ ext_vpn_vpc_data.vpc.id | default(omit, true) }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
     rules: "{{ ext_vpn_item.rules }}"
     purge_rules: true
     purge_tags: true
-  loop: "{{ ext_vpn_data_wrapper.data.list }}"
+  loop: "{{ ext_vpn_data_wrapper.data.security_groups }}"
   loop_control:
     loop_var: ext_vpn_item
     label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.name }}"

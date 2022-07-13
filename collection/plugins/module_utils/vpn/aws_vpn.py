@@ -15,9 +15,38 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data, prepare_default_item
 
-params_keys = [
+vpc_params_keys = [
+    "name",
+    "region",
+    "cidr_block",
+    "tags",
+    "tenancy",
+]
+
+vpc_credentials_keys = [
+    'access_key',
+    'secret_key',
+]
+
+vpc_contents_keys = []
+
+subnets_params_keys = [
+    "name",
+    "region",
+    "cidr",
+    "tags",
+]
+
+subnets_credentials_keys = [
+    'access_key',
+    'secret_key',
+]
+
+subnets_contents_keys = []
+
+security_groups_params_keys = [
     "name",
     "region",
     "description",
@@ -27,15 +56,54 @@ params_keys = [
     "rules_egress",
 ]
 
-credentials_keys = [
+security_groups_credentials_keys = [
     'access_key',
     'secret_key',
 ]
 
-contents_keys = []
+security_groups_contents_keys = []
 
 
 def prepare_data(raw_data):
+  required_keys_info = dict(
+      params=['name', 'region', 'cidr_block'],
+  )
+
+  data_info = dict(
+      expected_namespace='ext_vpn',
+      raw_data=raw_data,
+      params_keys=vpc_params_keys,
+      credentials_keys=vpc_credentials_keys,
+      contents_keys=vpc_contents_keys,
+      default_credential_name='vpn',
+      required_keys_info=required_keys_info,
+      fn_finalize_item=None,
+  )
+
+  item_params = raw_data.get('params', {}).get('vpc')
+
+  vpc = (prepare_default_item(data_info, item_params)
+         if item_params is not None
+         else None)
+
+  required_keys_info = dict(
+      params=['name', 'region', 'cidr'],
+  )
+
+  data_info = dict(
+      expected_namespace='ext_vpn',
+      list_name='subnets',
+      raw_data=raw_data,
+      params_keys=subnets_params_keys,
+      credentials_keys=subnets_credentials_keys,
+      contents_keys=subnets_contents_keys,
+      default_credential_name='vpn',
+      required_keys_info=required_keys_info,
+      fn_finalize_item=None,
+  )
+
+  subnets = prepare_default_data(data_info)
+
   required_keys_info = dict(
       params=['name', 'region'],
   )
@@ -44,12 +112,38 @@ def prepare_data(raw_data):
       expected_namespace='ext_vpn',
       list_name='security_groups',
       raw_data=raw_data,
-      params_keys=params_keys,
-      credentials_keys=credentials_keys,
-      contents_keys=contents_keys,
+      params_keys=security_groups_params_keys,
+      credentials_keys=security_groups_credentials_keys,
+      contents_keys=security_groups_contents_keys,
       default_credential_name='vpn',
       required_keys_info=required_keys_info,
       fn_finalize_item=None,
   )
 
-  return prepare_default_data(data_info)
+  security_groups = prepare_default_data(data_info)
+
+  required_keys_info = dict(
+      params=['name', 'region'],
+  )
+
+  data_info = dict(
+      expected_namespace='ext_vpn',
+      list_name='security_groups',
+      raw_data=raw_data,
+      params_keys=security_groups_params_keys,
+      credentials_keys=security_groups_credentials_keys,
+      contents_keys=security_groups_contents_keys,
+      default_credential_name='vpn',
+      required_keys_info=required_keys_info,
+      fn_finalize_item=None,
+  )
+
+  security_groups = prepare_default_data(data_info)
+
+  return dict(
+      result=dict(
+          vpc=vpc.get('result') or {},
+          subnets=(subnets.get('result') or {}).get('list'),
+          security_groups=(security_groups.get('result') or {}).get('list'),
+      ),
+      error_msgs=(security_groups.get('error_msgs') or []))

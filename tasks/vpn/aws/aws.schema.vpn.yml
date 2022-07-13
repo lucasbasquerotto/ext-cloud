@@ -23,11 +23,76 @@ schemas:
     type: "dict"
     description: "parameters schema for the vpn task"
     props:
+      vpc:
+        schema: "vpc"
+        required: false
+        description: "create/delete an aws vpc"
+      subnets:
+        type: "list"
+        elem_schema: "subnet"
+        required: false
+        description: "create/delete an aws subnet"
       security_groups:
         type: "list"
         elem_schema: "security_group"
-        required: true
+        required: false
         description: "create/delete an aws security group"
+  vpc:
+    type: "dict"
+    description: "vpc (virtual private cloud) schema"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "vpc name"
+      region:
+        type: "str"
+        non_empty: true
+        description: "vpc region"
+      cidr_block:
+        type: "simple_list"
+        elem_type: "str"
+        description: >-
+          the primary cidr of the vpc; if a list is provided,
+          the first in the list will be used as the primary cidr and
+          is used in conjunction with the name to ensure idempotence
+      purge_cidrs:
+        type: "bool"
+        description: >-
+          when true, remove cidrs that are associated with the vpc and
+          are not specified in cidr_block
+      tags:
+        type: "map"
+        elem_type: "str"
+        description: "a dictionary of one or more tags to assign to the vpc"
+      tenancy:
+        type: "str"
+        choices: ["default", "dedicated"]
+        description: >-
+          whether to be default or dedicated tenancy;
+          this cannot be changed after the vpc has been created
+  subnet:
+    type: "dict"
+    description: "subnet schema"
+    props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "subnet name"
+      region:
+        type: "str"
+        non_empty: true
+        description: "subnet region"
+      cidr:
+        type: "str"
+        description: "the cidr block for the subnet; e.g. 192.0.2.0/24"
+      vpc_id:
+        type: "str"
+        description: "id of the vpc to create the subnet in"
+      tags:
+        type: "map"
+        elem_type: "str"
+        description: "a dictionary of one or more tags to assign to the vpc"
   security_group:
     type: "dict"
     description: "security group schema"
