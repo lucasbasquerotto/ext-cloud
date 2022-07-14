@@ -27,11 +27,6 @@ schemas:
         schema: "vpc"
         required: false
         description: "create/delete an aws vpc"
-      subnets:
-        type: "list"
-        elem_schema: "subnet"
-        required: false
-        description: "create/delete an aws subnet"
       security_groups:
         type: "list"
         elem_schema: "security_group"
@@ -71,24 +66,19 @@ schemas:
         description: >-
           whether to be default or dedicated tenancy;
           this cannot be changed after the vpc has been created
+      subnets:
+        type: "list"
+        elem_schema: "subnet"
+        required: false
+        description: "create/delete an aws subnet"
   subnet:
     type: "dict"
     description: "subnet schema"
     props:
-      name:
-        type: "str"
-        non_empty: true
-        description: "subnet name"
-      region:
-        type: "str"
-        non_empty: true
-        description: "subnet region"
       cidr:
         type: "str"
+        non_empty: true
         description: "the cidr block for the subnet; e.g. 192.0.2.0/24"
-      vpc_id:
-        type: "str"
-        description: "id of the vpc to create the subnet in"
       tags:
         type: "map"
         elem_type: "str"

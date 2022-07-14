@@ -15,8 +15,8 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-import requests
 import traceback
+import requests
 
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.utils import raise_for_status
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
@@ -37,6 +37,7 @@ credentials_keys = [
     'client_secret',
 ]
 
+# pylint: disable=invalid-name
 base_url = 'https://gateway.stackpath.com'
 identity_base_url = base_url + '/identity/v1'
 stack_base_url = base_url + '/stack/v1'
@@ -55,7 +56,7 @@ def prepare_data(raw_data):
       credentials_keys=credentials_keys,
       default_credential_name='cdn',
       required_keys_info=required_keys_info,
-      fn_finalize_item=lambda item: finalize_item(item),
+      fn_finalize_item=finalize_item,
   )
 
   return prepare_default_data(data_info)
@@ -145,8 +146,8 @@ def manage_cdn(prepared_item):
 
       if result_amount > 1:
         error_msgs += [[
-            'stack_slug: ' (stack_slug or ''),
-            'stack_name: ' (stack_name or ''),
+            'stack_slug: ' + (stack_slug or ''),
+            'stack_name: ' + (stack_name or ''),
             'msg: stackpath cdn has more than 1 site',
             'tip: use 1 different stack slug per site',
         ]]

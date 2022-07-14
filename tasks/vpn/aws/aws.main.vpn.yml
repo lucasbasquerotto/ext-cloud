@@ -20,7 +20,7 @@
     access_key: "{{ ext_vpn_item.access_key }}"
     secret_key: "{{ ext_vpn_item.secret_key }}"
     region: "{{ ext_vpn_item.region }}"
-    cidr_block: "{{ ext_vpn_item.region }}"
+    cidr_block: "{{ ext_vpn_item.cidr_block }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
     tenancy: "{{ ext_vpn_item.tenancy | default(omit, true) }}"
   when: (ext_vpn_item.name | default('')) != ''
@@ -33,6 +33,7 @@
     access_key: "{{ ext_vpn_item.access_key }}"
     secret_key: "{{ ext_vpn_item.secret_key }}"
     vpc_id: "{{ ext_vpn_vpc_data.vpc.id }}"
+    region: "{{ ext_vpn_item.region }}"
     cidr: "{{ ext_vpn_item.cidr }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
   loop: "{{ ext_vpn_data_wrapper.data.subnets }}"
