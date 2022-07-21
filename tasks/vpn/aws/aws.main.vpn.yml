@@ -11,7 +11,95 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - aws vpn - vpc - execute"
+- name: "{{ inner_service_title }} - aws vpn - vpc - info (absent)"
+  vars:
+    ext_vpn_item: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+  amazon.aws.ec2_vpc_net_info:
+    access_key: "{{ ext_vpn_item.access_key }}"
+    secret_key: "{{ ext_vpn_item.secret_key }}"
+    region: "{{ ext_vpn_item.region }}"
+    filters:
+      "tag:Name": "{{ ext_vpn_item.name }}"
+      cidr: >-
+        {{
+          (ext_vpn_item.cidr_block is string)
+          | ternary(ext_vpn_item.cidr_block, ext_vpn_item.cidr_block[0] | default(''))
+        }}
+  when: >-
+    ((ext_vpn_item.name | default('')) != '')
+    and
+    (ext_vpn_item.state == 'absent')
+  register: ext_vpn_vpc_info
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws vpn - subnets - execute (vpc absent)"
+  vars:
+    ext_vpn_vpc: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+    ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
+  amazon.aws.ec2_vpc_subnet:
+    state: "{{ ext_vpn_vpc.state }}"
+    access_key: "{{ ext_vpn_item.access_key }}"
+    secret_key: "{{ ext_vpn_item.secret_key }}"
+    vpc_id: "{{ ext_vpn_vpc_id }}"
+    region: "{{ ext_vpn_item.region }}"
+    cidr: "{{ ext_vpn_item.cidr }}"
+    tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
+  loop: "{{ ext_vpn_data_wrapper.data.subnets }}"
+  loop_control:
+    loop_var: ext_vpn_item
+    label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.cidr }}"
+  when: >-
+    (ext_vpn_vpc.state == 'absent')
+    and
+    (ext_vpn_vpc_id != '')
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws vpn - retrieve security groups (vpc absent)"
+  vars:
+    ext_vpn_item: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+    ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
+  amazon.aws.ec2_group_info:
+    access_key: "{{ ext_vpn_item.access_key }}"
+    secret_key: "{{ ext_vpn_item.secret_key }}"
+    region: "{{ ext_vpn_item.region }}"
+    filters:
+      vpc-id: "{{ ext_vpn_vpc_id }}"
+  when: >-
+    (ext_vpn_item.state == 'absent')
+    and
+    (ext_vpn_vpc_id != '')
+  register: ext_vpn_group_info
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws vpn - delete security groups (vpc absent)"
+  vars:
+    ext_vpn_vpc: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+    ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
+  amazon.aws.ec2_group:
+    access_key: "{{ ext_vpn_vpc.access_key }}"
+    secret_key: "{{ ext_vpn_vpc.secret_key }}"
+    region: "{{ ext_vpn_vpc.region }}"
+    vpc_id: "{{ ext_vpn_vpc_id }}"
+    group_id: "{{ ext_vpn_item.group_id }}"
+    state: "absent"
+  loop: "{{ ext_vpn_group_info.security_groups  | default([]) }}"
+  loop_control:
+    loop_var: ext_vpn_item
+    label: "{{ ext_vpn_item.group_id | default('') }}"
+  when: >-
+    (ext_vpn_vpc.state == 'absent')
+    and
+    (ext_vpn_vpc_id != '')
+    and
+    ((ext_vpn_item.group_id | default('')) != '')
+    and
+    ((ext_vpn_item.group_name | default('')) != 'default')
+  no_log: "{{ env_no_log }}"
+
+- name: >-
+    {{ inner_service_title }}
+    - aws vpn - vpc - execute
+    ({{ ext_vpn_data_wrapper.data.vpc.state | default('') }})
   vars:
     ext_vpn_item: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
   amazon.aws.ec2_vpc_net:
@@ -27,7 +115,7 @@
   register: ext_vpn_vpc_data
   no_log: "{{ env_no_log }}"
 
-- name: "{{ inner_service_title }} - aws vpn - subnets - execute"
+- name: "{{ inner_service_title }} - aws vpn - subnets - execute (present)"
   amazon.aws.ec2_vpc_subnet:
     state: "{{ ext_vpn_item.state }}"
     access_key: "{{ ext_vpn_item.access_key }}"
@@ -40,7 +128,10 @@
   loop_control:
     loop_var: ext_vpn_item
     label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.cidr }}"
-  when: (ext_vpn_vpc_data.vpc.id | default('')) != ''
+  when: >-
+    ((ext_vpn_vpc_data.vpc.id | default('')) != '')
+    and
+    (ext_vpn_item.state == 'present')
   no_log: "{{ env_no_log }}"
 
 - name: "{{ inner_service_title }} - aws vpn - security groups - execute"
@@ -51,7 +142,7 @@
     secret_key: "{{ ext_vpn_item.secret_key }}"
     region: "{{ ext_vpn_item.region }}"
     description: "{{ ext_vpn_item.description | default(omit, true) }}"
-    vpc_id: "{{ ext_vpn_vpc_data.vpc.id | default(omit, true) }}"
+    vpc_id: "{{ ext_vpn_item.vpc.id | default(omit, true) }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
     rules: "{{ ext_vpn_item.rules }}"
     purge_rules: true

@@ -136,12 +136,14 @@ schemas:
           If the group_name is set and the Security Group doesn't exist a new
           Security Group will be created with group_desc as the description.
       group_id:
-        type: "str"
+        type: "simple_list"
+        elem_type: "str"
         description: >-
           The ID of the Security Group that traffic is coming from.
           You can specify only one of cidr_ip, cidr_ipv6, ip_prefix, group_id and group_name.
       group_name:
-        type: "str"
+        type: "simple_list"
+        elem_type: "str"
         description: >-
           Name of the Security Group that traffic is coming from.
           If the Security Group doesn't exist a new Security Group will be created with group_desc as the description.
