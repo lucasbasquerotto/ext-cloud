@@ -28,7 +28,7 @@
   when: >-
     ((ext_vpn_item.name | default('')) != '')
     and
-    (ext_vpn_item.state == 'absent')
+    ((ext_vpn_item.state | default('')) == 'absent')
   register: ext_vpn_vpc_info
   no_log: "{{ env_no_log }}"
 
@@ -49,7 +49,7 @@
     loop_var: ext_vpn_item
     label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.cidr }}"
   when: >-
-    (ext_vpn_vpc.state == 'absent')
+    ((ext_vpn_vpc.state | default('')) == 'absent')
     and
     (ext_vpn_vpc_id != '')
   no_log: "{{ env_no_log }}"
@@ -65,7 +65,7 @@
     filters:
       vpc-id: "{{ ext_vpn_vpc_id }}"
   when: >-
-    (ext_vpn_item.state == 'absent')
+    ((ext_vpn_item.state | default('')) == 'absent')
     and
     (ext_vpn_vpc_id != '')
   register: ext_vpn_group_info
@@ -87,7 +87,7 @@
     loop_var: ext_vpn_item
     label: "{{ ext_vpn_item.group_id | default('') }}"
   when: >-
-    (ext_vpn_vpc.state == 'absent')
+    ((ext_vpn_vpc.state | default('')) == 'absent')
     and
     (ext_vpn_vpc_id != '')
     and
