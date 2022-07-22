@@ -35,7 +35,9 @@ vpc_credentials_keys = [
 vpc_contents_keys = []
 
 subnets_params_keys = [
+    "name",
     "cidr",
+    "az",
     "tags",
 ]
 
@@ -106,7 +108,7 @@ def prepare_data(raw_data):
       contents_keys=subnets_contents_keys,
       default_credential_name='vpn',
       required_keys_info=required_keys_info,
-      fn_finalize_item=None,
+      fn_finalize_item=finalize_subnet_item,
   )
 
   subnets = prepare_default_data(data_info)
@@ -169,3 +171,10 @@ def prepare_data(raw_data):
       ),
       error_msgs=error_msgs,
   )
+
+
+def finalize_subnet_item(item):
+  tags = item.get('tags') or dict()
+  tags['Name'] = item.get('name')
+  item['tags'] = tags
+  return dict(result=item)

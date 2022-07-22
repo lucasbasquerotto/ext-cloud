@@ -122,6 +122,7 @@
     secret_key: "{{ ext_vpn_item.secret_key }}"
     vpc_id: "{{ ext_vpn_vpc_data.vpc.id }}"
     region: "{{ ext_vpn_item.region }}"
+    az: "{{ ext_vpn_item.az | default(omit, true) }}"
     cidr: "{{ ext_vpn_item.cidr }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
   loop: "{{ ext_vpn_data_wrapper.data.subnets }}"
@@ -135,6 +136,12 @@
   no_log: "{{ env_no_log }}"
 
 - name: "{{ inner_service_title }} - aws vpn - security groups - execute"
+  vars:
+    ext_vpn_vpc_item_id: >-
+      {{
+        ext_vpn_item.vpc.id |
+        default(ext_vpn_vpc_data.vpc.id | default(omit, true), true)
+      }}
   amazon.aws.ec2_group:
     name: "{{ ext_vpn_item.name }}"
     state: "{{ ext_vpn_item.state }}"
@@ -142,7 +149,7 @@
     secret_key: "{{ ext_vpn_item.secret_key }}"
     region: "{{ ext_vpn_item.region }}"
     description: "{{ ext_vpn_item.description | default(omit, true) }}"
-    vpc_id: "{{ ext_vpn_item.vpc.id | default(omit, true) }}"
+    vpc_id: "{{ ext_vpn_vpc_item_id }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
     rules: "{{ ext_vpn_item.rules }}"
     purge_rules: true
@@ -150,5 +157,8 @@
   loop: "{{ ext_vpn_data_wrapper.data.security_groups }}"
   loop_control:
     loop_var: ext_vpn_item
-    label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.name }}"
+    label: >-
+      [{{ ext_vpn_item.state }}]
+      {{ ext_vpn_item.name }}
+      (vpc: {{ ext_vpn_vpc_item_id | default('---') }})
   no_log: "{{ env_no_log }}"

@@ -34,6 +34,8 @@ params_keys = [
     'volumes',
     'vpc_subnet_id',
     'wait_timeout',
+    'vpc_name',
+    'vpc_subnet_name',
 ]
 
 credentials_keys = [
@@ -49,6 +51,8 @@ def prepare_data(raw_data):
       params=['region', 'instance_type'],
   )
 
+  credential_name = 'node'
+
   data_info = dict(
       expected_namespace='ext_node',
       list_name='replicas',
@@ -56,12 +60,34 @@ def prepare_data(raw_data):
       params_keys=params_keys,
       credentials_keys=credentials_keys,
       contents_keys=contents_keys,
-      default_credential_name='node',
+      default_credential_name=credential_name,
       required_keys_info=required_keys_info,
       fn_finalize_item=finalize_item,
   )
 
-  return prepare_default_data(data_info)
+  result_info = prepare_default_data(data_info)
+
+  result = result_info.get('result')
+  params = raw_data.get('params')
+  all_credentials = raw_data.get('credentials') or dict()
+  credentials = all_credentials.get(credential_name)
+  state = raw_data.get('state')
+
+  # if result and params and (state == 'present'):
+  if result and params and state:
+    vpc_name = params.get('vpc_name')
+    vpc_subnet_name = params.get('vpc_subnet_name')
+
+    if vpc_name and vpc_subnet_name:
+      result['vpc'] = dict(
+          name=vpc_name,
+          subnet=vpc_subnet_name,
+          region=params.get('region'),
+          access_key=credentials.get('access_key'),
+          secret_key=credentials.get('secret_key'),
+      )
+
+  return result_info
 
 
 def finalize_item(item):

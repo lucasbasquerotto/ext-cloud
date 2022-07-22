@@ -87,10 +87,18 @@ schemas:
         description: >-
           whether to enable termination protection; this service will not terminate an instance with
           termination protection active, it must be turned off first
+      vpc_name:
+        type: "str"
+        description: "the name of the vpc that has the subnet with vpc_subnet_name"
       vpc_subnet_id:
         type: "str"
         description: >-
           the subnet id in which to launch the instance (vpc); if none is provided,
+          it will chose the default zone of the default vpc
+      vpc_subnet_name:
+        type: "str"
+        description: >-
+          the subnet name in which to launch the instance (vpc); if none is provided,
           it will chose the default zone of the default vpc
       wait_timeout:
         type: "int"

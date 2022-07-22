@@ -75,6 +75,10 @@ schemas:
     type: "dict"
     description: "subnet schema"
     props:
+      name:
+        type: "str"
+        non_empty: true
+        description: "the name (tag) of the subnet"
       cidr:
         type: "str"
         non_empty: true
@@ -82,7 +86,9 @@ schemas:
       tags:
         type: "map"
         elem_type: "str"
-        description: "a dictionary of one or more tags to assign to the vpc"
+        description: >-
+          a dictionary of one or more tags to assign to the vpc;
+          ignores the name tag (the name property defines the name tag)
   security_group:
     type: "dict"
     description: "security group schema"

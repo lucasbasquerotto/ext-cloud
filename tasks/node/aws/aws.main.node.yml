@@ -11,7 +11,42 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
+- name: "{{ inner_service_title }} - aws node - vpc - info"
+  vars:
+    ext_node_vcp_info: "{{ ext_node_data_wrapper.data.vpc | default({}) }}"
+  amazon.aws.ec2_vpc_net_info:
+    access_key: "{{ ext_node_vcp_info.access_key }}"
+    secret_key: "{{ ext_node_vcp_info.secret_key }}"
+    region: "{{ ext_node_vcp_info.region }}"
+    filters:
+      "tag:Name": "{{ ext_node_vcp_info.name }}"
+  when: (ext_node_vcp_info.name | default('')) != ''
+  register: ext_node_vpc_info
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws node - subnet - info"
+  vars:
+    ext_node_vcp_info: "{{ ext_node_data_wrapper.data.vpc | default({}) }}"
+    ext_node_vpc_id: "{{ ext_node_vpc_info.vpcs[0].id | default('') }}"
+  amazon.aws.ec2_vpc_subnet_info:
+    access_key: "{{ ext_node_vcp_info.access_key }}"
+    secret_key: "{{ ext_node_vcp_info.secret_key }}"
+    region: "{{ ext_node_vcp_info.region }}"
+    filters:
+      vpc-id: "{{ ext_node_vpc_id }}"
+      "tag:Name": "{{ ext_node_vcp_info.subnet }}"
+  when: ext_node_vpc_id != ''
+  register: ext_node_subnet_info
+  no_log: "{{ env_no_log }}"
+
 - name: "{{ inner_service_title }} - aws node - execute"
+  vars:
+    ext_node_subnet_id_default: "{{ ext_node_subnet_info.subnets[0].subnet_id | default('') }}"
+    ext_node_subnet_id: >-
+      {{
+        ext_node_item.vpc_subnet_id
+        | default(ext_node_subnet_id_default | default(omit, true), true)
+      }}
   community.aws.ec2_instance:
     name: "{{ ext_node_item.name }}"
     state: "{{ ext_node_item.state }}"
@@ -21,7 +56,7 @@
     region: "{{ ext_node_item.region }}"
     instance_type: "{{ ext_node_item.instance_type }}"
     volumes: "{{ ext_node_item.volumes }}"
-    vpc_subnet_id: "{{ ext_node_item.vpc_subnet_id | default(omit, true) }}"
+    vpc_subnet_id: "{{ ext_node_subnet_id }}"
     network: "{{ ext_node_item.network | default(omit, true) }}"
     security_groups: "{{ ext_node_item.security_groups | default(omit, true) }}"
     availability_zone: "{{ ext_node_item.availability_zone | default(omit, true) }}"
