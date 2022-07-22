@@ -137,10 +137,16 @@
 
 - name: "{{ inner_service_title }} - aws vpn - security groups - execute"
   vars:
+    ext_vpn_vpc: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
     ext_vpn_vpc_item_id: >-
       {{
         ext_vpn_item.vpc.id |
         default(ext_vpn_vpc_data.vpc.id | default(omit, true), true)
+      }}
+    ext_vpn_vpc_label: >-
+      {{
+        ext_vpn_item.vpc.id |
+        default(ext_vpn_vpc_data.vpc.id | default('---', true), true)
       }}
   amazon.aws.ec2_group:
     name: "{{ ext_vpn_item.name }}"
@@ -160,5 +166,9 @@
     label: >-
       [{{ ext_vpn_item.state }}]
       {{ ext_vpn_item.name }}
-      (vpc: {{ ext_vpn_vpc_item_id | default('---') }})
+      (vpc: {{ ext_vpn_vpc_label }})
+  when: >-
+    ((ext_vpn_vpc.name | default('')) == '')
+    or
+    ((ext_vpn_item.state | default('')) == 'present')
   no_log: "{{ env_no_log }}"
