@@ -43,6 +43,8 @@
     vpc_id: "{{ ext_vpn_vpc_id }}"
     region: "{{ ext_vpn_item.region }}"
     cidr: "{{ ext_vpn_item.cidr }}"
+    az: "{{ ext_vpn_item.az | default(omit, true) }}"
+    map_public: "{{ ext_vpn_item.map_public | default(omit, true) }}"
     tags: "{{ ext_vpn_item.tags | default(omit, true) }}"
   loop: "{{ ext_vpn_data_wrapper.data.subnets }}"
   loop_control:

@@ -38,6 +38,7 @@ subnets_params_keys = [
     "name",
     "cidr",
     "az",
+    "map_public",
     "tags",
 ]
 

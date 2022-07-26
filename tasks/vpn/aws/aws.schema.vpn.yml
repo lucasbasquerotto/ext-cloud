@@ -83,6 +83,14 @@ schemas:
         type: "str"
         non_empty: true
         description: "the cidr block for the subnet; e.g. 192.0.2.0/24"
+      az:
+        type: "str"
+        description: "the availability zone for the subnet"
+      map_public:
+        type: "bool"
+        description: >-
+          when true, indicate that instances launched into the subnet should
+          be assigned public ip address by default
       tags:
         type: "map"
         elem_type: "str"
