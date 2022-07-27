@@ -32,55 +32,55 @@
   register: ext_vpn_vpc_info
   no_log: "{{ env_no_log }}"
 
-- name: "{{ inner_service_title }} - aws vpn - vpc - retrieve the route tables (vpc absent)"
-  vars:
-    ext_vpn_item: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
-    ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
-  community.aws.ec2_vpc_route_table_info:
-    access_key: "{{ ext_vpn_item.access_key }}"
-    secret_key: "{{ ext_vpn_item.secret_key }}"
-    region: "{{ ext_vpn_item.region }}"
-    filters:
-      vpc-id: "{{ ext_vpn_vpc_id }}"
-  when: >-
-    ((ext_vpn_item.state | default('')) == 'absent')
-    and
-    (ext_vpn_vpc_id != '')
-  register: ext_vpn_route_table_info
-  no_log: "{{ env_no_log }}"
+# - name: "{{ inner_service_title }} - aws vpn - vpc - retrieve the route tables (vpc absent)"
+#   vars:
+#     ext_vpn_item: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+#     ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
+#   community.aws.ec2_vpc_route_table_info:
+#     access_key: "{{ ext_vpn_item.access_key }}"
+#     secret_key: "{{ ext_vpn_item.secret_key }}"
+#     region: "{{ ext_vpn_item.region }}"
+#     filters:
+#       vpc-id: "{{ ext_vpn_vpc_id }}"
+#   when: >-
+#     ((ext_vpn_item.state | default('')) == 'absent')
+#     and
+#     (ext_vpn_vpc_id != '')
+#   register: ext_vpn_route_table_info
+#   no_log: "{{ env_no_log }}"
 
-- name: "{{ inner_service_title }} - aws vpn - vpc - route tables - execute (vpc absent)"
-  vars:
-    ext_vpn_vpc: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
-    ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
-  amazon.aws.ec2_vpc_route_table:
-    state: "absent"
-    access_key: "{{ ext_vpn_vpc.access_key }}"
-    secret_key: "{{ ext_vpn_vpc.secret_key }}"
-    region: "{{ ext_vpn_vpc.region }}"
-    vpc_id: "{{ ext_vpn_vpc_id }}"
-    route_table_id: "{{ ext_vpn_item.route_table_id }}"
-    lookup: "id"
-  loop: "{{ ext_vpn_route_table_info.route_tables | default([]) }}"
-  loop_control:
-    loop_var: ext_vpn_item
-    label: "{{ ext_vpn_item.route_table_id | default('') }}"
-  when: >-
-    ((ext_vpn_vpc.state | default('')) == 'absent')
-    and
-    (ext_vpn_vpc_id != '')
-    and
-    ((ext_vpn_item.route_table_id | default('')) != '')
-  no_log: "{{ env_no_log }}"
+# - name: "{{ inner_service_title }} - aws vpn - vpc - route tables - execute (vpc absent)"
+#   vars:
+#     ext_vpn_vpc: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
+#     ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
+#   amazon.aws.ec2_vpc_route_table:
+#     state: "absent"
+#     access_key: "{{ ext_vpn_vpc.access_key }}"
+#     secret_key: "{{ ext_vpn_vpc.secret_key }}"
+#     region: "{{ ext_vpn_vpc.region }}"
+#     vpc_id: "{{ ext_vpn_vpc_id }}"
+#     route_table_id: "{{ ext_vpn_item.route_table_id }}"
+#     lookup: "id"
+#   loop: "{{ ext_vpn_route_table_info.route_tables | default([]) }}"
+#   loop_control:
+#     loop_var: ext_vpn_item
+#     label: "{{ ext_vpn_item.route_table_id | default('') }}"
+#   when: >-
+#     ((ext_vpn_vpc.state | default('')) == 'absent')
+#     and
+#     (ext_vpn_vpc_id != '')
+#     and
+#     ((ext_vpn_item.route_table_id | default('')) != '')
+#   no_log: "{{ env_no_log }}"
 
 - name: "{{ inner_service_title }} - aws vpn - delete the internet gateway"
   vars:
     ext_vpn_vpc: "{{ ext_vpn_data_wrapper.data.vpc | default({}) }}"
     ext_vpn_vpc_id: "{{ ext_vpn_vpc_info.vpcs[0].id | default('') }}"
   amazon.aws.ec2_vpc_igw:
-    access_key: "{{ ext_vpn_item.access_key }}"
-    secret_key: "{{ ext_vpn_item.secret_key }}"
-    region: "{{ ext_vpn_item.region }}"
+    access_key: "{{ ext_vpn_vpc.access_key }}"
+    secret_key: "{{ ext_vpn_vpc.secret_key }}"
+    region: "{{ ext_vpn_vpc.region }}"
     vpc_id: "{{ ext_vpn_vpc_id }}"
     state: "absent"
   when: >-
