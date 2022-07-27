@@ -1,4 +1,4 @@
-ARG VERSION=1.6.6
+ARG VERSION=20220727
 
 FROM lucasbasquerotto/cloud:$VERSION
 

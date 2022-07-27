@@ -16,9 +16,6 @@
 from __future__ import absolute_import, division, print_function
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.utils.display import Display
-
-display = Display()
 
 __metaclass__ = type  # pylint: disable=invalid-name
 
@@ -52,9 +49,6 @@ def main():
   module = AnsibleModule(
       argument_spec=dict(input=dict(type='str', required=True))
   )
-
-  input_arg = module.params['input'] or ''
-  display.vv('collection is present - input: %s' % input_arg)
 
   module.exit_json(changed=False)
 

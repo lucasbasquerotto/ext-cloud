@@ -20,9 +20,6 @@ import traceback
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
-from ansible.utils.display import Display
-
-display = Display()
 
 params_keys = [
     'zone',
@@ -50,7 +47,7 @@ def prepare_data(raw_data):
       credentials_keys=credentials_keys,
       default_credential_name='nameserver',
       required_keys_info=required_keys_info,
-      fn_finalize_item=lambda item: finalize_item(item),
+      fn_finalize_item=finalize_item,
   )
 
   return prepare_default_data(data_info)
@@ -113,9 +110,6 @@ def manage_nameserver(prepared_item):
             json={'nameServers': new_records},
         )
         response.raise_for_status()
-    else:
-      # not supported by the goddaddy API
-      display.vv('absent state not supported by the godaddy api')
 
     result = dict(changed=changed)
   except Exception as error:

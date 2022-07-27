@@ -15,16 +15,13 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-import requests
 import traceback
+import requests
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
     generate_values, prepare_general_data, prepare_item_data
 )
-from ansible.utils.display import Display
-
-display = Display()
 
 
 def prepare_data(raw_data):
@@ -169,9 +166,6 @@ def manage_dns(prepared_item):
             json=new_records,
         )
         response.raise_for_status()
-    else:
-      # not supported by the goddaddy API
-      display.vv('absent state not supported by the godaddy api')
 
     result = dict(changed=changed)
   except Exception as error:
