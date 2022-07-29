@@ -25,6 +25,7 @@ vpc_params_keys = [
     "cidr_block",
     "tags",
     "tenancy",
+    "public_vpc",
 ]
 
 vpc_credentials_keys = [
