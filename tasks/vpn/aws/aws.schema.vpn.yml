@@ -71,6 +71,10 @@ schemas:
         elem_schema: "subnet"
         required: false
         description: "create/delete an aws subnet"
+      public_vpc:
+        type: "bool"
+        description: >-
+          when true, associates the vpc with an internet gateway all destinations
   subnet:
     type: "dict"
     description: "subnet schema"
