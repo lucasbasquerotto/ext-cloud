@@ -17,7 +17,14 @@
     state: "{{ ext_cdn_item.state }}"
     access_key: "{{ ext_cdn_item.access_key }}"
     secret_key: "{{ ext_cdn_item.secret_key }}"
-    comment: "{{ ext_cdn_item.comment | default(omit) }}"
+    comment: >-
+      {{
+        ((ext_cdn_item.comment | default('')) == '')
+        | ternary(
+            ext_cdn_item.name,
+            ext_cdn_item.name + ' - ' + (ext_cdn_item.comment | default(''))
+          )
+      }}
     aliases: "{{ ext_cdn_item.aliases | default(omit) }}"
     cache_behaviors: "{{ ext_cdn_item.cache_behaviors | default(omit) }}"
     custom_error_responses: "{{ ext_cdn_item.custom_error_responses | default(omit) }}"

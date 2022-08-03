@@ -342,30 +342,12 @@ schemas:
       A list of dictionaries describing the cache behaviors for the distribution.
       The order of the list is preserved across runs unless purge_cache_behaviors is enabled.
     props:
-      forwarded_values:
-        schema: "cache_behavior_forwarded_values"
-        description: "A dict that specifies how CloudFront handles query strings and cookies."
-      path_pattern:
-        type: "str"
-        description: "The pattern that specifies which requests to apply the behavior to."
-      target_origin_id:
-        type: "str"
-        description: "The ID of the origin that you want CloudFront to route requests to by default."
-  cache_behavior_forwarded_values:
-    type: "dict"
-    description: "A dict that specifies how CloudFront handles query strings and cookies."
-    props:
       allowed_methods:
         schema: "cache_behavior_forwarded_values_allowed_methods"
         description: "A dict that controls which HTTP methods CloudFront processes and forwards."
       compress:
         type: "bool"
         description: "Whether you want CloudFront to automatically compress files."
-      cookies:
-        schema: "cache_behavior_forwarded_values_cookies"
-        description: >-
-          A dict that specifies whether you want CloudFront to forward cookies
-          to the origin and, if so, which ones.
       default_ttl:
         type: "int"
         description: "The default amount of time that you want objects to stay in CloudFront caches."
@@ -374,12 +356,9 @@ schemas:
         description: >-
           The field-level encryption configuration that you want CloudFront to use for encrypting
           specific fields of data.
-      headers:
-        type: "list"
-        elem_type: "str"
-        description: >-
-          A list of headers to forward to the origin for this cache behavior.
-          To forward all headers use a list containing a single element '*' (['*'])
+      forwarded_values:
+        schema: "cache_behavior_forwarded_values"
+        description: "A dict that specifies how CloudFront handles query strings and cookies."
       lambda_function_associations:
         type: "list"
         elem_schema: "cache_behavior_forwarded_values_lambda_function_associations"
@@ -390,20 +369,15 @@ schemas:
       min_ttl:
         type: "int"
         description: "The minimum amount of time that you want objects to stay in CloudFront caches."
-      query_string:
-        type: "bool"
-        description: >-
-          Indicates whether you want CloudFront to forward query strings to the origin that is
-          associated with this cache behavior.
-      query_string_cache_keys:
-        type: "list"
-        elem_type: "str"
-        description: >-
-          A list that contains the query string parameters you want CloudFront to use as a basis for
-          caching for a cache behavior.
+      path_pattern:
+        type: "str"
+        description: "The pattern that specifies which requests to apply the behavior to."
       smooth_streaming:
         type: "bool"
         description: "Whether you want to distribute media files in the Microsoft Smooth Streaming format."
+      target_origin_id:
+        type: "str"
+        description: "The ID of the origin that you want CloudFront to route requests to by default."
       trusted_signers:
         schema: "cache_behavior_forwarded_values_trusted_signers"
         description: >-
@@ -415,6 +389,32 @@ schemas:
           The protocol that viewers can use to access the files in the origin specified by
           target_origin_id when a request matches path_pattern.
         choices: ["allow-all", "redirect-to-https", "https-only"]
+  cache_behavior_forwarded_values:
+    type: "dict"
+    description: "A dict that specifies how CloudFront handles query strings and cookies."
+    props:
+      cookies:
+        schema: "cache_behavior_forwarded_values_cookies"
+        description: >-
+          A dict that specifies whether you want CloudFront to forward cookies
+          to the origin and, if so, which ones.
+      headers:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list of headers to forward to the origin for this cache behavior.
+          To forward all headers use a list containing a single element '*' (['*'])
+      query_string:
+        type: "bool"
+        description: >-
+          Indicates whether you want CloudFront to forward query strings to the origin that is
+          associated with this cache behavior.
+      query_string_cache_keys:
+        type: "list"
+        elem_type: "str"
+        description: >-
+          A list that contains the query string parameters you want CloudFront to use as a basis for
+          caching for a cache behavior.
   cache_behavior_forwarded_values_allowed_methods:
     type: "dict"
     description: "A dict that controls which HTTP methods CloudFront processes and forwards."
@@ -500,12 +500,50 @@ schemas:
       If not specified, the target_origin_id is defined as the target_origin_id of the first
       valid cache_behavior in cache_behaviors with defaults.
     props:
+      allowed_methods:
+        schema: "cache_behavior_forwarded_values_allowed_methods"
+        description: "A dict that controls which HTTP methods CloudFront processes and forwards."
+      compress:
+        type: "bool"
+        description: "Whether you want CloudFront to automatically compress files."
+      default_ttl:
+        type: "int"
+        description: "The default amount of time that you want objects to stay in CloudFront caches."
+      field_level_encryption_id:
+        type: "str"
+        description: >-
+          The field-level encryption configuration that you want CloudFront to use for encrypting
+          specific fields of data.
       forwarded_values:
         schema: "cache_behavior_forwarded_values"
         description: "A dict that specifies how CloudFront handles query strings and cookies."
+      lambda_function_associations:
+        type: "list"
+        elem_schema: "cache_behavior_forwarded_values_lambda_function_associations"
+        description: "A list of Lambda function associations to use for this cache behavior."
+      max_ttl:
+        type: "int"
+        description: "The maximum amount of time that you want objects to stay in CloudFront caches."
+      min_ttl:
+        type: "int"
+        description: "The minimum amount of time that you want objects to stay in CloudFront caches."
+      smooth_streaming:
+        type: "bool"
+        description: "Whether you want to distribute media files in the Microsoft Smooth Streaming format."
       target_origin_id:
         type: "str"
         description: "The ID of the origin that you want CloudFront to route requests to by default."
+      trusted_signers:
+        schema: "cache_behavior_forwarded_values_trusted_signers"
+        description: >-
+          A dict that specifies the AWS accounts that you want to allow to create signed URLs for
+          private content.
+      viewer_protocol_policy:
+        type: "str"
+        description: >-
+          The protocol that viewers can use to access the files in the origin specified by
+          target_origin_id when a request matches path_pattern.
+        choices: ["allow-all", "redirect-to-https", "https-only"]
   logging:
     type: "dict"
     description: "A config element that is a complex object that defines logging for the distribution."
