@@ -54,4 +54,30 @@ def prepare_data(raw_data):
       fn_finalize_item=None,
   )
 
-  return prepare_default_data(data_info)
+  result_aux = prepare_default_data(data_info)
+  records = (result_aux.get('result') or dict()).get('list')
+  error_msgs = result_aux.get('error_msgs')
+
+  result = dict(zones=[], records=records)
+
+  if not error_msgs:
+    zones_aux = [dict(
+        zone=item.get('zone'),
+        access_key=item.get('access_key'),
+        secret_key=item.get('secret_key'),
+    ) for item in records
+        if item.get('state') == 'present']
+
+    unique_zones = set([])
+    zones = []
+
+    for item in zones_aux:
+      zone_name = item.get('zone')
+
+      if not zone_name in unique_zones:
+        unique_zones.add(zone_name)
+        zones += [item]
+
+    result['zones'] = zones
+
+  return dict(result=result, error_msgs=error_msgs)
