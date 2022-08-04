@@ -13,7 +13,7 @@
 
 - name: "{{ inner_service_title }} - aws volume - execute"
   amazon.aws.ec2_vol:
-    name: "{{ ext_volume_item.device_name | default(omit, true) }}"
+    name: "{{ ext_volume_item.name | default(omit, true) }}"
     state: "{{ ext_volume_item.state }}"
     access_key: "{{ ext_volume_item.access_key }}"
     secret_key: "{{ ext_volume_item.secret_key }}"

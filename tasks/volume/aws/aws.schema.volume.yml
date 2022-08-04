@@ -101,6 +101,10 @@ schemas:
           Type of EBS volume; standard (magnetic), gp2 (SSD), gp3 (SSD), io1 (Provisioned IOPS),
           io2 (Provisioned IOPS), st1 (Throughput Optimized HDD), sc1 (Cold HDD).
           "Standard" is the old EBS default and continues to remain the default for backwards compatibility.
+      zone:
+        type: "str"
+        description: >-
+          Zone in which to create the volume, if unset uses the zone the instance is in (if set).
   list_item_params:
     type: "dict"
     description: "aws volume parameters list schema"
@@ -175,6 +179,10 @@ schemas:
           Type of EBS volume; standard (magnetic), gp2 (SSD), gp3 (SSD), io1 (Provisioned IOPS),
           io2 (Provisioned IOPS), st1 (Throughput Optimized HDD), sc1 (Cold HDD).
           "Standard" is the old EBS default and continues to remain the default for backwards compatibility.
+      zone:
+        type: "str"
+        description: >-
+          Zone in which to create the volume, if unset uses the zone the instance is in (if set).
   credentials:
     type: "dict"
     description: "AWS volume credentials schema."
