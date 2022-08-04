@@ -1,0 +1,107 @@
+- name: "{{ inner_service_title }} - aws snapshot - retrieve volumes"
+  amazon.aws.ec2_vol_info:
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    region: "{{ ext_snapshot_item.region }}"
+    filters:
+      "tag:Name": "{{ ext_snapshot_item.resource_name }}"
+  when: >-
+    (ext_snapshot_item.state == 'present')
+    and
+    (ext_snapshot_item.resource_type == 'volume')
+  register: ext_snapshot_item_volumes
+
+- name: >-
+    {{ inner_service_title }} - aws snapshot [{{ ext_snapshot_item.name }}]
+    - create from volume
+    ({{ ext_snapshot_item_volumes.volumes[0].id | default('') }})"
+  vars:
+    ext_snapshot_item_volume_id: "{{ ext_snapshot_item_volumes.volumes[0].id | default('') }}"
+  amazon.aws.ec2_snapshot:
+    volume_id: "{{ ext_snapshot_item_volume_id }}"
+    state: "{{ ext_snapshot_item.state }}"
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    region: "{{ ext_snapshot_item.region }}"
+    description: "{{ ext_snapshot_item.description | default(omit, true) }}"
+    device_name: "{{ ext_snapshot_item.device_name | default(omit, true) }}"
+    last_snapshot_min_age: "{{ ext_snapshot_item.last_snapshot_min_age | default(omit, true) }}"
+    snapshot_tags: "{{ ext_snapshot_item.snapshot_tags | default(omit, true) }}"
+    wait_timeout: "{{ ext_snapshot_item.wait_timeout | default(omit, true) }}"
+    wait: true
+  when: >-
+    (ext_snapshot_item.state == 'present')
+    and
+    (ext_snapshot_item.resource_type == 'volume')
+    and
+    (ext_snapshot_item_volume_id != '')
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws snapshot - retrieve instances"
+  amazon.aws.ec2_instance_info:
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    region: "{{ ext_snapshot_item.region }}"
+    filters:
+      "tag:Name": "{{ ext_snapshot_item.resource_name }}"
+  when: >-
+    (ext_snapshot_item.state == 'present')
+    and
+    (ext_snapshot_item.resource_type == 'instance')
+  register: ext_snapshot_item_instances
+
+- name: >-
+    {{ inner_service_title }} - aws snapshot [{{ ext_snapshot_item.name }}]
+    - create from instance
+    ({{ ext_snapshot_item_instances.instances[0].instance_id | default('') }})"
+  vars:
+    ext_snapshot_item_instance_id: "{{ ext_snapshot_item_instances.instances[0].instance_id | default('') }}"
+  amazon.aws.ec2_snapshot:
+    instance_id: "{{ ext_snapshot_item_instance_id }}"
+    state: "{{ ext_snapshot_item.state }}"
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    region: "{{ ext_snapshot_item.region }}"
+    description: "{{ ext_snapshot_item.description | default(omit, true) }}"
+    device_name: "{{ ext_snapshot_item.device_name | default(omit, true) }}"
+    last_snapshot_min_age: "{{ ext_snapshot_item.last_snapshot_min_age | default(omit, true) }}"
+    snapshot_tags: "{{ ext_snapshot_item.snapshot_tags | default(omit, true) }}"
+    wait_timeout: "{{ ext_snapshot_item.wait_timeout | default(omit, true) }}"
+    wait: true
+  when: >-
+    (ext_snapshot_item.state == 'present')
+    and
+    (ext_snapshot_item.resource_type == 'instance')
+    and
+    (ext_snapshot_item_instance_id != '')
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws snapshot - retrieve snapshots"
+  amazon.aws.ec2_snapshot_info:
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    region: "{{ ext_snapshot_item.region }}"
+    filters:
+      "tag:Name": "{{ ext_snapshot_item.name }}"
+  when: ext_snapshot_item.state == 'absent'
+  register: ext_snapshot_item_snapshots
+
+- name: "{{ inner_service_title }} - aws snapshot [{{ ext_snapshot_item.name }}] - delete"
+  amazon.aws.ec2_snapshot:
+    snapshot_id: "{{ ext_snapshot_item_inner.snapshot_id | default(omit, true) }}"
+    state: "{{ ext_snapshot_item.state }}"
+    access_key: "{{ ext_snapshot_item.access_key }}"
+    secret_key: "{{ ext_snapshot_item.secret_key }}"
+    region: "{{ ext_snapshot_item.region }}"
+    description: "{{ ext_snapshot_item.description | default(omit, true) }}"
+    device_name: "{{ ext_snapshot_item.device_name | default(omit, true) }}"
+    last_snapshot_min_age: "{{ ext_snapshot_item.last_snapshot_min_age | default(omit, true) }}"
+    snapshot_tags: "{{ ext_snapshot_item.snapshot_tags | default(omit, true) }}"
+    wait_timeout: "{{ ext_snapshot_item.wait_timeout | default(omit, true) }}"
+    wait: true
+  loop: "{{ ext_snapshot_item_snapshots.snapshots | default([]) }}"
+  loop_control:
+    loop_var: ext_snapshot_item_inner
+    label: "{{ ext_snapshot_item_inner.snapshot_id }}"
+  when: ext_snapshot_item.state == 'absent'
+  no_log: "{{ env_no_log }}"

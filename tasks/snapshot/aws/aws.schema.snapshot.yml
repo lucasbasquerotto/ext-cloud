@@ -41,15 +41,22 @@ schemas:
         description: >-
           When true, destroys the snapshot, regardless of the state (acts as if the state is 'absent',
           even if it isn't). Defaults to false.
+      name:
+        type: "str"
+        description: "Snapshot name (defines the tag name on creation, and the snapshot(s) on deletion)"
+      resource_name:
+        type: "str"
+        description: "Instance or volume name (dependending on the resource_type) to be snapshotted."
+      resource_type:
+        type: "str"
+        choices: ["instance", "volume"]
+        description: "Specify if what will be snapshotted should be an instance or a volume."
       description:
         type: "str"
         description: "Description to be applied to the snapshot."
       device_name:
         type: "str"
         description: "Device name of a mounted volume to be snapshotted."
-      instance_id:
-        type: "str"
-        description: "Instance that has the required volume to snapshot mounted."
       last_snapshot_min_age:
         type: "int"
         description: >-
@@ -61,16 +68,10 @@ schemas:
         description: >-
           The AWS region to use.
           See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
-      snapshot_id:
-        type: "str"
-        description: "Snapshot id to remove."
       snapshot_tags:
         type: "map"
         elem_type: "str"
-        description: "A dictionary of tags to add to the snapshot."
-      volume_id:
-        type: "str"
-        description: "Volume from which to take the snapshot."
+        description: "A dictionary of tags (except name) to add to the snapshot."
       wait_timeout:
         type: "int"
         description: >-
@@ -90,15 +91,22 @@ schemas:
         description: >-
           When true, destroys the snapshot, regardless of the state (acts as if the state is 'absent',
           even if it isn't). Defaults to false.
+      name:
+        type: "str"
+        description: "Snapshot name (defines the tag name on creation, and the snapshot(s) on deletion)"
+      resource_name:
+        type: "str"
+        description: "Instance or volume name (dependending on the resource_type) to be snapshotted."
+      resource_type:
+        type: "str"
+        choices: ["instance", "volume"]
+        description: "Specify if what will be snapshotted should be an instance or a volume."
       description:
         type: "str"
         description: "Description to be applied to the snapshot."
       device_name:
         type: "str"
         description: "Device name of a mounted volume to be snapshotted."
-      instance_id:
-        type: "str"
-        description: "Instance that has the required volume to snapshot mounted."
       last_snapshot_min_age:
         type: "int"
         description: >-
@@ -110,16 +118,10 @@ schemas:
         description: >-
           The AWS region to use.
           See http://docs.aws.amazon.com/general/latest/gr/rande.html#ec2_region
-      snapshot_id:
-        type: "str"
-        description: "Snapshot id to remove."
       snapshot_tags:
         type: "map"
         elem_type: "str"
-        description: "A dictionary of tags to add to the snapshot."
-      volume_id:
-        type: "str"
-        description: "Volume from which to take the snapshot."
+        description: "A dictionary of tags (except name) to add to the snapshot."
       wait_timeout:
         type: "int"
         description: >-

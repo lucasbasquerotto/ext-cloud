@@ -18,14 +18,14 @@ __metaclass__ = type  # pylint: disable=invalid-name
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
+    'name',
+    'resource_name',
+    'resource_type',
     'description',
     'device_name',
-    'instance_id',
     'last_snapshot_min_age',
     'region',
-    'snapshot_id',
     'snapshot_tags',
-    'volume_id',
     'wait_timeout',
 ]
 
@@ -37,7 +37,7 @@ credentials_keys = [
 
 def prepare_data(raw_data):
   required_keys_info = dict(
-      params=['region'],
+      params=['name', 'resource_name', 'resource_type', 'region'],
       credentials=[],
   )
 
@@ -51,4 +51,15 @@ def prepare_data(raw_data):
       fn_finalize_item=None,
   )
 
-  return prepare_default_data(data_info)
+  final_result = prepare_default_data(data_info)
+
+  if not final_result.get('error_msgs'):
+    result = final_result.get('result') or dict()
+    snaps = result.get('list') or []
+
+    for item in snaps:
+      snapshot_tags = item.get('snapshot_tags') or dict()
+      snapshot_tags['Name'] = item.get('name')
+      item['snapshot_tags'] = snapshot_tags
+
+  return final_result
