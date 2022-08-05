@@ -63,7 +63,7 @@
     enable_performance_insights: "{{ ext_db_item.enable_performance_insights | default(omit) }}"
     engine: "{{ ext_db_item.engine | default(omit) }}"
     engine_version: "{{ ext_db_item.engine_version | default(omit) }}"
-    final_db_snapshot_identifier: "{{ ext_db_item.final_db_snapshot_identifier | default(omit) }}"
+    final_snapshot_identifier: "{{ ext_db_item.final_snapshot_identifier | default(omit) }}"
     force_failover: "{{ ext_db_item.force_failover | default(omit) }}"
     force_update_password: "{{ ext_db_item.force_update_password | default(omit) }}"
     instance_type: "{{ ext_db_item.instance_type | default(omit) }}"
@@ -134,6 +134,8 @@
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
     region: "{{ ext_db_item.region | default(omit) }}"
+    skip_final_snapshot: "{{ ext_db_item.skip_final_snapshot | default(omit) }}"
+    final_snapshot_identifier: "{{ ext_db_item.final_snapshot_identifier | default(omit) }}"
   loop: "{{ ext_db_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_db_item

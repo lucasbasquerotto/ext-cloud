@@ -153,7 +153,7 @@ schemas:
           The version number of the database engine to use.
           For Aurora MySQL that could be 5.6.10a, 5.7.12.
           Aurora PostgreSQL example, 9.6.3.
-      final_db_snapshot_identifier:
+      final_snapshot_identifier:
         type: "str"
         description: >-
           The DB instance snapshot identifier of the new DB instance snapshot created when
@@ -546,7 +546,7 @@ schemas:
           The version number of the database engine to use.
           For Aurora MySQL that could be 5.6.10a, 5.7.12.
           Aurora PostgreSQL example, 9.6.3.
-      final_db_snapshot_identifier:
+      final_snapshot_identifier:
         type: "str"
         description: >-
           The DB instance snapshot identifier of the new DB instance snapshot created when
