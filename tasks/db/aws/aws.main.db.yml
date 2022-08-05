@@ -13,6 +13,7 @@
 
 - name: "{{ inner_service_title }} - aws db (rds) - create cluster(s)"
   community.aws.rds_cluster:
+    state: "present"
     db_cluster_identifier: "{{ ext_db_item.cluster }}"
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
@@ -25,7 +26,7 @@
   loop: "{{ ext_db_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_db_item
-    label: "{{ ext_db_item.cluster | default('') }}"
+    label: "{{ ext_db_item.cluster | default('---') }} <{{ ext_db_item.name }}>"
   when: >-
     (ext_db_item.state == 'present')
     and
@@ -128,6 +129,7 @@
 
 - name: "{{ inner_service_title }} - aws db (rds) - delete cluster(s)"
   community.aws.rds_cluster:
+    state: "absent"
     db_cluster_identifier: "{{ ext_db_item.cluster }}"
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
@@ -135,7 +137,7 @@
   loop: "{{ ext_db_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_db_item
-    label: "{{ ext_db_item.cluster | default('') }}"
+    label: "{{ ext_db_item.cluster | default('---') }} <{{ ext_db_item.name }}>"
   when: >-
     (ext_db_item.state != 'present')
     and
