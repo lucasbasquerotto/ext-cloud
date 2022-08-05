@@ -11,9 +11,33 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
+- name: "{{ inner_service_title }} - aws db (rds) - create cluster(s)"
+  community.aws.rds_cluster:
+    db_cluster_identifier: "{{ ext_db_item.cluster }}"
+    access_key: "{{ ext_db_item.access_key }}"
+    secret_key: "{{ ext_db_item.secret_key }}"
+    region: "{{ ext_db_item.region | default(omit) }}"
+    engine: "{{ ext_db_item.engine | default(omit) }}"
+    master_username: "{{ ext_db_item.master_username | default(omit) }}"
+    master_user_password: "{{ ext_db_item.master_user_password | default(omit) }}"
+    tags:
+      Name: "cluster-{{ ext_db_item.cluster }}"
+  loop: "{{ ext_db_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_db_item
+    label: "{{ ext_db_item.cluster | default('') }}"
+  when: >-
+    (ext_db_item.state == 'present')
+    and
+    ((ext_db_item.cluster | default('')) != '')
+    and
+    (ext_db_item.own_cluster | default(false) | bool)
+  no_log: "{{ env_no_log }}"
+
 - name: "{{ inner_service_title }} - aws db (rds) - main"
   community.aws.rds_instance:
     db_instance_identifier: "{{ ext_db_item.name }}"
+    db_cluster_identifier: "{{ ext_db_item.cluster | default(omit) }}"
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
     allocated_storage: "{{ ext_db_item.allocated_storage | default(omit) }}"
@@ -26,8 +50,6 @@
     character_set_name: "{{ ext_db_item.character_set_name | default(omit) }}"
     copy_tags_to_snapshot: "{{ ext_db_item.copy_tags_to_snapshot | default(omit) }}"
     creation_source: "{{ ext_db_item.creation_source | default(omit) }}"
-    db_cluster_identifier: "{{ ext_db_item.db_cluster_identifier | default(omit) }}"
-    db_instance_class: "{{ ext_db_item.db_instance_class | default(omit) }}"
     db_name: "{{ ext_db_item.db_name | default(omit) }}"
     db_parameter_group_name: "{{ ext_db_item.db_parameter_group_name | default(omit) }}"
     db_security_groups: "{{ ext_db_item.db_security_groups | default(omit) }}"
@@ -43,10 +65,15 @@
     final_db_snapshot_identifier: "{{ ext_db_item.final_db_snapshot_identifier | default(omit) }}"
     force_failover: "{{ ext_db_item.force_failover | default(omit) }}"
     force_update_password: "{{ ext_db_item.force_update_password | default(omit) }}"
+    instance_type: "{{ ext_db_item.instance_type | default(omit) }}"
     iops: "{{ ext_db_item.iops | default(omit) }}"
     kms_key_id: "{{ ext_db_item.kms_key_id | default(omit) }}"
     license_model: "{{ ext_db_item.license_model | default(omit) }}"
-    master_username: "{{ ext_db_item.master_username | default(omit) }}"
+    master_username: >-
+      {{
+        ((ext_db_item.cluster | default('')) != '')
+        | ternary(omit, ext_db_item.master_username | default(omit))
+      }}
     max_allocated_storage: "{{ ext_db_item.max_allocated_storage | default(omit) }}"
     monitoring_interval: "{{ ext_db_item.monitoring_interval | default(omit) }}"
     monitoring_role_arn: "{{ ext_db_item.monitoring_role_arn | default(omit) }}"
@@ -87,10 +114,32 @@
     validate_certs: "{{ ext_db_item.validate_certs | default(omit) }}"
     vpc_security_group_ids: "{{ ext_db_item.vpc_security_group_ids | default(omit) }}"
     wait: "{{ ext_db_item.wait | default(omit) }}"
-    master_user_password: "{{ ext_db_item.master_user_password | default(omit) }}"
+    master_user_password: >-
+      {{
+        ((ext_db_item.cluster | default('')) != '')
+        | ternary(omit, ext_db_item.master_user_password | default(omit))
+      }}
     tde_credential_password: "{{ ext_db_item.tde_credential_password | default(omit) }}"
   loop: "{{ ext_db_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_db_item
     label: "[{{ ext_db_item.state }}] {{ ext_db_item.name }}"
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ inner_service_title }} - aws db (rds) - delete cluster(s)"
+  community.aws.rds_cluster:
+    db_cluster_identifier: "{{ ext_db_item.cluster }}"
+    access_key: "{{ ext_db_item.access_key }}"
+    secret_key: "{{ ext_db_item.secret_key }}"
+    region: "{{ ext_db_item.region | default(omit) }}"
+  loop: "{{ ext_db_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_db_item
+    label: "{{ ext_db_item.cluster | default('') }}"
+  when: >-
+    (ext_db_item.state != 'present')
+    and
+    ((ext_db_item.cluster | default('')) != '')
+    and
+    (ext_db_item.own_cluster | default(false) | bool)
   no_log: "{{ env_no_log }}"

@@ -74,6 +74,12 @@ schemas:
       character_set_name:
         type: "str"
         description: "The character set to associate with the DB cluster."
+      cluster:
+        type: "str"
+        description: >-
+          The DB cluster (lowercase) identifier to add the aurora DB instance to.
+          The identifier must contain from 1 to 63 letters, numbers, or hyphens and the first character
+          must be a letter and may not end in a hyphen or contain consecutive hyphens.
       copy_tags_to_snapshot:
         type: "bool"
         description: >-
@@ -84,12 +90,6 @@ schemas:
         choices: ["snapshot", "s3", "instance"]
         description: >-
           Which source to use if restoring from a template (an existing instance, S3 bucket, or snapshot).
-      db_cluster_identifier:
-        type: "str"
-        description: >-
-          The DB cluster (lowercase) identifier to add the aurora DB instance to.
-          The identifier must contain from 1 to 63 letters, numbers, or hyphens and the first character
-          must be a letter and may not end in a hyphen or contain consecutive hyphens.
       db_name:
         type: "str"
         description: >-
@@ -243,6 +243,11 @@ schemas:
       option_group_name:
         type: "str"
         description: "The option group to associate with the DB instance."
+      own_cluster:
+        type: "bool"
+        description: >-
+          when true, defines that the rds instance owns the cluster, which means that it creates the
+          cluster when it's created (present), and deletes the cluster when it's deleted (absent)
       performance_insights_kms_key_id:
         type: "str"
         description: >-
@@ -462,6 +467,12 @@ schemas:
       character_set_name:
         type: "str"
         description: "The character set to associate with the DB cluster."
+      cluster:
+        type: "str"
+        description: >-
+          The DB cluster (lowercase) identifier to add the aurora DB instance to.
+          The identifier must contain from 1 to 63 letters, numbers, or hyphens and the first character
+          must be a letter and may not end in a hyphen or contain consecutive hyphens.
       copy_tags_to_snapshot:
         type: "bool"
         description: >-
@@ -472,12 +483,6 @@ schemas:
         choices: ["snapshot", "s3", "instance"]
         description: >-
           Which source to use if restoring from a template (an existing instance, S3 bucket, or snapshot).
-      db_cluster_identifier:
-        type: "str"
-        description: >-
-          The DB cluster (lowercase) identifier to add the aurora DB instance to.
-          The identifier must contain from 1 to 63 letters, numbers, or hyphens and the first character
-          must be a letter and may not end in a hyphen or contain consecutive hyphens.
       db_name:
         type: "str"
         description: >-
@@ -631,6 +636,11 @@ schemas:
       option_group_name:
         type: "str"
         description: "The option group to associate with the DB instance."
+      own_cluster:
+        type: "bool"
+        description: >-
+          when true, defines that the rds instance owns the cluster, which means that it creates the
+          cluster when it's created (present), and deletes the cluster when it's deleted (absent)
       performance_insights_kms_key_id:
         type: "str"
         description: >-

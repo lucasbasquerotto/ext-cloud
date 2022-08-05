@@ -19,6 +19,7 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_
 
 params_keys = [
     'name',
+    'absent',
     'allocated_storage',
     'allow_major_version_upgrade',
     'apply_immediately',
@@ -27,9 +28,9 @@ params_keys = [
     'backup_retention_period',
     'ca_certificate_identifier',
     'character_set_name',
+    'cluster',
     'copy_tags_to_snapshot',
     'creation_source',
-    'db_cluster_identifier',
     'db_name',
     'db_parameter_group_name',
     'db_security_groups',
@@ -57,6 +58,7 @@ params_keys = [
     'multi_az',
     'new_db_instance_identifier',
     'option_group_name',
+    'own_cluster',
     'performance_insights_kms_key_id',
     'performance_insights_retention_period',
     'port',
@@ -113,7 +115,7 @@ def prepare_data(raw_data):
       credentials_keys=credentials_keys,
       default_credential_name='db',
       required_keys_info=required_keys_info,
-      fn_finalize_item=lambda item: finalize_item(item),
+      fn_finalize_item=finalize_item,
   )
 
   return prepare_default_data(data_info)
