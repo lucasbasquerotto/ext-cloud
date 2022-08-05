@@ -18,6 +18,7 @@ __metaclass__ = type  # pylint: disable=invalid-name
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
+    'absent',
     'availability_zone',
     'cpu_options',
     'detailed_monitoring',
@@ -27,7 +28,6 @@ params_keys = [
     'name',
     'network',
     'region',
-    'replicas',
     'security_groups',
     'instance_initiated_shutdown_behavior',
     'termination_protection',

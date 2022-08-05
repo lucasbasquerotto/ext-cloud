@@ -93,10 +93,6 @@
     access_key: "{{ ext_snapshot_item.access_key }}"
     secret_key: "{{ ext_snapshot_item.secret_key }}"
     region: "{{ ext_snapshot_item.region }}"
-    description: "{{ ext_snapshot_item.description | default(omit, true) }}"
-    device_name: "{{ ext_snapshot_item.device_name | default(omit, true) }}"
-    last_snapshot_min_age: "{{ ext_snapshot_item.last_snapshot_min_age | default(omit, true) }}"
-    snapshot_tags: "{{ ext_snapshot_item.snapshot_tags | default(omit, true) }}"
     wait_timeout: "{{ ext_snapshot_item.wait_timeout | default(omit, true) }}"
     wait: true
   loop: "{{ ext_snapshot_item_snapshots.snapshots | default([]) }}"
