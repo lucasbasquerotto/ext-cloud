@@ -106,9 +106,6 @@ schemas:
       db_snapshot_identifier:
         type: "str"
         description: "The identifier for the DB snapshot to restore from if using creation_source=snapshot."
-      db_subnet_group_name:
-        type: "str"
-        description: "The DB subnet group name to use for the DB instance."
       domain:
         type: "str"
         description: "The Active Directory Domain to restore the instance in."
@@ -378,6 +375,11 @@ schemas:
         description: >-
           The storage type to be associated with the DB instance.
           storage_type does not apply to Aurora DB instances.
+      subnet_name:
+        type: "str"
+        description: >-
+          Name of the subnet (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
+          When not specified, will not create nor associate a subnet group with the DB instance. Need vpc_name.
       tags:
         type: "map"
         elem_type: "str"
@@ -399,6 +401,11 @@ schemas:
       validate_certs:
         type: "bool"
         description: "When set to 'no', SSL certificates will not be validated."
+      vpc_name:
+        type: "str"
+        description: >-
+          Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
+          When specified, subnet_name must also be specified to create the subnet group, otherwise will be ignored.
       vpc_security_group_ids:
         type: "list"
         elem_type: "str"
@@ -499,9 +506,6 @@ schemas:
       db_snapshot_identifier:
         type: "str"
         description: "The identifier for the DB snapshot to restore from if using creation_source=snapshot."
-      db_subnet_group_name:
-        type: "str"
-        description: "The DB subnet group name to use for the DB instance."
       domain:
         type: "str"
         description: "The Active Directory Domain to restore the instance in."
@@ -771,6 +775,11 @@ schemas:
         description: >-
           The storage type to be associated with the DB instance.
           storage_type does not apply to Aurora DB instances.
+      subnet_name:
+        type: "str"
+        description: >-
+          Name of the subnet (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
+          When not specified, will not create nor associate a subnet group with the DB instance. Need vpc_name.
       tags:
         type: "map"
         elem_type: "str"
@@ -792,6 +801,11 @@ schemas:
       validate_certs:
         type: "bool"
         description: "When set to 'no', SSL certificates will not be validated."
+      vpc_name:
+        type: "str"
+        description: >-
+          Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
+          When specified, subnet_name must also be specified to create the subnet group, otherwise will be ignored.
       vpc_security_group_ids:
         type: "list"
         elem_type: "str"
