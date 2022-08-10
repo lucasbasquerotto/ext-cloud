@@ -99,10 +99,6 @@ schemas:
         description: >-
           The name of the DB parameter group to associate with this DB instance. When creating the DB instance,
           if this argument is omitted, the default DBParameterGroup for the specified engine is used.
-      db_security_groups:
-        type: "list"
-        elem_type: "str"
-        description: "(EC2-Classic platform) A list of DB security groups to associate with this DB instance."
       db_snapshot_identifier:
         type: "str"
         description: "The identifier for the DB snapshot to restore from if using creation_source=snapshot."
@@ -334,6 +330,10 @@ schemas:
           The prefix for all of the file names that contain the data used to create the Amazon DB instance.
           If you do not specify a SourceS3Prefix value, then the Amazon DB instance is created by using all
           of the files in the Amazon S3 bucket.
+      security_groups:
+        type: "list"
+        elem_type: "str"
+        description: "A list of DB security groups names (the Name tag) to associate with this DB instance."
       security_token:
         type: "str"
         description: "AWS STS security token."
@@ -375,11 +375,13 @@ schemas:
         description: >-
           The storage type to be associated with the DB instance.
           storage_type does not apply to Aurora DB instances.
-      subnet_name:
-        type: "str"
+      subnets:
+        type: "list"
+        elem_type: "str"
         description: >-
-          Name of the subnet (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
-          When not specified, will not create nor associate a subnet group with the DB instance. Need vpc_name.
+          A list with the names of the subnets (the Name tag) to associate with the DB subnet group
+          to use for the DB instance. When not specified, will not create nor associate a subnet
+          group with the DB instance. Need the vpc_name property defined.
       tags:
         type: "map"
         elem_type: "str"
@@ -404,8 +406,9 @@ schemas:
       vpc_name:
         type: "str"
         description: >-
-          Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
-          When specified, subnet_name must also be specified to create the subnet group, otherwise will be ignored.
+          Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for
+          the DB instance. When specified, at least 1 subnet name must be specified in the
+          subnets property to create the subnet group, otherwise this property will be ignored.
       vpc_security_group_ids:
         type: "list"
         elem_type: "str"
@@ -499,10 +502,6 @@ schemas:
         description: >-
           The name of the DB parameter group to associate with this DB instance. When creating the DB instance,
           if this argument is omitted, the default DBParameterGroup for the specified engine is used.
-      db_security_groups:
-        type: "list"
-        elem_type: "str"
-        description: "(EC2-Classic platform) A list of DB security groups to associate with this DB instance."
       db_snapshot_identifier:
         type: "str"
         description: "The identifier for the DB snapshot to restore from if using creation_source=snapshot."
@@ -734,6 +733,10 @@ schemas:
           The prefix for all of the file names that contain the data used to create the Amazon DB instance.
           If you do not specify a SourceS3Prefix value, then the Amazon DB instance is created by using all
           of the files in the Amazon S3 bucket.
+      security_groups:
+        type: "list"
+        elem_type: "str"
+        description: "A list of DB security groups names (the Name tag) to associate with this DB instance."
       security_token:
         type: "str"
         description: "AWS STS security token."
@@ -775,11 +778,13 @@ schemas:
         description: >-
           The storage type to be associated with the DB instance.
           storage_type does not apply to Aurora DB instances.
-      subnet_name:
-        type: "str"
+      subnets:
+        type: "list"
+        elem_type: "str"
         description: >-
-          Name of the subnet (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
-          When not specified, will not create nor associate a subnet group with the DB instance. Need vpc_name.
+          A list with the names of the subnets (the Name tag) to associate with the DB subnet group
+          to use for the DB instance. When not specified, will not create nor associate a subnet
+          group with the DB instance. Need the vpc_name property defined.
       tags:
         type: "map"
         elem_type: "str"
@@ -804,8 +809,9 @@ schemas:
       vpc_name:
         type: "str"
         description: >-
-          Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for the DB instance.
-          When specified, subnet_name must also be specified to create the subnet group, otherwise will be ignored.
+          Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for
+          the DB instance. When specified, at least 1 subnet name must be specified in the
+          subnets property to create the subnet group, otherwise this property will be ignored.
       vpc_security_group_ids:
         type: "list"
         elem_type: "str"

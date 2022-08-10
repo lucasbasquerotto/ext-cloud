@@ -11,7 +11,7 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
-- name: "{{ inner_service_title }} - aws snapshot - execute"
+- name: "{{ inner_service_title }} - aws snapshot - execute (outer task)"
   include_tasks: "aws.item.snapshot.yml"
   loop: "{{ ext_snapshot_data_wrapper.data.list }}"
   loop_control:
