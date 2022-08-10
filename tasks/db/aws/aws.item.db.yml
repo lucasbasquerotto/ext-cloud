@@ -56,8 +56,8 @@
     secret_key: "{{ ext_db_item.secret_key }}"
     region: "{{ ext_db_item.region }}"
     filters:
-      vpc-id: "{{ ext_vpn_vpc_id }}"
-      "tag:Name": "{{ ext_db_item_group }}"
+      vpc-id: "{{ ext_vpn_vpc_id | default(omit, true) }}"
+      group-name: "{{ ext_db_item_group }}"
   loop: "{{ ext_db_item.security_groups | default([]) }}"
   loop_control:
     loop_var: ext_db_item_group
@@ -69,13 +69,18 @@
 - name: "{{ ext_db_item_title }} - create subnet group"
   vars:
     ext_db_item_subnets: >-
-      {{ (ext_db_subnet_info.subnets | default([])) | map(attribute='id') | select() }}
+      {{
+        ((ext_db_subnet_info.results | default([])) | sum(attribute='subnets', start=[]))
+        | map(attribute='subnet_id')
+        | select()
+      }}
   community.aws.rds_subnet_group:
     state: "present"
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
     region: "{{ ext_db_item.region }}"
     name: "{{ ext_db_item.name }}-subnet-group"
+    description: "Automatic subnet group created for RDS instance {{ ext_db_item.name }}"
     subnets: "{{ ext_db_item_subnets }}"
   when: >-
     (ext_db_item.state == 'present')
@@ -86,7 +91,11 @@
 - name: "{{ ext_db_item_title }} - main"
   vars:
     ext_db_item_security_groups: >-
-      {{ (ext_db_group_info.security_groups | default([])) | map(attribute='id') | select() }}
+      {{
+        ((ext_db_group_info.results | default([])) | sum(attribute='security_groups', start=[]))
+        | map(attribute='group_id')
+        | select()
+      }}
   community.aws.rds_instance:
     db_instance_identifier: "{{ ext_db_item.name }}"
     db_cluster_identifier: "{{ ext_db_item.cluster | default(omit) }}"
