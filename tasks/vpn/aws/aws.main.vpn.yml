@@ -264,7 +264,11 @@
   loop: "{{ ext_vpn_data_wrapper.data.subnets }}"
   loop_control:
     loop_var: ext_vpn_item
-    label: "[{{ ext_vpn_item.state }}] {{ ext_vpn_item.cidr }}"
+    label: >-
+      [{{ ext_vpn_item.state }}]
+      {{ ext_vpn_item.name }}
+      - {{ ext_vpn_item.cidr }}
+      ({{ ext_vpn_item.az | default(ext_vpn_item.region, true) }})
   when: >-
     ((ext_vpn_vpc_data.vpc.id | default('')) != '')
     and

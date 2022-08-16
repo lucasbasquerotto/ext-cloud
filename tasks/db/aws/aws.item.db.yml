@@ -48,6 +48,13 @@
   register: ext_db_subnet_info
   no_log: "{{ env_no_log }}"
 
+- name: "{{ ext_db_item_title }} - security groups info - defualt value when skipped"
+  set_fact:
+    ext_db_subnet_info: {}
+  when: ext_db_subnet_info.skipped | default(false) | bool
+  tags: ["no_print"]
+  no_log: "{{ env_no_log }}"
+
 - name: "{{ ext_db_item_title }} - security groups info"
   vars:
     ext_vpn_vpc_id: "{{ ext_db_vpc_info.vpcs[0].id | default('') }}"
@@ -66,11 +73,20 @@
   register: ext_db_group_info
   no_log: "{{ env_no_log }}"
 
+- name: "{{ ext_db_item_title }} - security groups info - defualt value when skipped"
+  set_fact:
+    ext_db_group_info: {}
+  when: ext_db_group_info.skipped | default(false) | bool
+  tags: ["no_print"]
+  no_log: "{{ env_no_log }}"
+
 - name: "{{ ext_db_item_title }} - create subnet group"
   vars:
     ext_db_item_subnets: >-
       {{
-        ((ext_db_subnet_info.results | default([])) | sum(attribute='subnets', start=[]))
+        ext_db_subnet_info.results | default([])
+        | selectattr('subnets')
+        | sum(attribute='subnets', start=[])
         | map(attribute='subnet_id')
         | select()
       }}
@@ -92,7 +108,9 @@
   vars:
     ext_db_item_security_groups: >-
       {{
-        ((ext_db_group_info.results | default([])) | sum(attribute='security_groups', start=[]))
+        ext_db_group_info.results | default([])
+        | selectattr('security_groups') | default([])
+        | sum(attribute='security_groups', start=[])
         | map(attribute='group_id')
         | select()
       }}

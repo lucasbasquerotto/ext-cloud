@@ -42,7 +42,7 @@ params_keys = [
     'enable_performance_insights',
     'engine',
     'engine_version',
-    'final_db_snapshot_identifier',
+    'final_snapshot_identifier',
     'force_failover',
     'force_state',
     'force_update_password',
