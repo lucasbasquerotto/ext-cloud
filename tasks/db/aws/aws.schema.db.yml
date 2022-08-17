@@ -409,10 +409,6 @@ schemas:
           Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for
           the DB instance. When specified, at least 1 subnet name must be specified in the
           subnets property to create the subnet group, otherwise this property will be ignored.
-      vpc_security_group_ids:
-        type: "list"
-        elem_type: "str"
-        description: "A list of EC2 VPC security groups to associate with the DB cluster."
       wait:
         type: "bool"
         description: >-
@@ -812,10 +808,6 @@ schemas:
           Name of the vpc (to retrieve the id) to associate with the DB subnet group to use for
           the DB instance. When specified, at least 1 subnet name must be specified in the
           subnets property to create the subnet group, otherwise this property will be ignored.
-      vpc_security_group_ids:
-        type: "list"
-        elem_type: "str"
-        description: "A list of EC2 VPC security groups to associate with the DB cluster."
       wait:
         type: "bool"
         description: >-

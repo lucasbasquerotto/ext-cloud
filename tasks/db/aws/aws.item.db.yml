@@ -48,13 +48,6 @@
   register: ext_db_subnet_info
   no_log: "{{ env_no_log }}"
 
-- name: "{{ ext_db_item_title }} - security groups info - defualt value when skipped"
-  set_fact:
-    ext_db_subnet_info: {}
-  when: ext_db_subnet_info.skipped | default(false) | bool
-  tags: ["no_print"]
-  no_log: "{{ env_no_log }}"
-
 - name: "{{ ext_db_item_title }} - security groups info"
   vars:
     ext_vpn_vpc_id: "{{ ext_db_vpc_info.vpcs[0].id | default('') }}"
@@ -73,19 +66,12 @@
   register: ext_db_group_info
   no_log: "{{ env_no_log }}"
 
-- name: "{{ ext_db_item_title }} - security groups info - defualt value when skipped"
-  set_fact:
-    ext_db_group_info: {}
-  when: ext_db_group_info.skipped | default(false) | bool
-  tags: ["no_print"]
-  no_log: "{{ env_no_log }}"
-
 - name: "{{ ext_db_item_title }} - create subnet group"
   vars:
     ext_db_item_subnets: >-
       {{
         ext_db_subnet_info.results | default([])
-        | selectattr('subnets')
+        | selectattr('subnets', 'defined')
         | sum(attribute='subnets', start=[])
         | map(attribute='subnet_id')
         | select()
@@ -102,6 +88,7 @@
     (ext_db_item.state == 'present')
     and
     ((ext_db_item_subnets | length) > 0)
+  register: ext_db_item_subnet_group_info
   no_log: "{{ env_no_log }}"
 
 - name: "{{ ext_db_item_title }} - main"
@@ -109,10 +96,20 @@
     ext_db_item_security_groups: >-
       {{
         ext_db_group_info.results | default([])
-        | selectattr('security_groups') | default([])
+        | selectattr('security_groups', 'defined') | default([])
         | sum(attribute='security_groups', start=[])
         | map(attribute='group_id')
         | select()
+      }}
+    ext_db_item_security_groups_db: >-
+      {{
+        (not (ext_db_item_subnet_group_info.skipped | default(false) | bool))
+        | ternary(omit, ext_db_item_security_groups)
+      }}
+    ext_db_item_security_groups_vpc: >-
+      {{
+        (not (ext_db_item_subnet_group_info.skipped | default(false) | bool))
+        | ternary(ext_db_item_security_groups, omit)
       }}
   community.aws.rds_instance:
     db_instance_identifier: "{{ ext_db_item.name }}"
@@ -131,11 +128,11 @@
     creation_source: "{{ ext_db_item.creation_source | default(omit) }}"
     db_name: "{{ ext_db_item.db_name | default(omit) }}"
     db_parameter_group_name: "{{ ext_db_item.db_parameter_group_name | default(omit) }}"
-    db_security_groups: "{{ ext_db_item_security_groups }}"
+    db_security_groups: "{{ ext_db_item_security_groups_db }}"
     db_snapshot_identifier: "{{ ext_db_item.db_snapshot_identifier | default(omit) }}"
     db_subnet_group_name: >-
       {{
-        ((ext_db_item.subnet_name | default('')) != '')
+        (not (ext_db_item_subnet_group_info.skipped | default(false) | bool))
         | ternary(ext_db_item.name + '-subnet-group', omit)
       }}
     domain: "{{ ext_db_item.domain | default(omit) }}"
@@ -195,7 +192,7 @@
     timezone: "{{ ext_db_item.timezone | default(omit) }}"
     use_latest_restorable_time: "{{ ext_db_item.use_latest_restorable_time | default(omit) }}"
     validate_certs: "{{ ext_db_item.validate_certs | default(omit) }}"
-    vpc_security_group_ids: "{{ ext_db_item.vpc_security_group_ids | default(omit) }}"
+    vpc_security_group_ids: "{{ ext_db_item_security_groups_vpc }}"
     wait: "{{ ext_db_item.wait | default(omit) }}"
     master_user_password: >-
       {{
