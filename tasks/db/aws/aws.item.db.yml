@@ -200,6 +200,7 @@
         | ternary(omit, ext_db_item.master_user_password | default(omit))
       }}
     tde_credential_password: "{{ ext_db_item.tde_credential_password | default(omit) }}"
+  register: ext_db_item_result
   no_log: "{{ env_no_log }}"
 
 - name: "{{ ext_db_item_title }} - delete subnet group"
@@ -214,3 +215,19 @@
     and
     (((ext_db_item.subnets | default([])) | length) > 0)
   no_log: "{{ env_no_log }}"
+
+- name: "{{ ext_db_item_title }} - register endpoint"
+  set_fact:
+    cloud_service_endpoints: "{{ cloud_service_endpoints + [ext_db_item_endpoint] }}"
+  vars:
+    ext_db_item_address: "{{ ext_db_item_result.endpoint.address | default('') }}"
+    ext_db_item_endpoint:
+      name: "{{ ext_db_item.name }}"
+      public_endpoint: "{{ ext_db_item_address }}"
+      private_endpoint: "{{ ext_db_item_address }}"
+  when: >-
+    (ext_db_item.state == 'present')
+    and
+    (ext_db_item_address != '')
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
