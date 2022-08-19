@@ -73,15 +73,14 @@ def prepare_data(raw_data):
   credentials = all_credentials.get(credential_name)
   state = raw_data.get('state')
 
-  # if result and params and (state == 'present'):
-  if result and params and state:
+  if result and params and (state == 'present'):
     vpc_name = params.get('vpc_name')
     vpc_subnet_name = params.get('vpc_subnet_name')
 
-    if vpc_name and vpc_subnet_name:
-      result['vpc'] = dict(
-          name=vpc_name,
+    if vpc_subnet_name:
+      result['subnet'] = dict(
           subnet=vpc_subnet_name,
+          vpc=vpc_name,
           region=params.get('region'),
           access_key=credentials.get('access_key'),
           secret_key=credentials.get('secret_key'),
