@@ -15,8 +15,8 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type  # pylint: disable=invalid-name
 
-import requests
 import traceback
+import requests
 
 from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
