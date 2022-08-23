@@ -124,30 +124,6 @@ schemas:
           Japan, India, South America, Australia, Hong Kong, Philippines, S. Korea, Singapore & Taiwan.
           AWS defaults this to PriceClass_All.
         choices: ["PriceClass_100", "PriceClass_200", "PriceClass_All"]
-      purge_aliases:
-        type: "bool"
-        description: >-
-          Specifies whether existing aliases will be removed before adding new aliases.
-          When purge_aliases=true, existing aliases are removed and aliases are added.
-      purge_cache_behaviors:
-        type: "bool"
-        description: >-
-          Whether to remove any cache behaviors that aren't listed in cache_behaviors.
-          This switch also allows the reordering of cache_behaviors.
-      purge_custom_error_responses:
-        type: "bool"
-        description: >-
-          Whether to remove any custom error responses that aren't listed in custom_error_responses.
-      purge_origins:
-        type: "bool"
-        description: "Whether to remove any origins that aren't listed in origins."
-      purge_tags:
-        type: "bool"
-        description: >-
-          Specifies whether existing tags will be removed before adding new tags.
-          When purge_tags=yes, existing tags are removed and tags are added, if specified.
-          If no tags are specified, it removes all existing tags for the distribution.
-          When purge_tags=no, existing tags are kept and tags are added, if specified.
       region:
         type: "str"
         description: >-
@@ -281,30 +257,6 @@ schemas:
           Japan, India, South America, Australia, Hong Kong, Philippines, S. Korea, Singapore & Taiwan.
           AWS defaults this to PriceClass_All.
         choices: ["PriceClass_100", "PriceClass_200", "PriceClass_All"]
-      purge_aliases:
-        type: "bool"
-        description: >-
-          Specifies whether existing aliases will be removed before adding new aliases.
-          When purge_aliases=true, existing aliases are removed and aliases are added.
-      purge_cache_behaviors:
-        type: "bool"
-        description: >-
-          Whether to remove any cache behaviors that aren't listed in cache_behaviors.
-          This switch also allows the reordering of cache_behaviors.
-      purge_custom_error_responses:
-        type: "bool"
-        description: >-
-          Whether to remove any custom error responses that aren't listed in custom_error_responses.
-      purge_origins:
-        type: "bool"
-        description: "Whether to remove any origins that aren't listed in origins."
-      purge_tags:
-        type: "bool"
-        description: >-
-          Specifies whether existing tags will be removed before adding new tags.
-          When purge_tags=yes, existing tags are removed and tags are added, if specified.
-          If no tags are specified, it removes all existing tags for the distribution.
-          When purge_tags=no, existing tags are kept and tags are added, if specified.
       region:
         type: "str"
         description: >-

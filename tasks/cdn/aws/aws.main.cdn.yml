@@ -11,6 +11,9 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
+- debug:
+    var: ext_cdn_data_wrapper
+
 - name: "{{ inner_service_title }} - aws cdn (cloudfront) - execute"
   community.aws.cloudfront_distribution:
     caller_reference: "{{ ext_cdn_item.name }}"
@@ -38,11 +41,11 @@
     logging: "{{ ext_cdn_item.logging | default(omit) }}"
     origins: "{{ ext_cdn_item.origins | default(omit) }}"
     price_class: "{{ ext_cdn_item.price_class | default(omit) }}"
-    purge_aliases: "{{ ext_cdn_item.purge_aliases | default(omit) }}"
-    purge_cache_behaviors: "{{ ext_cdn_item.purge_cache_behaviors | default(omit) }}"
-    purge_custom_error_responses: "{{ ext_cdn_item.purge_custom_error_responses | default(omit) }}"
-    purge_origins: "{{ ext_cdn_item.purge_origins | default(omit) }}"
-    purge_tags: "{{ ext_cdn_item.purge_tags | default(omit) }}"
+    purge_aliases: true
+    purge_cache_behaviors: true
+    purge_custom_error_responses: true
+    purge_origins: true
+    purge_tags: true
     region: "{{ ext_cdn_item.region | default(omit) }}"
     restrictions: "{{ ext_cdn_item.restrictions | default(omit) }}"
     tags: "{{ ext_cdn_item.tags | default(omit) }}"
