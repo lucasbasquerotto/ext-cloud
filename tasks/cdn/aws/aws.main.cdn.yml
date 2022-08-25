@@ -17,6 +17,11 @@
     state: "{{ ext_cdn_item.state }}"
     access_key: "{{ ext_cdn_item.access_key }}"
     secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default(omit) }}"
+    origins: "{{ ext_cdn_item.origins | default(omit) }}"
+    default_cache_behavior: "{{ ext_cdn_item.default_cache_behavior | default(omit) }}"
+    cache_behaviors: "{{ ext_cdn_item.cache_behaviors | default([]) }}"
+    custom_error_responses: "{{ ext_cdn_item.custom_error_responses | default([]) }}"
     comment: >-
       {{
         ((ext_cdn_item.comment | default('')) == '')
@@ -26,9 +31,6 @@
           )
       }}
     aliases: "{{ ext_cdn_item.aliases | default(omit) }}"
-    cache_behaviors: "{{ ext_cdn_item.cache_behaviors | default(omit) }}"
-    custom_error_responses: "{{ ext_cdn_item.custom_error_responses | default(omit) }}"
-    default_cache_behavior: "{{ ext_cdn_item.default_cache_behavior | default(omit) }}"
     default_origin_path: "{{ ext_cdn_item.default_origin_path | default(omit) }}"
     default_root_object: "{{ ext_cdn_item.default_root_object | default(omit) }}"
     e_tag: "{{ ext_cdn_item.e_tag | default(omit) }}"
@@ -36,14 +38,12 @@
     http_version: "{{ ext_cdn_item.http_version | default(omit) }}"
     ipv6_enabled: "{{ ext_cdn_item.ipv6_enabled | default(omit) }}"
     logging: "{{ ext_cdn_item.logging | default(omit) }}"
-    origins: "{{ ext_cdn_item.origins | default(omit) }}"
     price_class: "{{ ext_cdn_item.price_class | default(omit) }}"
     purge_aliases: true
     purge_cache_behaviors: true
     purge_custom_error_responses: true
     purge_origins: true
     purge_tags: true
-    region: "{{ ext_cdn_item.region | default(omit) }}"
     restrictions: "{{ ext_cdn_item.restrictions | default(omit) }}"
     tags: "{{ ext_cdn_item.tags | default(omit) }}"
     validate_certs: "{{ ext_cdn_item.validate_certs | default(omit) }}"
