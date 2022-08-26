@@ -57,6 +57,7 @@
 
 - name: "{{ inner_service_title }} - aws cdn (cloudfront) - execute"
   vars:
+    # TODO: change results[0]
     ext_cdn_acm_certificate_arn: "{{ ext_cdn_acm_result.results[0].certificate.arn | default('') }}"
     ext_cdn_viewer_certificate:
       acm_certificate_arn: "{{ ext_cdn_acm_certificate_arn }}"
@@ -107,6 +108,23 @@
     label: "[{{ ext_cdn_item.state }}] {{ ext_cdn_item.name }}"
   no_log: "{{ env_no_log }}"
   register: ext_cdn_result
+
+- name: "{{ inner_service_title }} - aws cdn (cloudfront) - delete certificates"
+  lrd.ext_cloud.aws_acm:
+    name: "{{ ext_cdn_item.name }}"
+    state: absent
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+  loop: "{{ ext_cdn_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_cdn_item
+    label: "{{ ext_cdn_item.name }}"
+  when: >-
+    ((ext_cdn_item.aliases | default([]) | length) > 0)
+    and
+    (ext_cdn_item.state != 'present')
+  no_log: "{{ env_no_log }}"
 
 # - debug:
 #     # dilfgz8vo3snb.cloudfront.net
