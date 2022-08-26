@@ -11,7 +11,56 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
+- name: "{{ inner_service_title }} - aws cdn (cloudfront) - create/update certificates (prepare)"
+  lrd.ext_cloud.aws_acm:
+    name: "{{ ext_cdn_item.name }}"
+    state: present
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+    domain_name: "{{ ext_cdn_item.aliases[0] }}"
+    certificate_request:
+      subject_alternative_names: "{{ ext_cdn_item.aliases }}"
+      validation_method: 'DNS'
+  loop: "{{ ext_cdn_data_wrapper.data.list }}"
+  loop_control:
+    loop_var: ext_cdn_item
+    label: "{{ ext_cdn_item.name }}"
+  when: >-
+    ((ext_cdn_item.aliases | default([]) | length) > 0)
+    and
+    (ext_cdn_item.state == 'present')
+  no_log: "{{ env_no_log }}"
+  register: ext_cdn_acm_result
+
+- name: "{{ inner_service_title }} - aws cdn (cloudfront) - create/update certificates (wait)"
+  vars:
+    ext_cdn_item: "{{ ext_cdn_acm_item.ext_cdn_item | default({}) }}"
+  lrd.ext_cloud.aws_acm:
+    name: "{{ ext_cdn_item.name }}"
+    state: present
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+    domain_name: "{{ ext_cdn_item.aliases[0] }}"
+    certificate_request:
+      subject_alternative_names: "{{ ext_cdn_item.aliases }}"
+      validation_method: 'DNS'
+    wait: true
+    wait_timeout: 120
+  loop: "{{ ext_cdn_acm_result.results | default([]) }}"
+  loop_control:
+    loop_var: ext_cdn_acm_item
+    label: "{{ ext_cdn_item.name }}"
+  when: (ext_cdn_acm_item.certificate.pending_validations | default([]) | length) > 0
+  no_log: "{{ env_no_log }}"
+
 - name: "{{ inner_service_title }} - aws cdn (cloudfront) - execute"
+  vars:
+    ext_cdn_acm_certificate_arn: "{{ ext_cdn_acm_result.results[0].certificate.arn | default('') }}"
+    ext_cdn_viewer_certificate:
+      acm_certificate_arn: "{{ ext_cdn_acm_certificate_arn }}"
+      ssl_support_method: 'sni-only'
   community.aws.cloudfront_distribution:
     caller_reference: "{{ ext_cdn_item.name }}"
     state: "{{ ext_cdn_item.state }}"
@@ -47,6 +96,8 @@
     restrictions: "{{ ext_cdn_item.restrictions | default(omit) }}"
     tags: "{{ ext_cdn_item.tags | default(omit) }}"
     validate_certs: "{{ ext_cdn_item.validate_certs | default(omit) }}"
+    viewer_certificate: >-
+      {{ (ext_cdn_acm_certificate_arn != '') | ternary(ext_cdn_viewer_certificate, omit) }}
     wait: "{{ ext_cdn_item.wait | default(omit) }}"
     wait_timeout: "{{ ext_cdn_item.wait_timeout | default(omit) }}"
     web_acl_id: "{{ ext_cdn_item.web_acl_id | default(omit) }}"
@@ -55,3 +106,8 @@
     loop_var: ext_cdn_item
     label: "[{{ ext_cdn_item.state }}] {{ ext_cdn_item.name }}"
   no_log: "{{ env_no_log }}"
+  register: ext_cdn_result
+
+# - debug:
+#     # dilfgz8vo3snb.cloudfront.net
+#     var: ext_cdn_result

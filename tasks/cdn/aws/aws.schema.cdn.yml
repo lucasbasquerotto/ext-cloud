@@ -431,17 +431,21 @@ schemas:
     props:
       error_caching_min_ttl:
         type: "int"
+        non_empty: true
         description: "The length of time (in seconds) that CloudFront will cache status codes for."
       error_code:
         type: "int"
+        non_empty: true
         description: "The error code the custom error page is for."
       response_code:
         type: "int"
+        non_empty: true
         description: >-
           The HTTP status code that CloudFront should return to a user when the origin returns the
           HTTP status code specified by error_code.
       response_page_path:
         type: "str"
+        non_empty: true
         description: >-
           The path to the custom error page that you want CloudFront to return to a viewer when
           your origin returns the HTTP status code specified by error_code.
