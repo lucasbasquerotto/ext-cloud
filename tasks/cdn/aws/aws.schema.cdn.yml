@@ -40,6 +40,12 @@ schemas:
           The unique name for the Cloudfront distribution (caller_reference).
           Each caller reference must be unique across all distributions;
           e.g. a caller reference used in a web distribution cannot be reused in a streaming distribution.
+      dns_service:
+        type: "str"
+        description: >-
+          service that will create/destroy the dns records when there's an alias specified:
+          - Records to create and validate the certificate (ACM);
+          - CNAME to associate the aliases with the endpoint.
       aliases:
         type: "list"
         elem_type: "str"
@@ -173,6 +179,12 @@ schemas:
           The unique name for the Cloudfront distribution (caller_reference).
           Each caller reference must be unique across all distributions;
           e.g. a caller reference used in a web distribution cannot be reused in a streaming distribution.
+      dns_service:
+        type: "str"
+        description: >-
+          service that will create/destroy the dns records when there's an alias specified:
+          - Records to create and validate the certificate (ACM);
+          - CNAME to associate the aliases with the endpoint.
       aliases:
         type: "list"
         elem_type: "str"

@@ -19,9 +19,10 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_
 
 params_keys = [
     'name',
-    'comment',
     'absent',
+    'dns_service',
     'aliases',
+    'comment',
     'cache_behaviors',
     'custom_error_responses',
     'default_cache_behavior',

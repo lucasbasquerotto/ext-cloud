@@ -508,7 +508,6 @@ pem_chain_split_regex = re.compile(
 # Noting that some chains have non-pem data in between each cert
 # This function returns only what's between the headers, excluding the headers
 def pem_chain_split(module, pem):
-
   pem_arr = re.findall(pem_chain_split_regex, to_text(pem))
 
   if len(pem_arr) == 0:
@@ -530,11 +529,13 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
         msg="Internal error. Certificate ARN not found", certificate=certificate)
   # Rule to decide when to renew certificate.
 
-  cert = acm.describe_certificate_with_backoff(
-      client=client, certificate_arn=cert_arn)
+  info = get_pending_validations_info(client, acm, cert_arn)
+  cert = info.get('cert')
+  pending_validations = info.get('pending_validations')
+
   # 'IMPORTED'|'AMAZON_ISSUED'|'PRIVATE'
-  cert_type = cert.get('Type')
-  cert_status = cert.get('Status')
+  cert_type = cert.get('type')
+  cert_status = cert.get('status')
   eligible_for_renewal = False
   send_new_certificate_request = False
   if cert_type in ['AMAZON_ISSUED', 'PRIVATE']:
@@ -545,7 +546,7 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
     # 3) Send a new certificate request.
     # 'PENDING_VALIDATION'|'ISSUED'|'INACTIVE'|'EXPIRED'|'VALIDATION_TIMED_OUT'|'REVOKED'|'FAILED'
     if cert_status == 'ISSUED':
-      if cert.get('NotAfter') is None:
+      if cert.get('not_after') is None:
         module.fail_json(
             msg="Internal error. Certificate 'NotAfter' date not found", certificate=cert)
       # Do not attempt to renew the certificate indiscriminately.
@@ -561,7 +562,7 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
       #   eligible_for_renewal = True
     elif cert_status == 'PENDING_VALIDATION':
       # Do nothing. The certificate cannot be renewed since it hasn't been validated yet.
-      return (False, cert_arn, None, response)
+      return (False, cert_arn, pending_validations, response)
     else:
       # All other cases (inactive, expired, timeout...), send a new certificate request.
       send_new_certificate_request = True
@@ -581,39 +582,42 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
           error, "Couldn't renew certificate {cert_arn}")
 
     pending_validations = get_pending_validations(
-        client, module, acm, cert_arn)
+        client, acm, cert_arn)
 
     return (True, cert_arn, pending_validations, response)
   elif send_new_certificate_request:
     return request_certificate(client, module, acm, desired_tags)
 
-  pending_validations = get_pending_validations(client, module, acm, cert_arn)
+  pending_validations = get_pending_validations(client, acm, cert_arn)
 
   return (False, cert_arn, pending_validations, response)
 
 
-def get_domain_validation_options(client, acm, cert_arn):
+def get_pending_validations_info(client, acm, cert_arn):
   cert_data = acm.describe_certificate_with_backoff(
       client=client, certificate_arn=cert_arn)
-  cert_data = camel_dict_to_snake_dict(cert_data)
-  return cert_data.get('domain_validation_options')
-
-
-def get_pending_validations(client, module, acm, cert_arn):
+  cert = camel_dict_to_snake_dict(cert_data)
+  domain_validation_options = cert.get('domain_validation_options')
   pending_validations = []
 
-  if not module.params.get('wait'):
-    domain_validation_options = get_domain_validation_options(
-        client=client,
-        acm=acm,
-        cert_arn=cert_arn,
-    )
+  for dvo in (domain_validation_options or []):
+    if dvo.get('validation_status') == 'PENDING_VALIDATION':
+      pending_validations += [dvo]
+  return dict(
+      cert=cert,
+      domain_validation_options=domain_validation_options,
+      pending_validations=pending_validations
+  )
 
-    for dvo in (domain_validation_options or []):
-      if dvo['validation_status'] == 'PENDING_VALIDATION' and 'resource_record' not in dvo:
-        pending_validations += [dvo]
 
-  return pending_validations
+def get_domain_validation_options(client, acm, cert_arn):
+  info = get_pending_validations_info(client, acm, cert_arn)
+  return info.get('domain_validation_options')
+
+
+def get_pending_validations(client, acm, cert_arn):
+  info = get_pending_validations_info(client, acm, cert_arn)
+  return info.get('pending_validations')
 
 
 def wait_for_validation_records(client, module, acm, cert_arn):
@@ -624,6 +628,7 @@ def wait_for_validation_records(client, module, acm, cert_arn):
   """
   if not module.params.get('wait'):
     return
+
   timeout = module.params["wait_timeout"]
   deadline = time.time() + timeout
 
@@ -724,7 +729,7 @@ def request_certificate(client, module, acm, desired_tags):
     # Public certificate. Wait for the validation records to be present.
     wait_for_validation_records(client, module, acm, cert_arn)
 
-  pending_validations = get_pending_validations(client, module, acm, cert_arn)
+  pending_validations = get_pending_validations(client, acm, cert_arn)
 
   return (changed, cert_arn, pending_validations, response)
 
@@ -823,7 +828,7 @@ def import_certificate(client, module, acm, desired_tags):
 def ensure_certificates_present(client, module, acm, certificates, desired_tags, filter_tags):
   cert_arn = None
   changed = False
-  pending_validations = None
+  pending_validations = []
   response = None
   if len(certificates) > 1:
     msg = "More than one certificate with Name=%s exists in ACM in this region" % module.params[
@@ -869,7 +874,7 @@ def ensure_certificates_present(client, module, acm, certificates, desired_tags,
   # The dict already contains a 'certificate_arn' attribute which is the same value as 'arn'.
   # This 'aws_acm' module was originally written to return the 'arn' attribute.
   cert_data['arn'] = cert_arn
-  cert_data['pending_validations'] = pending_validations
+  cert_data['pending_validations'] = pending_validations or []
   cert_data['tags'] = new_tags
   if 'domain_name' not in cert_data:
     # The 'DomainName' attribute may not be present when describing a certificate issued by AWS.

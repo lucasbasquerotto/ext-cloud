@@ -1,0 +1,136 @@
+- name: "{{ inner_service_title }} - aws cdn (cloudfront) - {{ ext_cdn_item.name }} - title"
+  set_fact:
+    ext_cdn_item_title: "{{ inner_service_title }} - aws cdn (cloudfront) - {{ ext_cdn_item.name }}"
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
+
+- name: "{{ ext_cdn_item_title }} - create/update the certificate (prepare)"
+  lrd.ext_cloud.aws_acm:
+    name: "{{ ext_cdn_item.name }}"
+    state: present
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+    domain_name: "{{ ext_cdn_item.aliases[0] }}"
+    certificate_request:
+      subject_alternative_names: "{{ ext_cdn_item.aliases }}"
+      validation_method: 'DNS'
+    wait: true
+    wait_timeout: 120
+  when: >-
+    ((ext_cdn_item.aliases | default([]) | length) > 0)
+    and
+    (ext_cdn_item.state == 'present')
+  no_log: "{{ env_no_log }}"
+  register: ext_cdn_acm_item
+
+- debug:
+    var: ext_cdn_acm_item
+
+- name: "{{ ext_cdn_item_title }} - dns service (outer)"
+  include_tasks: "tasks/services/cloud_service.yml"
+  vars:
+    cloud_service_state: "present"
+    cloud_service_title: >-
+      {{ inner_service_title }}
+      - aws cdn (cloudfront)
+      - {{ ext_cdn_item.name }}
+      - validate the certificate
+      - dns service (inner)
+    cloud_service_list:
+      - name: "{{ ext_cdn_item.dns_service }}"
+        params:
+          dns_type: "{{ ext_cdn_dns_item.resource_record.type }}"
+          record: "{{ ext_cdn_dns_item.resource_record.name }}"
+          value: "{{ ext_cdn_dns_item.resource_record.value }}"
+    cloud_service_top: false
+    cloud_service_tmp_dir: "{{ env_ctx_dir }}/cloud/service/{{ inner_service_name }}/dns/services"
+  loop: "{{ ext_cdn_acm_item.certificate.pending_validations | default([]) }}"
+  loop_control:
+    loop_var: ext_cdn_dns_item
+    label: "{{ ext_cdn_dns_item.domain_name }}"
+  when: ext_cdn_dns_item.resource_record is defined
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print_skipped"]
+
+# - name: "{{ ext_cdn_item_title }} - create/update the certificate (wait)"
+#   lrd.ext_cloud.aws_acm:
+#     name: "{{ ext_cdn_item.name }}"
+#     state: present
+#     access_key: "{{ ext_cdn_item.access_key }}"
+#     secret_key: "{{ ext_cdn_item.secret_key }}"
+#     region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+#     domain_name: "{{ ext_cdn_item.aliases[0] }}"
+#     certificate_request:
+#       subject_alternative_names: "{{ ext_cdn_item.aliases }}"
+#       validation_method: 'DNS'
+#     wait: true
+#     wait_timeout: 120
+#   when: (ext_cdn_acm_item.certificate.pending_validations | default([]) | length) > 0
+#   no_log: "{{ env_no_log }}"
+
+- name: "{{ ext_cdn_item_title }} - execute"
+  vars:
+    ext_cdn_acm_certificate_arn: "{{ ext_cdn_acm_item.certificate.arn | default('') }}"
+    ext_cdn_viewer_certificate:
+      acm_certificate_arn: "{{ ext_cdn_acm_certificate_arn }}"
+      ssl_support_method: 'sni-only'
+  community.aws.cloudfront_distribution:
+    caller_reference: "{{ ext_cdn_item.name }}"
+    state: "{{ ext_cdn_item.state }}"
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default(omit) }}"
+    origins: "{{ ext_cdn_item.origins | default(omit) }}"
+    default_cache_behavior: "{{ ext_cdn_item.default_cache_behavior | default(omit) }}"
+    cache_behaviors: "{{ ext_cdn_item.cache_behaviors | default([]) }}"
+    custom_error_responses: "{{ ext_cdn_item.custom_error_responses | default([]) }}"
+    comment: >-
+      {{
+        ((ext_cdn_item.comment | default('')) == '')
+        | ternary(
+            ext_cdn_item.name,
+            ext_cdn_item.name + ' - ' + (ext_cdn_item.comment | default(''))
+          )
+      }}
+    aliases: "{{ ext_cdn_item.aliases | default(omit) }}"
+    default_origin_path: "{{ ext_cdn_item.default_origin_path | default(omit) }}"
+    default_root_object: "{{ ext_cdn_item.default_root_object | default(omit) }}"
+    e_tag: "{{ ext_cdn_item.e_tag | default(omit) }}"
+    enabled: "{{ ext_cdn_item.enabled | default(omit) }}"
+    http_version: "{{ ext_cdn_item.http_version | default(omit) }}"
+    ipv6_enabled: "{{ ext_cdn_item.ipv6_enabled | default(omit) }}"
+    logging: "{{ ext_cdn_item.logging | default(omit) }}"
+    price_class: "{{ ext_cdn_item.price_class | default(omit) }}"
+    purge_aliases: true
+    purge_cache_behaviors: true
+    purge_custom_error_responses: true
+    purge_origins: true
+    purge_tags: true
+    restrictions: "{{ ext_cdn_item.restrictions | default(omit) }}"
+    tags: "{{ ext_cdn_item.tags | default(omit) }}"
+    validate_certs: "{{ ext_cdn_item.validate_certs | default(omit) }}"
+    viewer_certificate: >-
+      {{ (ext_cdn_acm_certificate_arn != '') | ternary(ext_cdn_viewer_certificate, omit) }}
+    wait: "{{ ext_cdn_item.wait | default(omit) }}"
+    wait_timeout: "{{ ext_cdn_item.wait_timeout | default(omit) }}"
+    web_acl_id: "{{ ext_cdn_item.web_acl_id | default(omit) }}"
+  no_log: "{{ env_no_log }}"
+  register: ext_cdn_result
+
+- name: "{{ ext_cdn_item_title }} - delete the certificate"
+  lrd.ext_cloud.aws_acm:
+    name: "{{ ext_cdn_item.name }}"
+    state: absent
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+  when: >-
+    ((ext_cdn_item.aliases | default([]) | length) > 0)
+    and
+    (ext_cdn_item.state != 'present')
+  no_log: "{{ env_no_log }}"
+
+- debug:
+    # dilfgz8vo3snb.cloudfront.net
+    var: ext_cdn_result

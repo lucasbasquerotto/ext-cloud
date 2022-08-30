@@ -35,7 +35,10 @@
         ((ext_dns_item.record | default('@', true)) == '@')
         | ternary(
             ext_dns_item.zone,
-            ext_dns_item.record + '.' + ext_dns_item.zone
+            (ext_dns_item.record is search(ext_dns_item.zone)) | ternary(
+              ext_dns_item.record,
+              ext_dns_item.record + '.' + ext_dns_item.zone
+            )
           )
       }}
     value: "{{ ext_dns_item.value | default(omit, true) }}"
