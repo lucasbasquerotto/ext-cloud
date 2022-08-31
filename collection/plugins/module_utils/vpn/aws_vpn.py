@@ -20,6 +20,7 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import (
 )
 
 vpc_params_keys = [
+    'absent',
     "name",
     "region",
     "cidr_block",
@@ -36,6 +37,7 @@ vpc_credentials_keys = [
 vpc_contents_keys = []
 
 subnets_params_keys = [
+    'absent',
     "name",
     "cidr",
     "az",
@@ -51,6 +53,7 @@ subnets_credentials_keys = [
 subnets_contents_keys = []
 
 security_groups_params_keys = [
+    'absent',
     "name",
     "region",
     "description",

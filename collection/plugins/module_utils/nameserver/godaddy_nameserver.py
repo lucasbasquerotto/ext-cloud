@@ -22,6 +22,7 @@ from ansible_collections.lrd.cloud.plugins.module_utils.lrd_utils import ordered
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
+    'absent',
     'zone',
     'nameservers',
 ]

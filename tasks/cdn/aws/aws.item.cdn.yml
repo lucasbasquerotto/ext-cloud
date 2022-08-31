@@ -1,12 +1,13 @@
 - name: "{{ inner_service_title }} - aws cdn (cloudfront) - {{ ext_cdn_item.name }} - title"
   set_fact:
     ext_cdn_item_title: "{{ inner_service_title }} - aws cdn (cloudfront) - {{ ext_cdn_item.name }}"
+    ext_cdn_tmp_dir: "{{ inner_service_tmp_dir }}"
   no_log: "{{ env_no_log }}"
   tags: ["no_print"]
 
 - name: "{{ ext_cdn_item_title }} - create/update the certificate (prepare)"
   lrd.ext_cloud.aws_acm:
-    name: "{{ ext_cdn_item.name }}"
+    name: "acm-auto-cdn-{{ ext_cdn_item.name }}"
     state: present
     access_key: "{{ ext_cdn_item.access_key }}"
     secret_key: "{{ ext_cdn_item.secret_key }}"
@@ -24,27 +25,23 @@
   no_log: "{{ env_no_log }}"
   register: ext_cdn_acm_item
 
-- debug:
-    var: ext_cdn_acm_item
-
-- name: "{{ ext_cdn_item_title }} - dns service (outer)"
+- name: "{{ ext_cdn_item_title }} - validate the certificate - dns service (outer)"
   include_tasks: "tasks/services/cloud_service.yml"
   vars:
     cloud_service_state: "present"
     cloud_service_title: >-
-      {{ inner_service_title }}
-      - aws cdn (cloudfront)
-      - {{ ext_cdn_item.name }}
+      {{ ext_cdn_item_title }}
       - validate the certificate
       - dns service (inner)
     cloud_service_list:
-      - name: "{{ ext_cdn_item.dns_service }}"
+      - name: "{{ ext_cdn_item.dns_service }}-cert"
+        key: "{{ ext_cdn_item.dns_service }}"
         params:
           dns_type: "{{ ext_cdn_dns_item.resource_record.type }}"
           record: "{{ ext_cdn_dns_item.resource_record.name }}"
           value: "{{ ext_cdn_dns_item.resource_record.value }}"
     cloud_service_top: false
-    cloud_service_tmp_dir: "{{ env_ctx_dir }}/cloud/service/{{ inner_service_name }}/dns/services"
+    cloud_service_tmp_dir: "{{ ext_cdn_tmp_dir }}/dns/services"
   loop: "{{ ext_cdn_acm_item.certificate.pending_validations | default([]) }}"
   loop_control:
     loop_var: ext_cdn_dns_item
@@ -53,21 +50,22 @@
   no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]
 
-# - name: "{{ ext_cdn_item_title }} - create/update the certificate (wait)"
-#   lrd.ext_cloud.aws_acm:
-#     name: "{{ ext_cdn_item.name }}"
-#     state: present
-#     access_key: "{{ ext_cdn_item.access_key }}"
-#     secret_key: "{{ ext_cdn_item.secret_key }}"
-#     region: "{{ ext_cdn_item.region | default('us-east-1') }}"
-#     domain_name: "{{ ext_cdn_item.aliases[0] }}"
-#     certificate_request:
-#       subject_alternative_names: "{{ ext_cdn_item.aliases }}"
-#       validation_method: 'DNS'
-#     wait: true
-#     wait_timeout: 120
-#   when: (ext_cdn_acm_item.certificate.pending_validations | default([]) | length) > 0
-#   no_log: "{{ env_no_log }}"
+- name: "{{ ext_cdn_item_title }} - wait the certificate to be validated"
+  lrd.ext_cloud.aws_acm:
+    name: "acm-auto-cdn-{{ ext_cdn_item.name }}"
+    state: present
+    access_key: "{{ ext_cdn_item.access_key }}"
+    secret_key: "{{ ext_cdn_item.secret_key }}"
+    region: "{{ ext_cdn_item.region | default('us-east-1') }}"
+    domain_name: "{{ ext_cdn_item.aliases[0] }}"
+    certificate_request:
+      subject_alternative_names: "{{ ext_cdn_item.aliases }}"
+      validation_method: 'DNS'
+    ensure_valid_cert: true
+    wait: true
+    wait_timeout: 1000
+  when: (ext_cdn_acm_item.certificate.pending_validations | default([]) | length) > 0
+  no_log: "{{ env_no_log }}"
 
 - name: "{{ ext_cdn_item_title }} - execute"
   vars:
@@ -120,7 +118,7 @@
 
 - name: "{{ ext_cdn_item_title }} - delete the certificate"
   lrd.ext_cloud.aws_acm:
-    name: "{{ ext_cdn_item.name }}"
+    name: "acm-auto-cdn-{{ ext_cdn_item.name }}"
     state: absent
     access_key: "{{ ext_cdn_item.access_key }}"
     secret_key: "{{ ext_cdn_item.secret_key }}"
@@ -131,6 +129,37 @@
     (ext_cdn_item.state != 'present')
   no_log: "{{ env_no_log }}"
 
-- debug:
-    # dilfgz8vo3snb.cloudfront.net
-    var: ext_cdn_result
+- name: "{{ ext_cdn_item_title }} - cdn domain (CNAME) - dns service (outer)"
+  include_tasks: "tasks/services/cloud_service.yml"
+  vars:
+    tmp_domain_record: "{{ ext_cdn_item.aliases[0] | default('') }}"
+    tmp_domain_name: "{{ ext_cdn_result.domain_name | default('') }}"
+    cloud_service_state: "present"
+    cloud_service_title: >-
+      {{ ext_cdn_item_title }}
+      - cdn domain (CNAME)
+      - dns service (inner)
+    cloud_service_list:
+      - name: "{{ ext_cdn_item.dns_service }}-main"
+        key: "{{ ext_cdn_item.dns_service }}"
+        params:
+          list:
+            - dns_type: "A"
+              record: "{{ tmp_domain_record }}"
+              value: ""
+              absent: true
+            - dns_type: "AAAA"
+              record: "{{ tmp_domain_record }}"
+              value: ""
+              absent: true
+            - dns_type: "CNAME"
+              record: "{{ tmp_domain_record }}"
+              value: "{{ tmp_domain_name }}"
+    cloud_service_top: false
+    cloud_service_tmp_dir: "{{ ext_cdn_tmp_dir }}/dns/services"
+  when: >-
+    ((ext_cdn_item.aliases | default([]) | length) > 0)
+    and
+    (ext_cdn_item.state == 'present')
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print_skipped"]

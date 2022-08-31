@@ -29,6 +29,7 @@ def prepare_data(raw_data):
       expected_namespace='ext_dns',
       raw_data=raw_data,
       item_keys=[
+          'absent',
           'zone',
           'dns_type',
           'record',

@@ -18,6 +18,7 @@ __metaclass__ = type  # pylint: disable=invalid-name
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_default_data
 
 params_keys = [
+    'absent',
     'name',
     'resource_name',
     'resource_type',

@@ -21,13 +21,25 @@
 #   - Matthew Davis <Matthew.Davis.2@team.telstra.com>
 #     on behalf of Telstra Corporation Limited
 
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=import-error
+# pylint: disable=broad-except
+# pylint: disable=invalid-name
+# pylint: disable=line-too-long
+# pylint: disable=too-many-lines
+
+# pyright: reportUnusedImport=true
+# pyright: reportUnusedVariable=true
+# pyright: reportMissingImports=false
+
 from __future__ import (absolute_import, division, print_function)
 
 import time
 import re  # regex library
 import string
 import random
-from datetime import datetime, timedelta
 from copy import deepcopy
 import base64
 
@@ -289,6 +301,16 @@ options:
     type: bool
     version_added: 3.1.0
 
+  ensure_valid_cert:
+    description:
+      - >
+        Whether or not to ensure that there are no pending validations to be done
+      - >
+        Will use the value of wait_timeout to wait for the validation to complete
+    type: bool
+    default: 'no'
+    version_added: 3.1.0
+
   wait:
     description:
       - >
@@ -434,9 +456,9 @@ def ensure_tags(client, module, resource_arn, existing_tags, tags, purge_tags):
     except (
         botocore.exceptions.ClientError,
         botocore.exceptions.BotoCoreError,
-    ) as e:
+    ) as error:
       module.fail_json_aws(
-          e, "Couldn't add tags to certificate {0}".format(resource_arn)
+          error, f"Couldn't add tags to certificate {resource_arn}"
       )
   if tags_to_remove:
     if module.check_mode:
@@ -454,9 +476,9 @@ def ensure_tags(client, module, resource_arn, existing_tags, tags, purge_tags):
     except (
         botocore.exceptions.ClientError,
         botocore.exceptions.BotoCoreError,
-    ) as e:
+    ) as error:
       module.fail_json_aws(
-          e, "Couldn't remove tags from certificate {0}".format(resource_arn)
+          error, f"Couldn't remove tags from certificate {resource_arn}"
       )
   new_tags = deepcopy(existing_tags)
   for key, value in tags_to_add.items():
@@ -493,8 +515,8 @@ def chain_compare(module, a, b):
 def PEM_body_to_DER(module, pem):
   try:
     der = base64.b64decode(to_text(pem))
-  except (ValueError, TypeError) as e:
-    module.fail_json_aws(e, msg="Unable to decode certificate chain")
+  except (ValueError, TypeError) as error:
+    module.fail_json_aws(error, msg="Unable to decode certificate chain")
   return der
 
 
@@ -531,7 +553,6 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
 
   info = get_pending_validations_info(client, acm, cert_arn)
   cert = info.get('cert')
-  pending_validations = info.get('pending_validations')
 
   # 'IMPORTED'|'AMAZON_ISSUED'|'PRIVATE'
   cert_type = cert.get('type')
@@ -562,7 +583,7 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
       #   eligible_for_renewal = True
     elif cert_status == 'PENDING_VALIDATION':
       # Do nothing. The certificate cannot be renewed since it hasn't been validated yet.
-      return (False, cert_arn, pending_validations, response)
+      return (False, cert_arn, response)
     else:
       # All other cases (inactive, expired, timeout...), send a new certificate request.
       send_new_certificate_request = True
@@ -579,18 +600,13 @@ def renew_certificate(client, module, acm, certificate, desired_tags):
       response = client.renew_certificate(CertificateArn=cert_arn)
     except (botocore.exceptions.ClientError, botocore.exceptions.BotoCoreError) as error:
       module.fail_json_aws(
-          error, "Couldn't renew certificate {cert_arn}")
+          error, f"Couldn't renew certificate {cert_arn}")
 
-    pending_validations = get_pending_validations(
-        client, acm, cert_arn)
-
-    return (True, cert_arn, pending_validations, response)
+    return (True, cert_arn, response)
   elif send_new_certificate_request:
     return request_certificate(client, module, acm, desired_tags)
 
-  pending_validations = get_pending_validations(client, acm, cert_arn)
-
-  return (False, cert_arn, pending_validations, response)
+  return (False, cert_arn, response)
 
 
 def get_pending_validations_info(client, acm, cert_arn):
@@ -613,11 +629,6 @@ def get_pending_validations_info(client, acm, cert_arn):
 def get_domain_validation_options(client, acm, cert_arn):
   info = get_pending_validations_info(client, acm, cert_arn)
   return info.get('domain_validation_options')
-
-
-def get_pending_validations(client, acm, cert_arn):
-  info = get_pending_validations_info(client, acm, cert_arn)
-  return info.get('pending_validations')
 
 
 def wait_for_validation_records(client, module, acm, cert_arn):
@@ -700,7 +711,7 @@ def request_certificate(client, module, acm, desired_tags):
         changed=changed, msg="Would have requested certificate if not in check mode"
     )
   idempotency_token = "".join(
-      [random.choice(string.ascii_letters) for i in xrange(16)])
+      [random.choice(string.ascii_letters) for _ in xrange(16)])
   # The input 'desired_tags' argument is a dictionary, but ACM request_certificate wants
   # a list of {Key, Value} pairs.
   tags_list = [
@@ -723,15 +734,13 @@ def request_certificate(client, module, acm, desired_tags):
     response = client.request_certificate(**parameters)
   except (botocore.exceptions.ClientError, botocore.exceptions.BotoCoreError) as error:
     module.fail_json_aws(
-        error, "Couldn't request certificate for {domain_name}")
+        error, f"Couldn't request certificate for {domain_name}")
   cert_arn = response.get('CertificateArn')
   if ca_arn is None and module.params.get('wait'):
     # Public certificate. Wait for the validation records to be present.
     wait_for_validation_records(client, module, acm, cert_arn)
 
-  pending_validations = get_pending_validations(client, acm, cert_arn)
-
-  return (changed, cert_arn, pending_validations, response)
+  return (changed, cert_arn, response)
 
 
 def update_imported_certificate(client, module, acm, old_cert, desired_tags):
@@ -825,32 +834,33 @@ def import_certificate(client, module, acm, desired_tags):
   return (changed, cert_arn, cert_arn)
 
 
-def ensure_certificates_present(client, module, acm, certificates, desired_tags, filter_tags):
+def ensure_certificates_present(client, module, acm, certificates, desired_tags):
   cert_arn = None
   changed = False
-  pending_validations = []
-  response = None
+
+  timeout = module.params["wait_timeout"]
+  deadline = time.time() + timeout
+
   if len(certificates) > 1:
-    msg = "More than one certificate with Name=%s exists in ACM in this region" % module.params[
-        'name_tag']
+    msg = f"More than one certificate with Name={module.params['name_tag']} exists in ACM in this region"
     module.fail_json(msg=msg, certificates=certificates)
   elif len(certificates) == 1:
     if module.params.get('certificate_request') is not None:
       # Renew existing certificate requested from ACM
-      (changed, cert_arn, pending_validations, response) = renew_certificate(
+      (changed, cert_arn, _) = renew_certificate(
           client, module, acm, certificates[0], desired_tags)
     else:
       # Update existing certificate that was previously imported to ACM.
-      (changed, cert_arn, response) = update_imported_certificate(
+      (changed, cert_arn, _) = update_imported_certificate(
           client, module, acm, certificates[0], desired_tags)
   else:  # len(certificates) == 0
     if module.params.get('certificate_request') is not None:
       # Request certificate from ACM.
-      (changed, cert_arn, pending_validations, response) = request_certificate(
+      (changed, cert_arn, _) = request_certificate(
           client, module, acm, desired_tags)
     else:
       # Import new certificate to ACM.
-      (changed, cert_arn, response) = import_certificate(
+      (changed, cert_arn, _) = import_certificate(
           client, module, acm, desired_tags)
 
   if cert_arn is None:
@@ -860,21 +870,37 @@ def ensure_certificates_present(client, module, acm, certificates, desired_tags,
   try:
     existing_tags = boto3_tag_list_to_ansible_dict(
         client.list_tags_for_certificate(CertificateArn=cert_arn)['Tags'])
-  except (botocore.exceptions.ClientError, botocore.exceptions.BotoCoreError) as e:
-    module.fail_json_aws(e, "Couldn't get tags for certificate")
+  except (botocore.exceptions.ClientError, botocore.exceptions.BotoCoreError) as error:
+    module.fail_json_aws(error, "Couldn't get tags for certificate")
 
   purge_tags = module.params.get('purge_tags')
   (c, new_tags) = ensure_tags(client, module,
                               cert_arn, existing_tags, desired_tags, purge_tags)
   changed |= c
 
-  cert_data = acm.describe_certificate_with_backoff(
-      client=client, certificate_arn=cert_arn)
-  cert_data = camel_dict_to_snake_dict(cert_data)
+  info = get_pending_validations_info(client, acm, cert_arn)
+  cert_data = info.get('cert')
+  pending_validations = info.get('pending_validations') or []
+
+  if module.params.get('ensure_valid_cert'):
+    while time.time() < deadline:
+      if len(pending_validations) == 0:
+        break
+
+      time.sleep(5)
+
+      info = get_pending_validations_info(client, acm, cert_arn)
+      cert_data = info.get('cert')
+      pending_validations = info.get('pending_validations') or []
+
+    if len(pending_validations) > 0:
+      module.fail_json(
+          msg="There are pending validations (ensure_valid_cert is true)", certificate=cert_data)
+
   # The dict already contains a 'certificate_arn' attribute which is the same value as 'arn'.
   # This 'aws_acm' module was originally written to return the 'arn' attribute.
   cert_data['arn'] = cert_arn
-  cert_data['pending_validations'] = pending_validations or []
+  cert_data['pending_validations'] = pending_validations
   cert_data['tags'] = new_tags
   if 'domain_name' not in cert_data:
     # The 'DomainName' attribute may not be present when describing a certificate issued by AWS.
@@ -887,6 +913,7 @@ def ensure_certificates_absent(client, module, acm, certificates):
   for cert in certificates:
     if not module.check_mode:
       acm.delete_certificate(client, module, cert['certificate_arn'])
+
   module.exit_json(arns=[cert['certificate_arn']
                    for cert in certificates], changed=(len(certificates) > 0))
 
@@ -918,6 +945,7 @@ def main():
       ),
       tags=dict(type='dict'),
       purge_tags=dict(type='bool', default=False),
+      ensure_valid_cert=dict(type="bool", default=False),
       wait=dict(type="bool", default=False),
       wait_timeout=dict(type="int", default=15),
       state=dict(default='present', choices=['present', 'absent']),
@@ -937,16 +965,17 @@ def main():
     # at least one of these should be specified.
     absent_args = ['certificate_arn', 'domain_name', 'name_tag']
     if sum([(module.params[a] is not None) for a in absent_args]) < 1:
-      for a in absent_args:
-        module.debug("%s is %s" % (a, module.params[a]))
+      for absent in absent_args:
+        module.debug(f"{absent} is {module.params[absent]}")
       module.fail_json(
-          msg="If 'state' is specified as 'present' then at least one of 'name_tag', 'certificate_arn' or 'domain_name' must be specified")
+          msg=("If 'state' is specified as 'present' then at least one of "
+               + "'name_tag', 'certificate_arn' or 'domain_name' must be specified"))
   else:  # absent
     # exactly one of these should be specified
     absent_args = ['certificate_arn', 'domain_name', 'name_tag']
     if sum([(module.params[a] is not None) for a in absent_args]) != 1:
-      for a in absent_args:
-        module.debug("%s is %s" % (a, module.params[a]))
+      for absent in absent_args:
+        module.debug(f"{absent} is {module.params[absent]}")
       module.fail_json(
           msg="If 'state' is specified as 'absent' then exactly one of 'name_tag', 'certificate_arn' or 'domain_name' must be specified")
 
@@ -981,11 +1010,11 @@ def main():
       only_tags=filter_tags,
   )
 
-  module.debug("Found %d corresponding certificates in ACM" %
-               len(certificates))
+  module.debug("Found {len(certificates)} corresponding certificates in ACM")
+
   if module.params['state'] == 'present':
     ensure_certificates_present(
-        client, module, acm, certificates, desired_tags, filter_tags)
+        client, module, acm, certificates, desired_tags)
   else:  # state == absent
     ensure_certificates_absent(client, module, acm, certificates)
 
