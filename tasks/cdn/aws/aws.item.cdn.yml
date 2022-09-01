@@ -28,6 +28,7 @@
 - name: "{{ ext_cdn_item_title }} - validate the certificate - dns service (outer)"
   include_tasks: "tasks/services/cloud_service.yml"
   vars:
+    tmp_domain_record: "{{ ext_cdn_item.aliases[0] | default('') }}"
     cloud_service_state: "present"
     cloud_service_title: >-
       {{ ext_cdn_item_title }}
@@ -47,6 +48,35 @@
     loop_var: ext_cdn_dns_item
     label: "{{ ext_cdn_dns_item.domain_name }}"
   when: ext_cdn_dns_item.resource_record is defined
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print_skipped"]
+
+- name: "{{ ext_cdn_item_title }} - clear old dns records - dns service (outer)"
+  include_tasks: "tasks/services/cloud_service.yml"
+  vars:
+    cloud_service_state: "absent"
+    cloud_service_title: >-
+      {{ ext_cdn_item_title }}
+      - clear old dns records
+      - dns service (inner)
+    cloud_service_list:
+      - name: "{{ ext_cdn_item.dns_service }}-clear"
+        key: "{{ ext_cdn_item.dns_service }}"
+        params:
+          list:
+            - dns_type: "A"
+              record: "{{ ext_cdn_dns_item }}"
+            - dns_type: "AAAA"
+              record: "{{ ext_cdn_dns_item }}"
+            - dns_type: "CNAME"
+              record: "{{ ext_cdn_dns_item }}"
+    cloud_service_top: false
+    cloud_service_tmp_dir: "{{ ext_cdn_tmp_dir }}/dns/services"
+  loop: "{{ ext_cdn_item.aliases | default([]) }}"
+  loop_control:
+    loop_var: ext_cdn_dns_item
+    label: "{{ ext_cdn_dns_item }}"
+  when: ext_cdn_item.clear_old_dns_records | default(false) | bool
   no_log: "{{ env_no_log }}"
   tags: ["no_print_skipped"]
 
@@ -146,12 +176,12 @@
           list:
             - dns_type: "A"
               record: "{{ tmp_domain_record }}"
-              value: ""
               absent: true
+              when: "{{ not (ext_cdn_item.clear_old_dns_records | default(false) | bool) }}"
             - dns_type: "AAAA"
               record: "{{ tmp_domain_record }}"
-              value: ""
               absent: true
+              when: "{{ not (ext_cdn_item.clear_old_dns_records | default(false) | bool) }}"
             - dns_type: "CNAME"
               record: "{{ tmp_domain_record }}"
               value: "{{ tmp_domain_name }}"

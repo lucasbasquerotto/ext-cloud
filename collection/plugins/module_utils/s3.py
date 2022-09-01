@@ -25,6 +25,8 @@ def prepare_data(raw_data):
       expected_namespace='ext_s3',
       raw_data=raw_data,
       item_keys=[
+          'absent',
+          'when',
           'bucket',
           'permission',
       ],

@@ -30,6 +30,7 @@ def prepare_data(raw_data):
       raw_data=raw_data,
       item_keys=[
           'absent',
+          'when',
           'zone',
           'dns_type',
           'record',

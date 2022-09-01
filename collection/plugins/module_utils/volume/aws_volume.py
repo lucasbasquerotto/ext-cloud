@@ -19,6 +19,7 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_
 
 params_keys = [
     'absent',
+    'when',
     'name',
     'device_name',
     'encrypted',

@@ -46,6 +46,9 @@ schemas:
           service that will create/destroy the dns records when there's an alias specified:
           - Records to create and validate the certificate (ACM);
           - CNAME to associate the aliases with the endpoint.
+      clear_old_dns_records:
+        type: "bool"
+        description: "when true, will delete A, AAAA and CNAME records related to the aliases"
       aliases:
         type: "list"
         elem_type: "str"
@@ -185,6 +188,9 @@ schemas:
           service that will create/destroy the dns records when there's an alias specified:
           - Records to create and validate the certificate (ACM);
           - CNAME to associate the aliases with the endpoint.
+      clear_old_dns_records:
+        type: "bool"
+        description: "when true, will delete A, AAAA and CNAME records related to the aliases"
       aliases:
         type: "list"
         elem_type: "str"

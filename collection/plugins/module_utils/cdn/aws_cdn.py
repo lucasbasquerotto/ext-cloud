@@ -20,7 +20,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_
 params_keys = [
     'name',
     'absent',
+    'when',
     'dns_service',
+    'clear_old_dns_records',
     'aliases',
     'comment',
     'cache_behaviors',

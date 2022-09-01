@@ -20,6 +20,7 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.vars import prepare_
 params_keys = [
     'name',
     'absent',
+    'when',
     'activate_new_version',
     'domains',
     'healthchecks',
