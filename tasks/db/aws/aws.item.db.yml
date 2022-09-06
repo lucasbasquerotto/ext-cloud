@@ -218,7 +218,8 @@
 
 - name: "{{ ext_db_item_title }} - register endpoint"
   set_fact:
-    cloud_service_endpoints: "{{ cloud_service_endpoints + [ext_db_item_endpoint] }}"
+    cloud_service_info_result:
+      endpoints: "{{ (cloud_service_info_result.endpoints | default([])) + [ext_db_item_endpoint] }}"
   vars:
     ext_db_item_address: "{{ ext_db_item_result.endpoint.address | default('') }}"
     ext_db_item_endpoint:
