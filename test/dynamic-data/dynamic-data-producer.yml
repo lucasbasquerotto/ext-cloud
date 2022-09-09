@@ -1,0 +1,8 @@
+- name: "{{ inner_service_title }} - dynamic data producer - register data"
+  set_fact:
+    cloud_service_info_result:
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+      endpoints: ["test1", "test2", "test3"]
+  when: inner_service_state == 'present'
