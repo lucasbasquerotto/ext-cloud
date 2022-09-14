@@ -17,3 +17,11 @@
   debug:
     var: inner_service_state
   tags: ["no_print_skipped"]
+
+- name: "{{ inner_service_title }} - dynamic data consumer - register data"
+  set_fact:
+    cloud_service_info_result:
+      params: "{{ inner_service_params }}"
+      credentials: "{{ inner_service_credentials }}"
+      contents: "{{ inner_service_contents }}"
+  when: inner_service_state == 'present'

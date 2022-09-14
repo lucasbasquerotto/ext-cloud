@@ -1,0 +1,147 @@
+- name: "{{ inner_service_title }} - dynamic data verifier - verify service"
+  vars:
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+  fail:
+    msg: "service name not defined"
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_service == '')
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify endpoints"
+  vars:
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_endpoint: "{{ ctx_services_data[tmp_service].endpoints[tmp_index] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for endpoint #{{ tmp_index }} (service {{ tmp_service }}):
+      Expected: {{ tmp_item }}
+      Found: {{ tmp_service_endpoint }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_item != tmp_service_endpoint)
+  loop: "{{ inner_service_params.endpoints | default([]) }}"
+  loop_control:
+    index_var: tmp_index
+    loop_var: tmp_item
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify params"
+  vars:
+    tmp_param_name: "{{ tmp_item.name | default('') }}"
+    tmp_param_value: "{{ tmp_item.value | default('') }}"
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_param: "{{ ctx_services_data[tmp_service].params[tmp_param_name] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for parameter {{ tmp_param_name }} (service {{ tmp_service }}):
+      Expected: {{ tmp_param_value }}
+      Found: {{ tmp_service_param }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_param_value != tmp_service_param)
+  loop: "{{ inner_service_params.params | default([]) }}"
+  loop_control:
+    loop_var: tmp_item
+    label: "{{ tmp_param_name }}"
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify credentials"
+  vars:
+    tmp_credential_name: "{{ tmp_item.name | default('') }}"
+    tmp_credential_value: "{{ tmp_item.value | default('') }}"
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_credential: "{{ ctx_services_data[tmp_service].credentials[tmp_credential_name] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for credential {{ tmp_credential_name }} (service {{ tmp_service }}):
+      Expected: {{ tmp_credential_value }}
+      Found: {{ tmp_service_credential }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_credential_value != tmp_service_credential)
+  loop: "{{ inner_service_params.credentials | default([]) }}"
+  loop_control:
+    loop_var: tmp_item
+    label: "{{ tmp_credential_name }}"
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify contents"
+  vars:
+    tmp_content_name: "{{ tmp_item.name | default('') }}"
+    tmp_content_value: "{{ tmp_item.value | default('') }}"
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_content: "{{ ctx_services_data[tmp_service].contents[tmp_content_name] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for content {{ tmp_content_name }} (service {{ tmp_service }}):
+      Expected: {{ tmp_content_value }}
+      Found: {{ tmp_service_content }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_content_value != tmp_service_content)
+  loop: "{{ inner_service_params.contents | default([]) }}"
+  loop_control:
+    loop_var: tmp_item
+    label: "{{ tmp_content_name }}"
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify amount of endpoints"
+  vars:
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_amount_endpoints: "{{ ctx_services_data[tmp_service].endpoints | default([]) | length }}"
+    tmp_expected_amount_endpoints: "{{ inner_service_params.endpoints | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of endpoints for service {{ tmp_service }}:
+      Expected: {{ tmp_expected_amount_endpoints }}
+      Found: {{ tmp_service_amount_endpoints }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_service_amount_endpoints != tmp_expected_amount_endpoints)
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify amount of params"
+  vars:
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_amount_params: "{{ ctx_services_data[tmp_service].params | default([]) | length }}"
+    tmp_expected_amount_params: "{{ inner_service_params.params | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of params for service {{ tmp_service }}:
+      Expected: {{ tmp_expected_amount_params }}
+      Found: {{ tmp_service_amount_params }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_service_amount_params != tmp_expected_amount_params)
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify amount of credentials"
+  vars:
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_amount_credentials: "{{ ctx_services_data[tmp_service].credentials | default([]) | length }}"
+    tmp_expected_amount_credentials: "{{ inner_service_params.credentials | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of credentials for service {{ tmp_service }}:
+      Expected: {{ tmp_expected_amount_credentials }}
+      Found: {{ tmp_service_amount_credentials }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_service_amount_credentials != tmp_expected_amount_credentials)
+
+- name: "{{ inner_service_title }} - dynamic data verifier - verify amount of contents"
+  vars:
+    tmp_service: "{{ inner_service_params.service | default('') }}"
+    tmp_service_amount_contents: "{{ ctx_services_data[tmp_service].contents | default([]) | length }}"
+    tmp_expected_amount_contents: "{{ inner_service_params.contents | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of contents for service {{ tmp_service }}:
+      Expected: {{ tmp_expected_amount_contents }}
+      Found: {{ tmp_service_amount_contents }}
+  when:
+    (inner_service_state == 'present')
+    and
+    (tmp_service_amount_contents != tmp_expected_amount_contents)
