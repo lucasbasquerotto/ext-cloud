@@ -1,0 +1,11 @@
+- name: "{{ params.title }} - task - dynamic data consumer (test) - params"
+  debug:
+    var: params.task.params
+
+- name: "{{ params.title }} - task - dynamic data consumer (test) - credentials"
+  debug:
+    var: params.task.credentials
+
+- name: "{{ params.title }} - task - dynamic data consumer (test) - contents"
+  debug:
+    var: params.task.contents
