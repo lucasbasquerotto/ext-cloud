@@ -1,0 +1,7 @@
+{{
+  {
+    'params': params | default({}),
+    'credentials': credentials | default({}),
+    'contents': contents | default({}),
+  } | to_nice_yaml
+}}
