@@ -1,0 +1,89 @@
+- name: "{{ params.title }} - dynamic data verifier - get the content of the data file"
+  delegate_to: "localhost"
+  include_vars:
+    file: "{{ params.chdir }}/{{ params.task.params.file_relative_path }}"
+    name: task_data
+
+- debug:
+    var: task_data
+
+- name: "{{ params.title }} - dynamic data verifier - verify params"
+  vars:
+    tmp_param_name: "{{ tmp_item.name | default('') }}"
+    tmp_param_value: "{{ tmp_item.value | default('') }}"
+    tmp_data_param: "{{ task_data.params[tmp_param_name] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for parameter {{ tmp_param_name }}:
+      Expected: {{ tmp_param_value }}
+      Found: {{ tmp_data_param }}
+  when: tmp_param_value != tmp_data_param
+  loop: "{{ params.task.params.params | default([]) }}"
+  loop_control:
+    loop_var: tmp_item
+    label: "{{ tmp_param_name }}"
+
+- name: "{{ params.title }} - dynamic data verifier - verify credentials"
+  vars:
+    tmp_credential_name: "{{ tmp_item.name | default('') }}"
+    tmp_credential_value: "{{ tmp_item.value | default('') }}"
+    tmp_data_credential: "{{ task_data.credentials[tmp_credential_name] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for credential {{ tmp_credential_name }}:
+      Expected: {{ tmp_credential_value }}
+      Found: {{ tmp_data_credential }}
+  when: tmp_credential_value != tmp_data_credential
+  loop: "{{ params.task.params.credentials | default([]) }}"
+  loop_control:
+    loop_var: tmp_item
+    label: "{{ tmp_credential_name }}"
+
+- name: "{{ params.title }} - dynamic data verifier - verify contents"
+  vars:
+    tmp_content_name: "{{ tmp_item.name | default('') }}"
+    tmp_content_value: "{{ tmp_item.value | default('') }}"
+    tmp_data_content: "{{ task_data.contents[tmp_content_name] | default('') }}"
+  fail:
+    msg: |-
+      Wrong value for content {{ tmp_content_name }}:
+      Expected: {{ tmp_content_value }}
+      Found: {{ tmp_data_content }}
+  when: tmp_content_value != tmp_data_content
+  loop: "{{ params.task.params.contents | default([]) }}"
+  loop_control:
+    loop_var: tmp_item
+    label: "{{ tmp_content_name }}"
+
+- name: "{{ params.title }} - dynamic data verifier - verify amount of params"
+  vars:
+    tmp_data_amount_params: "{{ task_data.params | default([]) | length }}"
+    tmp_expected_amount_params: "{{ params.task.params.params | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of params:
+      Expected: {{ tmp_expected_amount_params }}
+      Found: {{ tmp_data_amount_params }}
+  when: tmp_data_amount_params != tmp_expected_amount_params
+
+- name: "{{ params.title }} - dynamic data verifier - verify amount of credentials"
+  vars:
+    tmp_data_amount_credentials: "{{ task_data.credentials | default([]) | length }}"
+    tmp_expected_amount_credentials: "{{ params.task.params.credentials | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of credentials:
+      Expected: {{ tmp_expected_amount_credentials }}
+      Found: {{ tmp_data_amount_credentials }}
+  when: tmp_data_amount_credentials != tmp_expected_amount_credentials
+
+- name: "{{ params.title }} - dynamic data verifier - verify amount of contents"
+  vars:
+    tmp_data_amount_contents: "{{ task_data.contents | default([]) | length }}"
+    tmp_expected_amount_contents: "{{ params.task.params.contents | default([]) | length }}"
+  fail:
+    msg: |-
+      Wrong amount of contents:
+      Expected: {{ tmp_expected_amount_contents }}
+      Found: {{ tmp_data_amount_contents }}
+  when: tmp_data_amount_contents != tmp_expected_amount_contents
