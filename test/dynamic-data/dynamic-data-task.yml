@@ -1,11 +1,16 @@
-- name: "{{ params.title }} - task - dynamic data consumer (test) - params"
-  debug:
-    var: params.task.params
+- name: "{{ params.title }} - task - dynamic data task - create directory ({{ params.tmp_dir }})"
+  file:
+    path: "{{ params.tmp_dir }}"
+    state: "directory"
+    mode: "777"
 
-- name: "{{ params.title }} - task - dynamic data consumer (test) - credentials"
-  debug:
-    var: params.task.credentials
-
-- name: "{{ params.title }} - task - dynamic data consumer (test) - contents"
-  debug:
-    var: params.task.contents
+- name: "{{ params.title }} - task - dynamic data task - create file ({{ params.task.name }}.yml)"
+  vars:
+    tmp_data:
+      params: "{{ params.task.params }}"
+      credentials: "{{ params.task.credentials }}"
+      contents: "{{ params.task.contents }}"
+  copy:
+    content: "{{ tmp_data | to_nice_yaml }}"
+    dest: "{{ params.tmp_dir }}/{{ params.task.name }}.yml"
+    mode: "666"

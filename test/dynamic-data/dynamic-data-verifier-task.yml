@@ -1,11 +1,14 @@
 - name: "{{ params.title }} - dynamic data verifier - get the content of the data file"
   delegate_to: "localhost"
+  vars:
+    tmp_base_dir: >-
+      {{
+        params.task.params.tmp_dir | default(false) | bool
+        | ternary(params.tmp_dir, params.chdir)
+      }}
   include_vars:
-    file: "{{ params.chdir }}/{{ params.task.params.file_relative_path }}"
+    file: "{{ tmp_base_dir }}/{{ params.task.params.file_relative_path }}"
     name: task_data
-
-- debug:
-    var: task_data
 
 - name: "{{ params.title }} - dynamic data verifier - verify params"
   vars:
