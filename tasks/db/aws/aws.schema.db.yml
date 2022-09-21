@@ -24,13 +24,13 @@ schemas:
         type: "list"
         elem_schema: "list_item_params"
         description: >-
-          List of records to be created/destroyed. Used when defined, instead of considering
+          List of databases to be created/destroyed. Used when defined, instead of considering
           the parameters as only one definition. Instead, what is defined at the outer parameters
           will be used as a default for each list item parameter. When not defined, will use
           the outer parameters as one single list item.
       absent:
         type: "bool"
-        description: "When true, removes the record instead of adding it."
+        description: "When true, removes the database instead of adding it."
       name:
         type: "str"
         description: >-
@@ -429,7 +429,7 @@ schemas:
         description: "When false, ignores the item; defaults to true."
       absent:
         type: "bool"
-        description: "When true, removes the record instead of adding it."
+        description: "When true, removes the database instead of adding it."
       name:
         type: "str"
         description: >-

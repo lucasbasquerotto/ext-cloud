@@ -38,6 +38,9 @@ from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.cloudflare_dns i
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.dns.godaddy_dns import (
     prepare_data as godaddy_dns_prepare_data
 )
+from ansible_collections.lrd.ext_cloud.plugins.module_utils.logging.elasticsearch.aws_elasticsearch import (
+    prepare_data as aws_elasticsearch_prepare_data
+)
 from ansible_collections.lrd.ext_cloud.plugins.module_utils.nameserver.godaddy_nameserver import (
     prepare_data as godaddy_nameserver_prepare_data
 )
@@ -95,6 +98,8 @@ def main():
     info = aws_db_prepare_data(raw_data)
   elif identifier == 'aws_dns':
     info = aws_dns_prepare_data(raw_data)
+  elif identifier == 'aws_elasticsearch':
+    info = aws_elasticsearch_prepare_data(raw_data)
   elif identifier == 'aws_node':
     info = aws_node_prepare_data(raw_data)
   elif identifier == 'aws_snapshot':
