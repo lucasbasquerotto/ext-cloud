@@ -36,6 +36,8 @@ params_keys = [
     "vpc_security_groups",
     "snapshot_hour",
     "access_policies",
+    "wait",
+    "wait_timeout",
 ]
 
 credentials_keys = [

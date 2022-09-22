@@ -12,38 +12,40 @@
   tags: ["no_print"]
 
 - name: "{{ inner_service_title }} - aws elasticsearch - action"
-  vars:
-    tmp_instance_count: >-
-      {{
-        (ext_elasticsearch_item.state == 'present')
-        | ternary(ext_elasticsearch_item.instance_count | default(1), 0)
-      }}
-    tmp_dedicated_master_instance_count: >-
-      {{
-        (ext_elasticsearch_item.state == 'present')
-        | ternary(ext_elasticsearch_item.dedicated_master_instance_count | default(1), 0)
-      }}
   lrd.ext_cloud.aws_elasticsearch:
     name: "{{ ext_elasticsearch_item.name }}"
+    state: "{{ ext_elasticsearch_item.state }}"
     access_key: "{{ ext_elasticsearch_item.access_key }}"
     secret_key: "{{ ext_elasticsearch_item.secret_key }}"
     region: "{{ ext_elasticsearch_item.region }}"
     elasticsearch_version: "{{ ext_elasticsearch_item.elasticsearch_version }}"
     instance_type: "{{ ext_elasticsearch_item.instance_type }}"
-    instance_count: "{{ tmp_instance_count }}"
-    dedicated_master: "{{ ext_elasticsearch_item.dedicated_master | default(omit) }}"
+    instance_count: "{{ ext_elasticsearch_item.instance_count | default(1) }}"
     zone_awareness: "{{ ext_elasticsearch_item.dedicated_master | default(omit) }}"
+    dedicated_master: "{{ ext_elasticsearch_item.dedicated_master | default(omit) }}"
     dedicated_master_instance_type: "{{ ext_elasticsearch_item.dedicated_master_instance_type | default(omit) }}"
-    dedicated_master_instance_count: "{{ tmp_dedicated_master_instance_count }}"
+    dedicated_master_instance_count: "{{ ext_elasticsearch_item.dedicated_master_instance_count | default(1) }}"
     ebs: "{{ ext_elasticsearch_item.ebs | default(omit) }}"
     volume_type: "{{ ext_elasticsearch_item.volume_type | default(omit) }}"
     volume_size: "{{ ext_elasticsearch_item.volume_size | default(omit) }}"
     vpc_subnets: "{{ ext_elasticsearch_item.vpc_subnets | default(omit) }}"
     vpc_security_groups: "{{ ext_elasticsearch_item.vpc_security_groups | default(omit) }}"
     snapshot_hour: "{{ ext_elasticsearch_item.snapshot_hour | default(omit) }}"
-    access_policies: "{{ ext_elasticsearch_item.access_policies | default({}) }}"
+    access_policies: "{{ ext_elasticsearch_item.access_policies | default(omit) }}"
+    wait: "{{ ext_elasticsearch_item.wait | default(omit) }}"
+    wait_timeout: "{{ ext_elasticsearch_item.wait_timeout | default(omit) }}"
   loop: "{{ ext_elasticsearch_data_wrapper.data.list }}"
   loop_control:
     loop_var: ext_elasticsearch_item
     label: "[{{ ext_elasticsearch_item.state }}] {{ ext_elasticsearch_item.name }}"
   no_log: "{{ env_no_log }}"
+  register: ext_elasticsearch_result
+
+- debug:
+    var: ext_elasticsearch_result
+
+- debug:
+    var: ext_elasticsearch_result.results[0].response.DomainStatus.Endpoint
+
+- debug:
+    var: ext_elasticsearch_result.results[0].response.DomainStatus.Endpoints.vpc

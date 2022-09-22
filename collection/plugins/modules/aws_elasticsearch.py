@@ -31,8 +31,12 @@
 # pyright: reportUnusedVariable=true
 # pyright: reportMissingImports=false
 
-from ansible.module_utils.ec2 import *
-from ansible.module_utils.basic import *
+import time
+
+from ansible.module_utils.ec2 import (
+    boto3_conn, ec2_argument_spec, get_aws_connection_info
+)
+from ansible.module_utils.basic import AnsibleModule
 
 DOCUMENTATION = """
 ---
@@ -121,6 +125,28 @@ options:
     description:
       - If encryption_at_rest_enabled is True, this identifies the encryption key to use
     required: false
+  state:
+    description:
+      - >
+        If I(state=present), the specified domain and instances will be created.
+      - >
+        If I(state=absent), they will be deleted.
+    choices: [present, absent]
+    default: present
+    type: str
+  wait:
+    description:
+      - >
+        Whether or not to wait for the operation to complete (the endpoint can be retrieved).
+    type: bool
+    default: 'yes'
+    version_added: 3.1.0
+  wait_timeout:
+    description:
+      - how long before wait gives up, in seconds.
+    default: 120
+    type: int
+    version_added: 3.1.0
 
 requirements:
   - "python >= 2.6"
@@ -142,20 +168,56 @@ EXAMPLES = '''
     ebs: True
     volume_type: "standard"
     volume_size: 10
-    vpc_subnets: "subnet-e537d64a"
-    vpc_security_groups: "sg-dd2f13cb"
+    vpc_subnets: ["subnet-e537d64a"]
+    vpc_security_groups: ["sg-dd2f13cb"]
     snapshot_hour: 13
     access_policies: "{{ lookup('file', 'files/cluster_policies.json') | from_json }}"
     profile: "myawsaccount"
 '''
 try:
   import botocore
-  import boto3
   import json
 
   HAS_BOTO = True
 except ImportError:
   HAS_BOTO = False
+
+
+def wait_for_endpoint(client, module):
+  response = dict()
+
+  if module.params['state'] == 'present':
+    response = client.describe_elasticsearch_domain(
+        DomainName=module.params.get('name')
+    )
+
+    if not module.params.get('wait'):
+      return response
+
+    timeout = module.params["wait_timeout"]
+    deadline = time.time() + timeout
+
+    while time.time() < deadline:
+      domain_status = response.get('DomainStatus') or dict()
+      endpoint = (
+          (domain_status.get('Endpoints') or dict()).get('vpc')
+          or
+          domain_status.get('Endpoint')
+      )
+
+      if endpoint:
+        return response
+
+      time.sleep(5)
+
+      response = client.describe_elasticsearch_domain(
+          DomainName=module.params.get('name')
+      )
+
+    # Timeout occured
+    module.fail_json(msg="Timeout waiting for endpoint")
+
+  return response
 
 
 def main():
@@ -178,6 +240,9 @@ def main():
       elasticsearch_version=dict(default='2.3'),
       encryption_at_rest_enabled=dict(default=False),
       encryption_at_rest_kms_key_id=dict(required=False),
+      wait=dict(type="bool", default=True),
+      wait_timeout=dict(type="int", default=120),
+      state=dict(default='present', choices=['present', 'absent']),
   ))
 
   module = AnsibleModule(
@@ -188,136 +253,161 @@ def main():
     module.fail_json(
         msg='boto3 required for this module, install via pip or your package manager')
 
-  region, ec2_url, aws_connect_params = get_aws_connection_info(module, True)
+  region, _, aws_connect_params = get_aws_connection_info(module, True)
   client = boto3_conn(module=module, conn_type='client',
                       resource='es', region=region, **aws_connect_params)
 
-  cluster_config = {
-      'InstanceType': module.params.get('instance_type'),
-      'InstanceCount': int(module.params.get('instance_count')),
-      'DedicatedMasterEnabled': module.params.get('dedicated_master'),
-      'ZoneAwarenessEnabled': module.params.get('zone_awareness')
-  }
+  if module.params['state'] == 'absent':
+    changed = False
+    response = dict()
 
-  ebs_options = {
-      'EBSEnabled': module.params.get('ebs')
-  }
+    try:
+      response = client.describe_elasticsearch_domain(
+          DomainName=module.params.get('name')
+      )
+      domain_status = response.get('DomainStatus') or dict()
+      changed = (domain_status.get('DomainName') or '') != ''
 
-  encryption_at_rest_enabled = module.params.get(
-      'encryption_at_rest_enabled') == 'True'
-  encryption_at_rest_options = {
-      'Enabled': encryption_at_rest_enabled
-  }
+      if changed:
+        keyword_args = {
+            'DomainName': module.params.get('name'),
+        }
+        response = client.delete_elasticsearch_domain(**keyword_args)
+    except botocore.exceptions.ClientError as e:
+      if e.response['Error']['Code'] != 'ResourceNotFoundException':
+        module.fail_json(msg='Error: %s %s' % (
+            str(e.response['Error']['Code']),
+            str(e.response['Error']['Message'])),
+        )
 
-  if encryption_at_rest_enabled:
-    encryption_at_rest_options['KmsKeyId'] = module.params.get(
-        'encryption_at_rest_kms_key_id')
+    module.exit_json(changed=changed, response=response)
+  else:
+    cluster_config = {
+        'InstanceType': module.params.get('instance_type'),
+        'InstanceCount': int(module.params.get('instance_count')),
+        'DedicatedMasterEnabled': module.params.get('dedicated_master'),
+        'ZoneAwarenessEnabled': module.params.get('zone_awareness')
+    }
 
-  vpc_options = {}
+    ebs_options = {
+        'EBSEnabled': module.params.get('ebs')
+    }
 
-  if module.params.get('vpc_subnets'):
-    vpc_options['SubnetIds'] = [x.strip()
-                                for x in module.params.get('vpc_subnets').split(',')]
+    encryption_at_rest_enabled = module.params.get(
+        'encryption_at_rest_enabled') == 'True'
+    encryption_at_rest_options = {
+        'Enabled': encryption_at_rest_enabled
+    }
 
-  if module.params.get('vpc_security_groups'):
-    vpc_options['SecurityGroupIds'] = [x.strip()
-                                       for x in module.params.get('vpc_security_groups').split(',')]
+    if encryption_at_rest_enabled:
+      encryption_at_rest_options['KmsKeyId'] = module.params.get(
+          'encryption_at_rest_kms_key_id')
 
-  if cluster_config['DedicatedMasterEnabled']:
-    cluster_config['DedicatedMasterType'] = module.params.get(
-        'dedicated_master_instance_type')
-    cluster_config['DedicatedMasterCount'] = module.params.get(
-        'dedicated_master_instance_count')
+    vpc_options = {}
 
-  if ebs_options['EBSEnabled']:
-    ebs_options['VolumeType'] = module.params.get('volume_type')
-    ebs_options['VolumeSize'] = module.params.get('volume_size')
+    vpc_options['SubnetIds'] = module.params.get('vpc_subnets') or []
+    vpc_options['SecurityGroupIds'] = module.params.get(
+        'vpc_security_groups'
+    ) or []
 
-  snapshot_options = {
-      'AutomatedSnapshotStartHour': module.params.get('snapshot_hour')
-  }
+    if cluster_config['DedicatedMasterEnabled']:
+      cluster_config['DedicatedMasterType'] = module.params.get(
+          'dedicated_master_instance_type')
+      cluster_config['DedicatedMasterCount'] = module.params.get(
+          'dedicated_master_instance_count')
 
-  changed = False
+    if ebs_options['EBSEnabled']:
+      ebs_options['VolumeType'] = module.params.get('volume_type')
+      ebs_options['VolumeSize'] = module.params.get('volume_size')
 
-  try:
-    pdoc = json.dumps(module.params.get('access_policies'))
-  except Exception as e:
-    module.fail_json(
-        msg='Failed to convert the policy into valid JSON: %s' % str(e))
+    snapshot_options = {
+        'AutomatedSnapshotStartHour': module.params.get('snapshot_hour')
+    }
 
-  try:
-    response = client.describe_elasticsearch_domain(
-        DomainName=module.params.get('name'))
-    status = response['DomainStatus']
+    changed = False
 
-    # Modify the provided policy to provide reliable changed detection
-    policy_dict = module.params.get('access_policies')
-    for statement in policy_dict['Statement']:
-      if 'Resource' not in statement:
-        # The ES APIs will implicitly set this
-        statement['Resource'] = '%s/*' % status['ARN']
-        pdoc = json.dumps(policy_dict)
+    pdoc = ''
 
-    if status['ElasticsearchClusterConfig'] != cluster_config:
-      changed = True
+    try:
+      pdoc = json.dumps(module.params.get('access_policies'))
+    except Exception as e:
+      module.fail_json(
+          msg='Failed to convert the policy into valid JSON: %s' % str(e))
 
-    if status['EBSOptions'] != ebs_options:
-      changed = True
+    try:
+      response = client.describe_elasticsearch_domain(
+          DomainName=module.params.get('name'))
+      status = response['DomainStatus']
 
-    if 'VPCOptions' in status:
-      if status['VPCOptions']['SubnetIds'] != vpc_options['SubnetIds']:
+      # Modify the provided policy to provide reliable changed detection
+      policy_dict = module.params.get('access_policies')
+      for statement in policy_dict['Statement']:
+        if 'Resource' not in statement:
+          # The ES APIs will implicitly set this
+          statement['Resource'] = '%s/*' % status['ARN']
+          pdoc = json.dumps(policy_dict)
+
+      if status['ElasticsearchClusterConfig'] != cluster_config:
         changed = True
-      if status['VPCOptions']['SecurityGroupIds'] != vpc_options['SecurityGroupIds']:
+
+      if status['EBSOptions'] != ebs_options:
         changed = True
 
-    if status['SnapshotOptions'] != snapshot_options:
+      if 'VPCOptions' in status:
+        if status['VPCOptions']['SubnetIds'] != vpc_options['SubnetIds']:
+          changed = True
+        if status['VPCOptions']['SecurityGroupIds'] != vpc_options['SecurityGroupIds']:
+          changed = True
+
+      if status['SnapshotOptions'] != snapshot_options:
+        changed = True
+
+      current_policy_dict = json.loads(status['AccessPolicies'])
+      if current_policy_dict != policy_dict:
+        changed = True
+
+      if changed:
+        keyword_args = {
+            'DomainName': module.params.get('name'),
+            'ElasticsearchClusterConfig': cluster_config,
+            'EBSOptions': ebs_options,
+            'SnapshotOptions': snapshot_options,
+            'AccessPolicies': pdoc,
+        }
+
+        if vpc_options['SubnetIds'] or vpc_options['SecurityGroupIds']:
+          keyword_args['VPCOptions'] = vpc_options
+
+        response = client.update_elasticsearch_domain_config(**keyword_args)
+
+    except botocore.exceptions.ClientError as e:
       changed = True
 
-    current_policy_dict = json.loads(status['AccessPolicies'])
-    if current_policy_dict != policy_dict:
-      changed = True
+      if e.response['Error']['Code'] == 'ResourceNotFoundException':
+        keyword_args = {
+            'DomainName': module.params.get('name'),
+            'ElasticsearchVersion': module.params.get('elasticsearch_version'),
+            'EncryptionAtRestOptions': encryption_at_rest_options,
+            'ElasticsearchClusterConfig': cluster_config,
+            'EBSOptions': ebs_options,
+            'SnapshotOptions': snapshot_options,
+            'AccessPolicies': pdoc,
+        }
 
-    if changed:
-      keyword_args = {
-          'DomainName': module.params.get('name'),
-          'ElasticsearchClusterConfig': cluster_config,
-          'EBSOptions': ebs_options,
-          'SnapshotOptions': snapshot_options,
-          'AccessPolicies': pdoc,
-      }
+        if vpc_options['SubnetIds'] or vpc_options['SecurityGroupIds']:
+          keyword_args['VPCOptions'] = vpc_options
 
-      if vpc_options['SubnetIds'] or vpc_options['SecurityGroupIds']:
-        keyword_args['VPCOptions'] = vpc_options
+        response = client.create_elasticsearch_domain(**keyword_args)
 
-      response = client.update_elasticsearch_domain_config(**keyword_args)
+      else:
+        module.fail_json(msg='Error: %s %s' % (
+            str(e.response['Error']['Code']),
+            str(e.response['Error']['Message'])),
+        )
 
-  except botocore.exceptions.ClientError as e:
-    changed = True
+    response = wait_for_endpoint(client, module)
 
-    if e.response['Error']['Code'] == 'ResourceNotFoundException':
-      keyword_args = {
-          'DomainName': module.params.get('name'),
-          'ElasticsearchVersion': module.params.get('elasticsearch_version'),
-          'EncryptionAtRestOptions': encryption_at_rest_options,
-          'ElasticsearchClusterConfig': cluster_config,
-          'EBSOptions': ebs_options,
-          'SnapshotOptions': snapshot_options,
-          'AccessPolicies': pdoc,
-      }
-
-      if vpc_options['SubnetIds'] or vpc_options['SecurityGroupIds']:
-        keyword_args['VPCOptions'] = vpc_options
-
-      response = client.create_elasticsearch_domain(**keyword_args)
-
-    else:
-      module.fail_json(msg='Error: %s %s' % (
-          str(e.response['Error']['Code']), str(e.response['Error']['Message'])),)
-
-  # Retrieve response from describe, as create/update differ in their response format
-  response = client.describe_elasticsearch_domain(
-      DomainName=module.params.get('name'))
-  module.exit_json(changed=changed, response=response)
+    module.exit_json(changed=changed, response=response)
 
 
 # import module snippets
