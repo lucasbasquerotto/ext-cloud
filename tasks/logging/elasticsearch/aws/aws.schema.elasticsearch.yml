@@ -68,14 +68,17 @@ schemas:
       volume_size:
         type: "int"
         description: "Integer to specify the size of an EBS volume."
+      vpc_name:
+        type: "str"
+        description: "Specifies the vpc name associated to the subnets and/or security groups for this domain."
       vpc_subnets:
         type: "list"
         elem_type: "str"
-        description: "Specifies the subnet ids for VPC endpoint."
+        description: "Specifies the subnet names for VPC endpoint. The property vpc_name must be defined."
       vpc_security_groups:
         type: "list"
         elem_type: "str"
-        description: "Specifies the security group ids for VPC endpoint."
+        description: "Specifies the security group names for VPC endpoint. The property vpc_name must be defined."
       snapshot_hour:
         type: "int"
         description: "Integer value from 0 to 23 specifying when the service takes a daily automated snapshot of the specified Elasticsearch domain."
@@ -136,14 +139,17 @@ schemas:
       volume_size:
         type: "int"
         description: "Integer to specify the size of an EBS volume."
+      vpc_name:
+        type: "str"
+        description: "Specifies the vpc name associated to the subnets and/or security groups for this domain."
       vpc_subnets:
         type: "list"
         elem_type: "str"
-        description: "Specifies the subnet ids for VPC endpoint."
+        description: "Specifies the subnet names for VPC endpoint. The property vpc_name must be defined."
       vpc_security_groups:
         type: "list"
         elem_type: "str"
-        description: "Specifies the security group ids for VPC endpoint."
+        description: "Specifies the security group names for VPC endpoint. The property vpc_name must be defined."
       snapshot_hour:
         type: "int"
         description: "Integer value from 0 to 23 specifying when the service takes a daily automated snapshot of the specified Elasticsearch domain."

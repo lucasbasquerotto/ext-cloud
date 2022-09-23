@@ -29,13 +29,13 @@
 
 - name: "{{ ext_db_item_title }} - subnet info (for subnet group)"
   vars:
-    ext_vpn_vpc_id: "{{ ext_db_vpc_info.vpcs[0].id | default('') }}"
+    ext_db_vpc_id: "{{ ext_db_vpc_info.vpcs[0].id | default('') }}"
   amazon.aws.ec2_vpc_subnet_info:
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
     region: "{{ ext_db_item.region }}"
     filters:
-      vpc-id: "{{ ext_vpn_vpc_id }}"
+      vpc-id: "{{ ext_db_vpc_id }}"
       "tag:Name": "{{ ext_db_item_subnet }}"
   loop: "{{ ext_db_item.subnets | default([]) }}"
   loop_control:
@@ -44,19 +44,19 @@
   when: >-
     (ext_db_item.state == 'present')
     and
-    (ext_vpn_vpc_id != '')
+    (ext_db_vpc_id != '')
   register: ext_db_subnet_info
   no_log: "{{ env_no_log }}"
 
 - name: "{{ ext_db_item_title }} - security groups info"
   vars:
-    ext_vpn_vpc_id: "{{ ext_db_vpc_info.vpcs[0].id | default('') }}"
+    ext_db_vpc_id: "{{ ext_db_vpc_info.vpcs[0].id | default('') }}"
   amazon.aws.ec2_group_info:
     access_key: "{{ ext_db_item.access_key }}"
     secret_key: "{{ ext_db_item.secret_key }}"
     region: "{{ ext_db_item.region }}"
     filters:
-      vpc-id: "{{ ext_vpn_vpc_id | default(omit, true) }}"
+      vpc-id: "{{ ext_db_vpc_id | default(omit, true) }}"
       group-name: "{{ ext_db_item_group }}"
   loop: "{{ ext_db_item.security_groups | default([]) }}"
   loop_control:

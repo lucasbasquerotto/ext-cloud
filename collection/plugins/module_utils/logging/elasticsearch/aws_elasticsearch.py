@@ -32,6 +32,7 @@ params_keys = [
     "ebs",
     "volume_type",
     "volume_size",
+    "vpc_name",
     "vpc_subnets",
     "vpc_security_groups",
     "snapshot_hour",

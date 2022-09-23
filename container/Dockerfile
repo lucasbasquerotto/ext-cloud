@@ -7,4 +7,5 @@ RUN yes | pip3 install \
     boto3 \
     botocore \
     linode_api4 \
-    requests
+    requests \
+ && ansible-galaxy collection install community.aws

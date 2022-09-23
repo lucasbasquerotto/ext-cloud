@@ -1,0 +1,141 @@
+- name: >-
+      {{ inner_service_title }}
+      - aws elasticsearch
+      - [{{ ext_elasticsearch_item.state }}] {{ ext_elasticsearch_item.name }}
+      - define item title
+  set_fact:
+    ext_elasticsearch_item_title: >-
+      {{ inner_service_title }}
+      - aws elasticsearch
+      - [{{ ext_elasticsearch_item.state }}] {{ ext_elasticsearch_item.name }}
+  tags: ["no_print"]
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ ext_elasticsearch_item_title }} - vpc info (for subnet)"
+  amazon.aws.ec2_vpc_net_info:
+    access_key: "{{ ext_elasticsearch_item.access_key }}"
+    secret_key: "{{ ext_elasticsearch_item.secret_key }}"
+    region: "{{ ext_elasticsearch_item.region }}"
+    filters:
+      "tag:Name": "{{ ext_elasticsearch_item.vpc_name }}"
+  when: >-
+    (ext_elasticsearch_item.state == 'present')
+    and
+    ((ext_elasticsearch_item.vpc_name | default('')) != '')
+    and
+    ((ext_elasticsearch_item.subnets | default([]) | length) > 0)
+  register: ext_elasticsearch_vpc_info
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ ext_elasticsearch_item_title }} - subnet info"
+  vars:
+    ext_elasticsearch_vpc_id: "{{ ext_elasticsearch_vpc_info.vpcs[0].id | default('') }}"
+  amazon.aws.ec2_vpc_subnet_info:
+    access_key: "{{ ext_elasticsearch_item.access_key }}"
+    secret_key: "{{ ext_elasticsearch_item.secret_key }}"
+    region: "{{ ext_elasticsearch_item.region }}"
+    filters:
+      vpc-id: "{{ ext_elasticsearch_vpc_id }}"
+      "tag:Name": "{{ ext_elasticsearch_item_subnet }}"
+  loop: "{{ ext_elasticsearch_item.subnets | default([]) }}"
+  loop_control:
+    loop_var: ext_elasticsearch_item_subnet
+    label: "{{ ext_elasticsearch_item.name }} ({{ ext_elasticsearch_item_subnet }})"
+  when: >-
+    (ext_elasticsearch_item.state == 'present')
+    and
+    (ext_elasticsearch_vpc_id != '')
+  register: ext_elasticsearch_subnet_info
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ ext_elasticsearch_item_title }} - security groups info"
+  vars:
+    ext_elasticsearch_vpc_id: "{{ ext_elasticsearch_vpc_info.vpcs[0].id | default('') }}"
+  amazon.aws.ec2_group_info:
+    access_key: "{{ ext_elasticsearch_item.access_key }}"
+    secret_key: "{{ ext_elasticsearch_item.secret_key }}"
+    region: "{{ ext_elasticsearch_item.region }}"
+    filters:
+      vpc-id: "{{ ext_elasticsearch_vpc_id | default(omit, true) }}"
+      group-name: "{{ ext_elasticsearch_item_group }}"
+  loop: "{{ ext_elasticsearch_item.security_groups | default([]) }}"
+  loop_control:
+    loop_var: ext_elasticsearch_item_group
+    label: "{{ ext_elasticsearch_item.name }} ({{ ext_elasticsearch_item_group }})"
+  when: ext_elasticsearch_item.state == 'present'
+  register: ext_elasticsearch_group_info
+  no_log: "{{ env_no_log }}"
+
+- name: "{{ ext_elasticsearch_item_title }} - main"
+  vars:
+    ext_elasticsearch_item_subnets: >-
+      {{
+        ext_elasticsearch_subnet_info.results | default([])
+        | selectattr('subnets', 'defined')
+        | sum(attribute='subnets', start=[])
+        | map(attribute='subnet_id')
+        | select()
+      }}
+    ext_elasticsearch_item_security_groups: >-
+      {{
+        ext_elasticsearch_group_info.results | default([])
+        | selectattr('security_groups', 'defined') | default([])
+        | sum(attribute='security_groups', start=[])
+        | map(attribute='group_id')
+        | select()
+      }}
+  lrd.ext_cloud.aws_elasticsearch:
+    name: "{{ ext_elasticsearch_item.name }}"
+    state: "{{ ext_elasticsearch_item.state }}"
+    access_key: "{{ ext_elasticsearch_item.access_key }}"
+    secret_key: "{{ ext_elasticsearch_item.secret_key }}"
+    region: "{{ ext_elasticsearch_item.region }}"
+    elasticsearch_version: "{{ ext_elasticsearch_item.elasticsearch_version }}"
+    instance_type: "{{ ext_elasticsearch_item.instance_type }}"
+    instance_count: "{{ ext_elasticsearch_item.instance_count | default(1) }}"
+    zone_awareness: "{{ ext_elasticsearch_item.dedicated_master | default(omit) }}"
+    dedicated_master: "{{ ext_elasticsearch_item.dedicated_master | default(omit) }}"
+    dedicated_master_instance_type: "{{ ext_elasticsearch_item.dedicated_master_instance_type | default(omit) }}"
+    dedicated_master_instance_count: "{{ ext_elasticsearch_item.dedicated_master_instance_count | default(1) }}"
+    ebs: "{{ ext_elasticsearch_item.ebs | default(omit) }}"
+    volume_type: "{{ ext_elasticsearch_item.volume_type | default(omit) }}"
+    volume_size: "{{ ext_elasticsearch_item.volume_size | default(omit) }}"
+    vpc_subnets: "{{ ext_elasticsearch_item_subnets }}"
+    vpc_security_groups: "{{ ext_elasticsearch_item_security_groups }}"
+    snapshot_hour: "{{ ext_elasticsearch_item.snapshot_hour | default(omit) }}"
+    access_policies: "{{ ext_elasticsearch_item.access_policies | default(omit) }}"
+    wait: "{{ ext_elasticsearch_item.wait | default(omit) }}"
+    wait_timeout: "{{ ext_elasticsearch_item.wait_timeout | default(omit) }}"
+  no_log: "{{ env_no_log }}"
+  register: ext_elasticsearch_result
+
+- debug:
+    var: ext_elasticsearch_result
+
+- debug:
+    var: ext_elasticsearch_result.response.DomainStatus.Endpoint
+
+- debug:
+    var: ext_elasticsearch_result.response.DomainStatus.Endpoints.vpc
+
+- name: "{{ ext_elasticsearch_item_title }} - register endpoint"
+  set_fact:
+    cloud_service_info_result:
+      endpoints: "{{ (cloud_service_info_result.endpoints | default([])) + [ext_elasticsearch_item_endpoint] }}"
+  vars:
+    ext_elasticsearch_item_address: >-
+      {{
+        ext_elasticsearch_result.response.DomainStatus.Endpoints.vpc
+        | default(ext_elasticsearch_result.response.DomainStatus.Endpoint, true)
+        | default('')
+      }}
+    ext_elasticsearch_item_endpoint:
+      name: "{{ ext_elasticsearch_item.name }}"
+      public_endpoint: "{{ ext_elasticsearch_item_address }}"
+      private_endpoint: "{{ ext_elasticsearch_item_address }}"
+  when: >-
+    (ext_elasticsearch_item.state == 'present')
+    and
+    (ext_elasticsearch_item_address != '')
+  no_log: "{{ env_no_log }}"
+  tags: ["no_print"]
